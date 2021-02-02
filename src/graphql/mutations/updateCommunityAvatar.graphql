@@ -8,7 +8,7 @@ mutation UpdateCommunityAvatar ($communityId: String!, $avatarId: String!) {
       message
     }
     community {
-      banner {
+      avatar {
         url
       }
     }

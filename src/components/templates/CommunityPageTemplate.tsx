@@ -156,9 +156,10 @@ const CommunityPageTemplate: React.FC<CommunityPageTemplateProps> = ({
       if (e.target.files) {
         const file = e.target.files[0];
 
-        const avatarId = await handleMediaUpload(file, community.slug);
+        const avatarId =
+          community && (await handleMediaUpload(file, community.slug));
 
-        const { data: bannerData } = await updateAvatar({
+        const { data: avatarData } = await updateAvatar({
           variables: {
             communityId: community._id,
             avatarId,
@@ -166,12 +167,12 @@ const CommunityPageTemplate: React.FC<CommunityPageTemplateProps> = ({
         });
 
         if (
-          bannerData &&
-          bannerData.updateCommunity &&
-          bannerData.updateCommunity.community &&
-          bannerData.updateCommunity.community.banner
+          avatarData &&
+          avatarData.updateCommunity &&
+          avatarData.updateCommunity.community &&
+          avatarData.updateCommunity.community.avatar
         ) {
-          const { url } = bannerData.updateCommunity.community.banner;
+          const { url } = avatarData.updateCommunity.community.avatar;
 
           setAvatarUrl(url);
         }
@@ -182,13 +183,19 @@ const CommunityPageTemplate: React.FC<CommunityPageTemplateProps> = ({
 
   return (
     <>
-      <Header communityTitle={community.title} communitySlug={community.slug} />
+      <Header
+        communityTitle={community ? community.title : 'Headshare'}
+        communitySlug={community && community.slug}
+      />
       <BannerContainer>
-        {(community.banner?.url || bannerUrl) && (
-          <img src={community.banner?.url || bannerUrl} alt="banner" />
+        {((community && community.banner?.url) || bannerUrl) && (
+          <img
+            src={(community && community.banner?.url) || bannerUrl}
+            alt="banner"
+          />
         )}
 
-        {isCreator && !community.banner?.url && !bannerUrl && (
+        {isCreator && community && !community.banner?.url && !bannerUrl && (
           <label htmlFor="banner-input">
             <MdAddAPhoto />
 
@@ -200,7 +207,7 @@ const CommunityPageTemplate: React.FC<CommunityPageTemplateProps> = ({
           </label>
         )}
 
-        {!isCreator && !community.banner?.url && (
+        {!isCreator && community && !community.banner?.url && (
           <label>
             <MdPhoto />
           </label>
@@ -208,11 +215,14 @@ const CommunityPageTemplate: React.FC<CommunityPageTemplateProps> = ({
 
         <AvatarHeader>
           <Avatar>
-            {(community.avatar?.url || avatarUrl) && (
-              <img src={community.avatar?.url || avatarUrl} alt="avatar" />
+            {((community && community.avatar?.url) || avatarUrl) && (
+              <img
+                src={(community && community.avatar?.url) || avatarUrl}
+                alt="avatar"
+              />
             )}
 
-            {isCreator && !community.avatar?.url && !avatarUrl && (
+            {isCreator && community && !community.avatar?.url && !avatarUrl && (
               <label htmlFor="avatar-input">
                 <MdAddAPhoto />
 
@@ -224,7 +234,7 @@ const CommunityPageTemplate: React.FC<CommunityPageTemplateProps> = ({
               </label>
             )}
 
-            {!isCreator && !community.avatar?.url && (
+            {!isCreator && community && !community.avatar?.url && (
               <label>
                 <MdPhoto />
               </label>
@@ -238,7 +248,7 @@ const CommunityPageTemplate: React.FC<CommunityPageTemplateProps> = ({
           {isMember && <Button text="Seguir" priority="secondary" />}
         </AvatarHeader>
 
-        {community.memberCount && (
+        {community && community.memberCount && (
           <MemberCount>
             <h5>{community.memberCount} membros</h5>
           </MemberCount>
@@ -252,10 +262,12 @@ const CommunityPageTemplate: React.FC<CommunityPageTemplateProps> = ({
       </ChildrenContainer>
 
       <Footer
-        author={`${community.creator.name} ${
-          community.creator.surname ? community.creator.surname : ''
+        author={`${community ? community.creator.name : 'Headshare'} ${
+          community && community.creator.surname
+            ? community.creator.surname
+            : ''
         }`}
-        communityTitle={community.title}
+        communityTitle={community ? community.title : 'Headshare'}
       />
     </>
   );

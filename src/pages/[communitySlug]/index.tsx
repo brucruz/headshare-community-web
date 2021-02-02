@@ -114,49 +114,50 @@ const Home: React.FC<HomeProps> = ({ community }) => {
   return (
     <CommunityPageTemplate
       community={community}
-      title={community.title}
-      subtitle={community.description}
+      title={community && community.title}
+      subtitle={community && community.description}
     >
       <HomeContent>
         <CategoriesPosts>
-          {community.tags.map(tag => (
-            <CategoryContent key={tag.slug}>
-              <h4>
-                <NextLink href={`/${community.slug}/${tag.slug}`} passHref>
-                  <a>{tag.title}</a>
-                </NextLink>
-              </h4>
-              <h5>
-                {tag.postCount === 1
-                  ? `${tag.postCount} post`
-                  : `${tag.postCount} posts`}
-              </h5>
+          {community &&
+            community.tags.map(tag => (
+              <CategoryContent key={tag.slug}>
+                <h4>
+                  <NextLink href={`/${community.slug}/${tag.slug}`} passHref>
+                    <a>{tag.title}</a>
+                  </NextLink>
+                </h4>
+                <h5>
+                  {tag.postCount === 1
+                    ? `${tag.postCount} post`
+                    : `${tag.postCount} posts`}
+                </h5>
 
-              <CategoryPosts>
-                {tag.posts.map(post => (
-                  <PostCard
-                    key={post.slug}
-                    title={post.title || 'Draft'}
-                    liked
-                    comments={2}
-                    exclusive={post.exclusive}
-                    thumbnail={post.mainMedia?.thumbnailUrl}
-                    likes={post.likes || 0}
-                    href={`/${community.slug}/post/${post.slug}`}
-                  />
-                ))}
-                {tag.posts.length > 5 && (
-                  <SeeMoreButton>
-                    <MdKeyboardArrowRight />
-                    <h4>ver mais</h4>
-                  </SeeMoreButton>
-                )}
-              </CategoryPosts>
-            </CategoryContent>
-          ))}
+                <CategoryPosts>
+                  {tag.posts.map(post => (
+                    <PostCard
+                      key={post.slug}
+                      title={post.title || 'Draft'}
+                      liked
+                      comments={2}
+                      exclusive={post.exclusive}
+                      thumbnail={post.mainMedia?.thumbnailUrl}
+                      likes={post.likes || 0}
+                      href={`/${community.slug}/post/${post.slug}`}
+                    />
+                  ))}
+                  {tag.posts.length > 5 && (
+                    <SeeMoreButton>
+                      <MdKeyboardArrowRight />
+                      <h4>ver mais</h4>
+                    </SeeMoreButton>
+                  )}
+                </CategoryPosts>
+              </CategoryContent>
+            ))}
         </CategoriesPosts>
 
-        <NextLink href={`/${community.slug}/categories`}>
+        <NextLink href={`/${community && community.slug}/categories`}>
           <CategoriesDetailContainer>
             <Button
               priority="tertiary"
