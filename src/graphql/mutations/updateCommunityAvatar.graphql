@@ -1,0 +1,16 @@
+mutation UpdateCommunityAvatar ($communityId: String!, $avatarId: String!) {
+  updateCommunity(id: $communityId, updateData: {
+    avatar: $avatarId
+  })
+  {
+    errors {
+      field
+      message
+    }
+    community {
+      banner {
+        url
+      }
+    }
+  }
+}

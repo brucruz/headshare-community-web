@@ -1,0 +1,23 @@
+query CommunityTagPosts ($data: FindByTagsInput!) {
+  findTagBySlugs(data: $data) {
+    errors {
+      field
+      message
+    }
+    tag {
+      title
+      description
+      postCount
+      slug
+      posts(limit: 5) {
+        title
+        description
+        likes
+        slug
+      }
+      community {
+        ...CommonCommunity
+      }
+    }
+  }
+}

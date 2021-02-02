@@ -1,0 +1,21 @@
+mutation UpdatePostMainMediaThumbnail(
+  $communityId: String!
+  $postId: String!
+  $mainMediaData: UpdateMediaInput!
+) {
+  updatePostMainMedia(
+    communityId: $communityId
+    postId: $postId
+    mainMediaData: $mainMediaData
+  ) {
+    errors {
+      field
+      message
+    }
+    post {
+      mainMedia {
+        thumbnailUrl
+      }
+    }
+  }
+}

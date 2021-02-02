@@ -1,0 +1,15 @@
+query getCommunityTagsData($slug: String!) {
+  community(slug: $slug) {
+    errors {
+      field
+      message
+    }
+    community {
+      ...CommonCommunity
+      tags (limit: 5){
+        title
+        slug
+      }
+    }
+  }
+}

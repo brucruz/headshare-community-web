@@ -1,0 +1,23 @@
+mutation CreatePost($communitySlug: String!, $post: CreatePostInput!) {
+  createPost(communitySlug: $communitySlug, data: $post) {
+    errors {
+      field
+      message
+    }
+		post {
+      _id
+      title
+      slug
+      description
+      status
+      content
+      mainMedia {
+        url
+      }
+      exclusive
+      tags {
+        title
+      }
+    }
+  }
+}

@@ -1,0 +1,34 @@
+query PostBySlugs ($data: FindBySlugsInput!) {
+  findPostBySlugs(data: $data) {
+    errors {
+      field
+      message
+    }
+    post {
+      title
+      slug
+      description
+      content
+      exclusive
+      mainMedia {
+        format
+        url
+        thumbnailUrl
+      }
+      creator {
+        ...CreatorName
+      }
+      tags {
+        title
+      }
+      community {
+        title
+        slug
+        creator {
+          ...CreatorName
+        }
+      }
+      createdAt
+    }
+  }
+}

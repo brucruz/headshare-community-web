@@ -1,0 +1,11 @@
+query getCommunityBasicData($slug: String!) {
+  community(slug: $slug) {
+    errors {
+      field
+      message
+    }
+    community {
+      ...CommonCommunity
+    }
+  }
+}

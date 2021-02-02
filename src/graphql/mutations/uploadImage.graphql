@@ -1,0 +1,14 @@
+mutation UploadImage($communitySlug: String!, $imageData: UploadImageInput!) {
+  uploadImage(communitySlug: $communitySlug, imageData: $imageData) {
+    errors {
+      field
+      message
+    }
+    media {
+      _id
+      uploadLink
+      url
+      thumbnailUrl
+    }
+  }
+}

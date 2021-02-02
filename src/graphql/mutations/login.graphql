@@ -1,0 +1,13 @@
+mutation Login($loginData: LoginUserInput!) {
+  login(loginData: $loginData) {
+    errors {
+      field
+      message
+    }
+    data {
+      user {
+        ...CommonUser
+      }
+    }
+  }
+}

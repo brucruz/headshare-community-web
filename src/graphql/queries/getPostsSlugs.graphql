@@ -1,0 +1,14 @@
+query GetPostsSlugs {
+  allPosts {
+    errors {
+      field
+      message
+    }
+    posts {
+      slug
+      community {
+        slug
+      }
+    }
+  }
+}

@@ -1,0 +1,17 @@
+query CommunityPageTemplateMe {
+  me {
+    errors {
+      field
+      message
+    }
+    user {
+      ...CommonUser
+      roles {
+        community {
+          slug
+        }
+        role
+      }
+    }
+  }
+}

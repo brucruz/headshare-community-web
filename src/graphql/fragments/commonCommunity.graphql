@@ -1,0 +1,12 @@
+fragment CommonCommunity on Community {
+  _id
+  logo
+  title
+  description
+  slug
+  creator {
+    ...CreatorName
+  }
+  followersCount
+  membersCount
+}

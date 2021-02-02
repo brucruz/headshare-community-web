@@ -1,0 +1,4 @@
+fragment CreatorName on User {
+  name
+  surname
+}

@@ -1,0 +1,41 @@
+query getCommunityHomeData($slug: String!, $postsStatus: PostStatus!) {
+  community(slug: $slug) {
+    errors {
+      field
+      message
+    }
+    community {
+      _id
+      logo
+      title
+      description
+      slug
+      banner {
+        url
+      }
+      avatar {
+        url
+      }
+      tags (limit: 3) {
+        title
+        slug
+        postCount (postOptions: { status: $postsStatus })
+        posts (limit: 10, postOptions: { status: $postsStatus }) {
+          title
+          slug
+          likes
+          exclusive
+          mainMedia {
+            thumbnailUrl
+          }
+        }
+      }
+      creator {
+        name
+        surname
+      }
+      followersCount
+      membersCount
+    }
+  }
+}

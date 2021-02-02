@@ -1,0 +1,16 @@
+query FindCommunityTagsByUserInput($communitySlug: String!, $input: String!) {
+  findTagsByInput(data: {
+    communitySlug: $communitySlug
+    userInput: $input
+  })
+  {
+    errors {
+      field
+      message
+    }
+    tags {
+      _id
+      title
+    }
+  }
+}

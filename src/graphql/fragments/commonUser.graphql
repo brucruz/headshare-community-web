@@ -1,0 +1,7 @@
+fragment CommonUser on User {
+  _id
+  name
+  surname
+  email
+  avatar
+}

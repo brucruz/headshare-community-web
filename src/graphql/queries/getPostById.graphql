@@ -1,0 +1,28 @@
+query GetPostById($id: String!) {
+  findPostById(id: $id) {
+    errors {
+      field
+      message
+    }
+    post {
+      _id
+      title
+      formattedTitle
+      slug
+      description
+      status
+      mainMedia {
+        _id
+        url
+        thumbnailUrl
+        format
+      }
+      content
+      exclusive
+      tags {
+        _id
+        title
+      }
+    }
+  }
+}

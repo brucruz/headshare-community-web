@@ -1,0 +1,21 @@
+mutation UploadVideo($communitySlug: String!, $videoData: UploadMediaInput!) {
+  uploadVideo (communitySlug: $communitySlug, videoData: $videoData) {
+    errors {
+      field
+      message
+    }
+    media {
+      _id
+      url
+      thumbnailUrl
+      file {
+        name
+        size
+        extension
+        type
+      }
+      uploadLink
+      format
+    }
+  }
+}

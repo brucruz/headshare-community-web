@@ -1,0 +1,23 @@
+mutation UpdatePost($communitySlug: String!, $postId: String!, $post: UpdatePostInput!) {
+  updatePost(communitySlug: $communitySlug, id: $postId, updateData: $post) {
+    errors {
+      field
+      message
+    }
+		post {
+      _id
+      title
+      formattedTitle
+      slug
+      description
+      status
+      mainMedia {
+        _id
+        url
+        thumbnailUrl
+      }
+      content
+      exclusive
+    }
+  }
+}
