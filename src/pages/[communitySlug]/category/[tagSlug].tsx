@@ -13,6 +13,9 @@ import {
   CommunityTagPostsQueryVariables,
   CommonCommunityFragment,
   Post,
+  Maybe,
+  Media,
+  MediaFormat,
 } from '../../../generated/graphql';
 import { initializeApollo } from '../../../lib/apolloClient';
 import {
@@ -29,19 +32,32 @@ interface TagPostsProps {
     posts: Array<
       {
         __typename?: 'Post';
-      } & Pick<Post, 'title' | 'description' | 'likes' | 'slug'>
+      } & Pick<
+        Post,
+        'title' | 'description' | 'likes' | 'slug' | 'exclusive'
+      > & {
+          mainMedia?: Maybe<
+            { __typename?: 'Media' } & Pick<
+              Media,
+              'url' | 'thumbnailUrl' | 'format'
+            >
+          >;
+        }
     >;
     community: {
       __typename?: 'Community';
-    } & CommonCommunityFragment;
+    } & CommonCommunityFragment & {
+        banner?: Maybe<{ __typename?: 'Media' } & Pick<Media, 'url'>>;
+        avatar?: Maybe<{ __typename?: 'Media' } & Pick<Media, 'url'>>;
+      };
   };
 }
 
 interface TagPostProps {
   title: string;
-  image?: string;
+  image?: string | null;
   description?: string | null;
-  exclusive?: boolean;
+  exclusive?: boolean | null;
   liked?: boolean;
   likes?: number;
   comments?: number;
@@ -108,11 +124,16 @@ const TagPosts: React.FC<TagPostsProps> = ({ tag }) => {
             key={post.slug}
             title={post.title || 'Título'}
             description={post.description}
-            exclusive={false}
+            exclusive={post.exclusive}
             liked
             likes={0}
             comments={10}
             href={`/${tag.community.slug}/post/${post.slug}`}
+            image={
+              post.mainMedia && post.mainMedia.format === MediaFormat.Video
+                ? post.mainMedia.thumbnailUrl
+                : post.mainMedia?.url
+            }
           />
         ))}
       </TagPostsContainer>
@@ -141,8 +162,6 @@ export const getStaticProps: GetStaticProps<
 
   if (context.params) {
     const { communitySlug, tagSlug } = context.params;
-
-    console.log(context.params);
 
     try {
       const { data } = await apolloClient.query<

@@ -7,16 +7,28 @@ query CommunityTagPosts ($data: FindByTagsInput!) {
     tag {
       title
       description
-      postCount
+      postCount(postOptions: { status: PUBLISHED })
       slug
-      posts(limit: 5) {
+      posts(limit: 5, postOptions: { status: PUBLISHED }) {
         title
         description
+        exclusive
         likes
         slug
+        mainMedia {
+          url
+          thumbnailUrl
+          format
+        }
       }
       community {
         ...CommonCommunity
+        banner {
+          url
+        }
+        avatar {
+          url
+        }
       }
     }
   }

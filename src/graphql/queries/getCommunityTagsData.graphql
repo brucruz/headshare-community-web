@@ -10,6 +10,12 @@ query getCommunityTagsData($slug: String!) {
         title
         slug
       }
+      banner {
+        url
+      }
+      avatar {
+        url
+      }
     }
   }
 }

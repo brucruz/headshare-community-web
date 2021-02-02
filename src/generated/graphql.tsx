@@ -1061,9 +1061,20 @@ export type CommunityTagPostsQuery = (
       & Pick<Tag, 'title' | 'description' | 'postCount' | 'slug'>
       & { posts: Array<(
         { __typename?: 'Post' }
-        & Pick<Post, 'title' | 'description' | 'likes' | 'slug'>
+        & Pick<Post, 'title' | 'description' | 'exclusive' | 'likes' | 'slug'>
+        & { mainMedia?: Maybe<(
+          { __typename?: 'Media' }
+          & Pick<Media, 'url' | 'thumbnailUrl' | 'format'>
+        )> }
       )>, community: (
         { __typename?: 'Community' }
+        & { banner?: Maybe<(
+          { __typename?: 'Media' }
+          & Pick<Media, 'url'>
+        )>, avatar?: Maybe<(
+          { __typename?: 'Media' }
+          & Pick<Media, 'url'>
+        )> }
         & CommonCommunityFragment
       ) }
     )> }
@@ -1165,6 +1176,12 @@ export type GetCommunityTagsDataQuery = (
       & { tags: Array<(
         { __typename?: 'Tag' }
         & Pick<Tag, 'title' | 'slug'>
+      )>, banner?: Maybe<(
+        { __typename?: 'Media' }
+        & Pick<Media, 'url'>
+      )>, avatar?: Maybe<(
+        { __typename?: 'Media' }
+        & Pick<Media, 'url'>
       )> }
       & CommonCommunityFragment
     )> }
@@ -1877,16 +1894,28 @@ export const CommunityTagPostsDocument = gql`
     tag {
       title
       description
-      postCount
+      postCount(postOptions: {status: PUBLISHED})
       slug
-      posts(limit: 5) {
+      posts(limit: 5, postOptions: {status: PUBLISHED}) {
         title
         description
+        exclusive
         likes
         slug
+        mainMedia {
+          url
+          thumbnailUrl
+          format
+        }
       }
       community {
         ...CommonCommunity
+        banner {
+          url
+        }
+        avatar {
+          url
+        }
       }
     }
   }
@@ -2079,6 +2108,12 @@ export const GetCommunityTagsDataDocument = gql`
       tags(limit: 5) {
         title
         slug
+      }
+      banner {
+        url
+      }
+      avatar {
+        url
       }
     }
   }

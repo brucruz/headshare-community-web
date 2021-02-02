@@ -1,7 +1,7 @@
 import styled, { css } from 'styled-components';
 
 export const PostCountContainer = styled.div`
-  margin: 0 auto;
+  margin: 0 auto 0 12px;
   margin-top: 10px;
   width: fit-content;
 
@@ -33,12 +33,18 @@ export const ImageContainer = styled.div`
   width: 100%;
   height: 260px;
   background-color: var(--gray-background);
+
+  img {
+    width: 100%;
+    height: 260px;
+    object-fit: cover;
+  }
 `;
 
 export const ImagePlaceholder = styled.div;
 
 interface CardContentProps {
-  exclusive?: boolean;
+  exclusive?: boolean | null;
 }
 
 export const CardContent = styled.div<CardContentProps>`

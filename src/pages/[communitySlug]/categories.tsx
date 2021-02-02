@@ -11,6 +11,8 @@ import {
   GetCommunityTagsDataQuery,
   GetCommunityTagsDataQueryVariables,
   CommonCommunityFragment,
+  Maybe,
+  Media,
 } from '../../generated/graphql';
 import { HomeContent } from '../../styles/pages/Home';
 import {
@@ -29,14 +31,16 @@ interface CategoriesProps {
         __typename?: 'Tag';
       } & Pick<Tag, 'title' | 'slug'>
     >;
+    banner?: Maybe<{ __typename?: 'Media' } & Pick<Media, 'url'>>;
+    avatar?: Maybe<{ __typename?: 'Media' } & Pick<Media, 'url'>>;
   } & CommonCommunityFragment;
 }
 
 const Categories: React.FC<CategoriesProps> = ({ community }) => (
   <CommunityPageTemplate
     community={community}
-    title={community.title}
-    subtitle={community.description}
+    title={community && community.title}
+    subtitle={community && community.description}
     backButton
   >
     <HomeContent>
@@ -44,18 +48,21 @@ const Categories: React.FC<CategoriesProps> = ({ community }) => (
         <h4>Categorias</h4>
 
         <CategoriesButtons>
-          {community.tags.map(tag => (
-            <NextLink href={`/${community.slug}/${tag.slug}`}>
-              <CategoryButton>
-                <p>{tag.title}</p>
-                <Image
-                  src="https://headshare.s3.amazonaws.com/assets/components/arrow_right.png"
-                  height={24}
-                  width={24}
-                />
-              </CategoryButton>
-            </NextLink>
-          ))}
+          {community &&
+            community.tags.map(tag => (
+              <NextLink
+                href={`/${community && community.slug}/category/${tag.slug}`}
+              >
+                <CategoryButton>
+                  <p>{tag.title}</p>
+                  <Image
+                    src="https://headshare.s3.amazonaws.com/assets/arrow_right.png"
+                    height={24}
+                    width={24}
+                  />
+                </CategoryButton>
+              </NextLink>
+            ))}
         </CategoriesButtons>
       </CategoriesContainer>
     </HomeContent>

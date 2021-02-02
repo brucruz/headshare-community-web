@@ -32,4 +32,12 @@ export const CategoryButton = styled.li`
   & + li {
     margin-top: 4px;
   }
+
+  &:hover {
+    background-color: var(--card-background);
+
+    p {
+      font-weight: 600;
+    }
+  }
 `;
