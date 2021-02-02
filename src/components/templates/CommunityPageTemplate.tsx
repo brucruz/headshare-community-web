@@ -34,10 +34,10 @@ interface CommunityPageTemplateProps {
     slug: string;
     avatar?: {
       url: string;
-    };
+    } | null;
     banner?: {
       url: string;
-    };
+    } | null;
     creator: {
       name: string;
       surname?: string | null;
@@ -94,7 +94,7 @@ const CommunityPageTemplate: React.FC<CommunityPageTemplateProps> = ({
           imageData: {
             format: MediaFormat.Image,
             file: {
-              name: filename,
+              name: filename.toString(),
               type: file.type,
             },
           },

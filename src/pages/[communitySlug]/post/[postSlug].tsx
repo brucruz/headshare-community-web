@@ -1,5 +1,6 @@
 /* eslint-disable react/no-danger */
 import { format, parseISO } from 'date-fns';
+import { Maybe } from 'graphql/jsutils/Maybe';
 import { GetStaticPaths, GetStaticProps } from 'next';
 import { useRouter } from 'next/router';
 import { useMemo } from 'react';
@@ -35,9 +36,8 @@ interface PostContentProps {
     Post,
     'title' | 'slug' | 'description' | 'content' | 'exclusive' | 'createdAt'
   > & {
-    mainMedia?: { __typename?: 'Media' } & Pick<
-      Media,
-      'format' | 'url' | 'thumbnailUrl'
+    mainMedia?: Maybe<
+      { __typename?: 'Media' } & Pick<Media, 'format' | 'url' | 'thumbnailUrl'>
     >;
     creator: {
       __typename?: 'User';

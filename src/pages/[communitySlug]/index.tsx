@@ -1,3 +1,4 @@
+import { Maybe } from 'graphql/jsutils/Maybe';
 import { GetStaticPaths, GetStaticProps } from 'next';
 import NextLink from 'next/link';
 import { useRouter } from 'next/router';
@@ -44,8 +45,8 @@ interface HomeProps {
     | 'followersCount'
     | 'membersCount'
   > & {
-    banner?: { __typename?: 'Media' } & Pick<Media, 'url'>;
-    avatar?: { __typename?: 'Media' } & Pick<Media, 'url'>;
+    banner?: Maybe<{ __typename?: 'Media' } & Pick<Media, 'url'>>;
+    avatar?: Maybe<{ __typename?: 'Media' } & Pick<Media, 'url'>>;
     tags: Array<
       { __typename?: 'Tag' } & Pick<Tag, 'title' | 'slug' | 'postCount'> & {
           posts: Array<
@@ -53,9 +54,8 @@ interface HomeProps {
               Post,
               'title' | 'slug' | 'likes' | 'exclusive'
             > & {
-                mainMedia?: { __typename?: 'Media' } & Pick<
-                  Media,
-                  'thumbnailUrl'
+                mainMedia?: Maybe<
+                  { __typename?: 'Media' } & Pick<Media, 'thumbnailUrl'>
                 >;
               }
           >;
@@ -67,7 +67,7 @@ interface HomeProps {
 
 interface PostCardProps {
   title: string;
-  thumbnail: string;
+  thumbnail?: string | null;
   exclusive?: boolean | null;
   liked?: boolean;
   likes: number;

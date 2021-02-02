@@ -78,7 +78,7 @@ export const CategoryPostImagePlaceholder = styled.div`
 `;
 
 interface PostContentProps {
-  exclusive: boolean;
+  exclusive?: boolean | null;
 }
 
 export const PostContent = styled.div<PostContentProps>`

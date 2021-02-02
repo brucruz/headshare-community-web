@@ -15,9 +15,14 @@ mutation UpdatePost($communitySlug: String!, $postId: String!, $post: UpdatePost
         _id
         url
         thumbnailUrl
+        format
       }
       content
       exclusive
+      tags {
+        _id
+        title
+      }
     }
   }
 }

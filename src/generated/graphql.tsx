@@ -1,9 +1,14 @@
 import { gql } from '@apollo/client';
 import * as Apollo from '@apollo/client';
+
 export type Maybe<T> = T | null;
-export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
-export type MakeOptional<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]?: Maybe<T[SubKey]> };
-export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]: Maybe<T[SubKey]> };
+export type Exact<T extends { [key: string]: unknown }> = {
+  [K in keyof T]: T[K];
+};
+export type MakeOptional<T, K extends keyof T> = Omit<T, K> &
+  { [SubKey in K]?: Maybe<T[SubKey]> };
+export type MakeMaybe<T, K extends keyof T> = Omit<T, K> &
+  { [SubKey in K]: Maybe<T[SubKey]> };
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
   ID: string;
@@ -52,63 +57,51 @@ export type Query = {
   media: MediaResponse;
 };
 
-
 export type QueryCommunityArgs = {
   slug: Scalars['String'];
 };
-
 
 export type QueryPostsArgs = {
   cursor?: Maybe<Scalars['String']>;
   limit: Scalars['Int'];
 };
 
-
 export type QueryFindPostByIdArgs = {
   id: Scalars['String'];
 };
-
 
 export type QueryFindPostBySlugsArgs = {
   data: FindBySlugsInput;
 };
 
-
 export type QueryFindUserByEmailArgs = {
   email: Scalars['String'];
 };
-
 
 export type QueryTagArgs = {
   id: Scalars['String'];
 };
 
-
 export type QueryFindTagBySlugArgs = {
   slug: Scalars['String'];
 };
-
 
 export type QueryFindTagBySlugsArgs = {
   data: FindByTagsInput;
 };
 
-
 export type QueryFindTagsByInputArgs = {
   data: FindByUserInput;
 };
-
 
 export type QueryRolesArgs = {
   userId?: Maybe<Scalars['String']>;
   communitySlug?: Maybe<Scalars['String']>;
 };
 
-
 export type QueryRoleArgs = {
-  id: Scalars['String'];
+  id: CreateRoleInput;
 };
-
 
 export type QueryMediaArgs = {
   id: Scalars['String'];
@@ -159,13 +152,11 @@ export type Community = {
   updatedAt?: Maybe<Scalars['DateTime']>;
 };
 
-
 /** The Communities model */
 export type CommunityTagsArgs = {
   cursor?: Maybe<Scalars['String']>;
   limit: Scalars['Int'];
 };
-
 
 /** Media model */
 export type Media = {
@@ -201,7 +192,7 @@ export enum MediaFormat {
   /** Image only content */
   Image = 'IMAGE',
   /** Audio only content */
-  Audio = 'AUDIO'
+  Audio = 'AUDIO',
 }
 
 /** Media file model */
@@ -216,7 +207,6 @@ export type File = {
   /** Media file mime type */
   type?: Maybe<Scalars['String']>;
 };
-
 
 /** The Posts model */
 export type Post = {
@@ -260,7 +250,7 @@ export enum PostStatus {
   /** A post while is being written and visible only its creator */
   Draft = 'DRAFT',
   /** A post scheduled to be submited in a future date and hour */
-  Scheduled = 'SCHEDULED'
+  Scheduled = 'SCHEDULED',
 }
 
 /** The Users model */
@@ -310,7 +300,7 @@ export enum RoleOptions {
   /** A user who is a paying member of a community, and have access to all its restricted content */
   Member = 'MEMBER',
   /** A user who is a free member of a community and have chosen to share its data with the community, to be notified of new unrestricted content */
-  Follower = 'FOLLOWER'
+  Follower = 'FOLLOWER',
 }
 
 /** The Tags model */
@@ -337,14 +327,12 @@ export type Tag = {
   updatedAt?: Maybe<Scalars['DateTime']>;
 };
 
-
 /** The Tags model */
 export type TagPostsArgs = {
   postOptions?: Maybe<PostOptionsInput>;
   cursor?: Maybe<Scalars['String']>;
   limit: Scalars['Int'];
 };
-
 
 /** The Tags model */
 export type TagPostCountArgs = {
@@ -431,6 +419,15 @@ export type RoleResponse = {
   role?: Maybe<Role>;
 };
 
+export type CreateRoleInput = {
+  /** User role in community */
+  role: RoleOptions;
+  /** User of which the role is about */
+  user: Scalars['ObjectId'];
+  /** Community of which the role is about */
+  community: Scalars['ObjectId'];
+};
+
 export type MediasResponse = {
   __typename?: 'MediasResponse';
   errors?: Maybe<Array<ErrorResponse>>;
@@ -465,23 +462,19 @@ export type Mutation = {
   uploadImage: MediaResponse;
 };
 
-
 export type MutationCreateCommunityArgs = {
   communityData: CreateCommunityInput;
 };
-
 
 export type MutationUpdateCommunityArgs = {
   updateData: UpdateCommunityInput;
   id: Scalars['String'];
 };
 
-
 export type MutationCreatePostArgs = {
   data: CreatePostInput;
   communitySlug: Scalars['String'];
 };
-
 
 export type MutationUpdatePostArgs = {
   updateData: UpdatePostInput;
@@ -489,35 +482,29 @@ export type MutationUpdatePostArgs = {
   communitySlug: Scalars['String'];
 };
 
-
 export type MutationUpdatePostMainMediaArgs = {
   mainMediaData: UpdateMediaInput;
   postId: Scalars['String'];
   communityId: Scalars['String'];
 };
 
-
 export type MutationRegisterArgs = {
   data: RegisterUserInput;
 };
 
-
 export type MutationLoginArgs = {
   loginData: LoginUserInput;
 };
-
 
 export type MutationUpdateUserArgs = {
   updateData: EditMeInput;
   _id: Scalars['ObjectId'];
 };
 
-
 export type MutationCreateTagArgs = {
   data: CreateTagInput;
   communitySlug: Scalars['String'];
 };
-
 
 export type MutationUpdateTagArgs = {
   updateData: UpdateTagInput;
@@ -525,23 +512,19 @@ export type MutationUpdateTagArgs = {
   communitySlug: Scalars['String'];
 };
 
-
 export type MutationCreateRoleArgs = {
   data: CreateRoleInput;
 };
-
 
 export type MutationUpdateRoleArgs = {
   updateData: UpdateRoleInput;
   id: Scalars['String'];
 };
 
-
 export type MutationUploadVideoArgs = {
   videoData: UploadMediaInput;
   communitySlug: Scalars['String'];
 };
-
 
 export type MutationUploadImageArgs = {
   imageData: UploadImageInput;
@@ -700,15 +683,6 @@ export type UpdateTagInput = {
   description?: Maybe<Scalars['String']>;
 };
 
-export type CreateRoleInput = {
-  /** User role in community */
-  role: RoleOptions;
-  /** User of which the role is about */
-  user: Scalars['ObjectId'];
-  /** Community of which the role is about */
-  community: Scalars['ObjectId'];
-};
-
 export type UpdateRoleInput = {
   /** User role in community */
   role?: Maybe<RoleOptions>;
@@ -740,169 +714,175 @@ export type UploadImageInput = {
   file: FileInput;
 };
 
-export type CommonCommunityFragment = (
-  { __typename?: 'Community' }
-  & Pick<Community, '_id' | 'logo' | 'title' | 'description' | 'slug' | 'followersCount' | 'membersCount'>
-  & { creator: (
-    { __typename?: 'User' }
-    & CreatorNameFragment
-  ) }
-);
+export type CommonCommunityFragment = { __typename?: 'Community' } & Pick<
+  Community,
+  | '_id'
+  | 'logo'
+  | 'title'
+  | 'description'
+  | 'slug'
+  | 'followersCount'
+  | 'membersCount'
+> & { creator: { __typename?: 'User' } & CreatorNameFragment };
 
-export type CommonUserFragment = (
-  { __typename?: 'User' }
-  & Pick<User, '_id' | 'name' | 'surname' | 'email' | 'avatar'>
-);
+export type CommonUserFragment = { __typename?: 'User' } & Pick<
+  User,
+  '_id' | 'name' | 'surname' | 'email' | 'avatar'
+>;
 
-export type CreatorNameFragment = (
-  { __typename?: 'User' }
-  & Pick<User, 'name' | 'surname'>
-);
+export type CreatorNameFragment = { __typename?: 'User' } & Pick<
+  User,
+  'name' | 'surname'
+>;
 
 export type CreateCommunityTagMutationVariables = Exact<{
   communitySlug: Scalars['String'];
   tagData: CreateTagInput;
 }>;
 
-
-export type CreateCommunityTagMutation = (
-  { __typename?: 'Mutation' }
-  & { createTag: (
-    { __typename?: 'TagResponse' }
-    & { errors?: Maybe<Array<(
-      { __typename?: 'ErrorResponse' }
-      & Pick<ErrorResponse, 'field' | 'message'>
-    )>>, tag?: Maybe<(
-      { __typename?: 'Tag' }
-      & Pick<Tag, '_id' | 'title'>
-    )> }
-  ) }
-);
+export type CreateCommunityTagMutation = { __typename?: 'Mutation' } & {
+  createTag: { __typename?: 'TagResponse' } & {
+    errors?: Maybe<
+      Array<
+        { __typename?: 'ErrorResponse' } & Pick<
+          ErrorResponse,
+          'field' | 'message'
+        >
+      >
+    >;
+    tag?: Maybe<{ __typename?: 'Tag' } & Pick<Tag, '_id' | 'title'>>;
+  };
+};
 
 export type CreatePostMutationVariables = Exact<{
   communitySlug: Scalars['String'];
   post: CreatePostInput;
 }>;
 
-
-export type CreatePostMutation = (
-  { __typename?: 'Mutation' }
-  & { createPost: (
-    { __typename?: 'PostResponse' }
-    & { errors?: Maybe<Array<(
-      { __typename?: 'ErrorResponse' }
-      & Pick<ErrorResponse, 'field' | 'message'>
-    )>>, post?: Maybe<(
-      { __typename?: 'Post' }
-      & Pick<Post, '_id' | 'title' | 'slug' | 'description' | 'status' | 'content' | 'exclusive'>
-      & { mainMedia?: Maybe<(
-        { __typename?: 'Media' }
-        & Pick<Media, 'url'>
-      )>, tags: Array<(
-        { __typename?: 'Tag' }
-        & Pick<Tag, 'title'>
-      )> }
-    )> }
-  ) }
-);
+export type CreatePostMutation = { __typename?: 'Mutation' } & {
+  createPost: { __typename?: 'PostResponse' } & {
+    errors?: Maybe<
+      Array<
+        { __typename?: 'ErrorResponse' } & Pick<
+          ErrorResponse,
+          'field' | 'message'
+        >
+      >
+    >;
+    post?: Maybe<
+      { __typename?: 'Post' } & Pick<
+        Post,
+        | '_id'
+        | 'title'
+        | 'slug'
+        | 'description'
+        | 'status'
+        | 'content'
+        | 'exclusive'
+      > & {
+          mainMedia?: Maybe<{ __typename?: 'Media' } & Pick<Media, 'url'>>;
+          tags: Array<{ __typename?: 'Tag' } & Pick<Tag, 'title'>>;
+        }
+    >;
+  };
+};
 
 export type LoginMutationVariables = Exact<{
   loginData: LoginUserInput;
 }>;
 
+export type LoginMutation = { __typename?: 'Mutation' } & {
+  login: { __typename?: 'LoggedUserResponse' } & {
+    errors?: Maybe<
+      Array<
+        { __typename?: 'ErrorResponse' } & Pick<
+          ErrorResponse,
+          'field' | 'message'
+        >
+      >
+    >;
+    data?: Maybe<
+      { __typename?: 'LoggedUser' } & {
+        user: { __typename?: 'User' } & CommonUserFragment;
+      }
+    >;
+  };
+};
 
-export type LoginMutation = (
-  { __typename?: 'Mutation' }
-  & { login: (
-    { __typename?: 'LoggedUserResponse' }
-    & { errors?: Maybe<Array<(
-      { __typename?: 'ErrorResponse' }
-      & Pick<ErrorResponse, 'field' | 'message'>
-    )>>, data?: Maybe<(
-      { __typename?: 'LoggedUser' }
-      & { user: (
-        { __typename?: 'User' }
-        & CommonUserFragment
-      ) }
-    )> }
-  ) }
-);
+export type LogoutMutationVariables = Exact<{ [key: string]: never }>;
 
-export type LogoutMutationVariables = Exact<{ [key: string]: never; }>;
-
-
-export type LogoutMutation = (
-  { __typename?: 'Mutation' }
-  & Pick<Mutation, 'logout'>
-);
+export type LogoutMutation = { __typename?: 'Mutation' } & Pick<
+  Mutation,
+  'logout'
+>;
 
 export type RegisterMutationVariables = Exact<{
   data: RegisterUserInput;
 }>;
 
-
-export type RegisterMutation = (
-  { __typename?: 'Mutation' }
-  & { register: (
-    { __typename?: 'LoggedUserResponse' }
-    & { errors?: Maybe<Array<(
-      { __typename?: 'ErrorResponse' }
-      & Pick<ErrorResponse, 'field' | 'message'>
-    )>>, data?: Maybe<(
-      { __typename?: 'LoggedUser' }
-      & { user: (
-        { __typename?: 'User' }
-        & CommonUserFragment
-      ) }
-    )> }
-  ) }
-);
+export type RegisterMutation = { __typename?: 'Mutation' } & {
+  register: { __typename?: 'LoggedUserResponse' } & {
+    errors?: Maybe<
+      Array<
+        { __typename?: 'ErrorResponse' } & Pick<
+          ErrorResponse,
+          'field' | 'message'
+        >
+      >
+    >;
+    data?: Maybe<
+      { __typename?: 'LoggedUser' } & {
+        user: { __typename?: 'User' } & CommonUserFragment;
+      }
+    >;
+  };
+};
 
 export type UpdateCommunityAvatarMutationVariables = Exact<{
   communityId: Scalars['String'];
   avatarId: Scalars['String'];
 }>;
 
-
-export type UpdateCommunityAvatarMutation = (
-  { __typename?: 'Mutation' }
-  & { updateCommunity: (
-    { __typename?: 'CommunityResponse' }
-    & { errors?: Maybe<Array<(
-      { __typename?: 'ErrorResponse' }
-      & Pick<ErrorResponse, 'field' | 'message'>
-    )>>, community?: Maybe<(
-      { __typename?: 'Community' }
-      & { banner?: Maybe<(
-        { __typename?: 'Media' }
-        & Pick<Media, 'url'>
-      )> }
-    )> }
-  ) }
-);
+export type UpdateCommunityAvatarMutation = { __typename?: 'Mutation' } & {
+  updateCommunity: { __typename?: 'CommunityResponse' } & {
+    errors?: Maybe<
+      Array<
+        { __typename?: 'ErrorResponse' } & Pick<
+          ErrorResponse,
+          'field' | 'message'
+        >
+      >
+    >;
+    community?: Maybe<
+      { __typename?: 'Community' } & {
+        banner?: Maybe<{ __typename?: 'Media' } & Pick<Media, 'url'>>;
+      }
+    >;
+  };
+};
 
 export type UpdateCommunityBannerMutationVariables = Exact<{
   communityId: Scalars['String'];
   bannerId: Scalars['String'];
 }>;
 
-
-export type UpdateCommunityBannerMutation = (
-  { __typename?: 'Mutation' }
-  & { updateCommunity: (
-    { __typename?: 'CommunityResponse' }
-    & { errors?: Maybe<Array<(
-      { __typename?: 'ErrorResponse' }
-      & Pick<ErrorResponse, 'field' | 'message'>
-    )>>, community?: Maybe<(
-      { __typename?: 'Community' }
-      & { banner?: Maybe<(
-        { __typename?: 'Media' }
-        & Pick<Media, 'url'>
-      )> }
-    )> }
-  ) }
-);
+export type UpdateCommunityBannerMutation = { __typename?: 'Mutation' } & {
+  updateCommunity: { __typename?: 'CommunityResponse' } & {
+    errors?: Maybe<
+      Array<
+        { __typename?: 'ErrorResponse' } & Pick<
+          ErrorResponse,
+          'field' | 'message'
+        >
+      >
+    >;
+    community?: Maybe<
+      { __typename?: 'Community' } & {
+        banner?: Maybe<{ __typename?: 'Media' } & Pick<Media, 'url'>>;
+      }
+    >;
+  };
+};
 
 export type UpdatePostMutationVariables = Exact<{
   communitySlug: Scalars['String'];
@@ -910,24 +890,41 @@ export type UpdatePostMutationVariables = Exact<{
   post: UpdatePostInput;
 }>;
 
-
-export type UpdatePostMutation = (
-  { __typename?: 'Mutation' }
-  & { updatePost?: Maybe<(
-    { __typename?: 'PostResponse' }
-    & { errors?: Maybe<Array<(
-      { __typename?: 'ErrorResponse' }
-      & Pick<ErrorResponse, 'field' | 'message'>
-    )>>, post?: Maybe<(
-      { __typename?: 'Post' }
-      & Pick<Post, '_id' | 'title' | 'formattedTitle' | 'slug' | 'description' | 'status' | 'content' | 'exclusive'>
-      & { mainMedia?: Maybe<(
-        { __typename?: 'Media' }
-        & Pick<Media, '_id' | 'url' | 'thumbnailUrl'>
-      )> }
-    )> }
-  )> }
-);
+export type UpdatePostMutation = { __typename?: 'Mutation' } & {
+  updatePost?: Maybe<
+    { __typename?: 'PostResponse' } & {
+      errors?: Maybe<
+        Array<
+          { __typename?: 'ErrorResponse' } & Pick<
+            ErrorResponse,
+            'field' | 'message'
+          >
+        >
+      >;
+      post?: Maybe<
+        { __typename?: 'Post' } & Pick<
+          Post,
+          | '_id'
+          | 'title'
+          | 'formattedTitle'
+          | 'slug'
+          | 'description'
+          | 'status'
+          | 'content'
+          | 'exclusive'
+        > & {
+            mainMedia?: Maybe<
+              { __typename?: 'Media' } & Pick<
+                Media,
+                '_id' | 'url' | 'thumbnailUrl' | 'format'
+              >
+            >;
+            tags: Array<{ __typename?: 'Tag' } & Pick<Tag, '_id' | 'title'>>;
+          }
+      >;
+    }
+  >;
+};
 
 export type UpdatePostMainMediaThumbnailMutationVariables = Exact<{
   communityId: Scalars['String'];
@@ -935,391 +932,449 @@ export type UpdatePostMainMediaThumbnailMutationVariables = Exact<{
   mainMediaData: UpdateMediaInput;
 }>;
 
-
-export type UpdatePostMainMediaThumbnailMutation = (
-  { __typename?: 'Mutation' }
-  & { updatePostMainMedia: (
-    { __typename?: 'PostResponse' }
-    & { errors?: Maybe<Array<(
-      { __typename?: 'ErrorResponse' }
-      & Pick<ErrorResponse, 'field' | 'message'>
-    )>>, post?: Maybe<(
-      { __typename?: 'Post' }
-      & { mainMedia?: Maybe<(
-        { __typename?: 'Media' }
-        & Pick<Media, 'thumbnailUrl'>
-      )> }
-    )> }
-  ) }
-);
+export type UpdatePostMainMediaThumbnailMutation = {
+  __typename?: 'Mutation';
+} & {
+  updatePostMainMedia: { __typename?: 'PostResponse' } & {
+    errors?: Maybe<
+      Array<
+        { __typename?: 'ErrorResponse' } & Pick<
+          ErrorResponse,
+          'field' | 'message'
+        >
+      >
+    >;
+    post?: Maybe<
+      { __typename?: 'Post' } & {
+        mainMedia?: Maybe<
+          { __typename?: 'Media' } & Pick<Media, 'thumbnailUrl'>
+        >;
+      }
+    >;
+  };
+};
 
 export type UploadImageMutationVariables = Exact<{
   communitySlug: Scalars['String'];
   imageData: UploadImageInput;
 }>;
 
-
-export type UploadImageMutation = (
-  { __typename?: 'Mutation' }
-  & { uploadImage: (
-    { __typename?: 'MediaResponse' }
-    & { errors?: Maybe<Array<(
-      { __typename?: 'ErrorResponse' }
-      & Pick<ErrorResponse, 'field' | 'message'>
-    )>>, media?: Maybe<(
-      { __typename?: 'Media' }
-      & Pick<Media, '_id' | 'uploadLink' | 'url' | 'thumbnailUrl'>
-    )> }
-  ) }
-);
+export type UploadImageMutation = { __typename?: 'Mutation' } & {
+  uploadImage: { __typename?: 'MediaResponse' } & {
+    errors?: Maybe<
+      Array<
+        { __typename?: 'ErrorResponse' } & Pick<
+          ErrorResponse,
+          'field' | 'message'
+        >
+      >
+    >;
+    media?: Maybe<
+      { __typename?: 'Media' } & Pick<
+        Media,
+        '_id' | 'uploadLink' | 'url' | 'thumbnailUrl'
+      >
+    >;
+  };
+};
 
 export type UploadVideoMutationVariables = Exact<{
   communitySlug: Scalars['String'];
   videoData: UploadMediaInput;
 }>;
 
-
-export type UploadVideoMutation = (
-  { __typename?: 'Mutation' }
-  & { uploadVideo: (
-    { __typename?: 'MediaResponse' }
-    & { errors?: Maybe<Array<(
-      { __typename?: 'ErrorResponse' }
-      & Pick<ErrorResponse, 'field' | 'message'>
-    )>>, media?: Maybe<(
-      { __typename?: 'Media' }
-      & Pick<Media, '_id' | 'url' | 'thumbnailUrl' | 'uploadLink' | 'format'>
-      & { file: (
-        { __typename?: 'File' }
-        & Pick<File, 'name' | 'size' | 'extension' | 'type'>
-      ) }
-    )> }
-  ) }
-);
+export type UploadVideoMutation = { __typename?: 'Mutation' } & {
+  uploadVideo: { __typename?: 'MediaResponse' } & {
+    errors?: Maybe<
+      Array<
+        { __typename?: 'ErrorResponse' } & Pick<
+          ErrorResponse,
+          'field' | 'message'
+        >
+      >
+    >;
+    media?: Maybe<
+      { __typename?: 'Media' } & Pick<
+        Media,
+        '_id' | 'url' | 'thumbnailUrl' | 'uploadLink' | 'format'
+      > & {
+          file: { __typename?: 'File' } & Pick<
+            File,
+            'name' | 'size' | 'extension' | 'type'
+          >;
+        }
+    >;
+  };
+};
 
 export type GetCommunityBasicDataQueryVariables = Exact<{
   slug: Scalars['String'];
 }>;
 
+export type GetCommunityBasicDataQuery = { __typename?: 'Query' } & {
+  community: { __typename?: 'CommunityResponse' } & {
+    errors?: Maybe<
+      Array<
+        { __typename?: 'ErrorResponse' } & Pick<
+          ErrorResponse,
+          'field' | 'message'
+        >
+      >
+    >;
+    community?: Maybe<{ __typename?: 'Community' } & CommonCommunityFragment>;
+  };
+};
 
-export type GetCommunityBasicDataQuery = (
-  { __typename?: 'Query' }
-  & { community: (
-    { __typename?: 'CommunityResponse' }
-    & { errors?: Maybe<Array<(
-      { __typename?: 'ErrorResponse' }
-      & Pick<ErrorResponse, 'field' | 'message'>
-    )>>, community?: Maybe<(
-      { __typename?: 'Community' }
-      & CommonCommunityFragment
-    )> }
-  ) }
-);
+export type CommunityPageTemplateMeQueryVariables = Exact<{
+  [key: string]: never;
+}>;
 
-export type CommunityPageTemplateMeQueryVariables = Exact<{ [key: string]: never; }>;
-
-
-export type CommunityPageTemplateMeQuery = (
-  { __typename?: 'Query' }
-  & { me?: Maybe<(
-    { __typename?: 'UserResponse' }
-    & { errors?: Maybe<Array<(
-      { __typename?: 'ErrorResponse' }
-      & Pick<ErrorResponse, 'field' | 'message'>
-    )>>, user?: Maybe<(
-      { __typename?: 'User' }
-      & { roles: Array<(
-        { __typename?: 'Role' }
-        & Pick<Role, 'role'>
-        & { community: (
-          { __typename?: 'Community' }
-          & Pick<Community, 'slug'>
-        ) }
-      )> }
-      & CommonUserFragment
-    )> }
-  )> }
-);
+export type CommunityPageTemplateMeQuery = { __typename?: 'Query' } & {
+  me?: Maybe<
+    { __typename?: 'UserResponse' } & {
+      errors?: Maybe<
+        Array<
+          { __typename?: 'ErrorResponse' } & Pick<
+            ErrorResponse,
+            'field' | 'message'
+          >
+        >
+      >;
+      user?: Maybe<
+        { __typename?: 'User' } & {
+          roles: Array<
+            { __typename?: 'Role' } & Pick<Role, 'role'> & {
+                community: { __typename?: 'Community' } & Pick<
+                  Community,
+                  'slug'
+                >;
+              }
+          >;
+        } & CommonUserFragment
+      >;
+    }
+  >;
+};
 
 export type CommunityTagPostsQueryVariables = Exact<{
   data: FindByTagsInput;
 }>;
 
-
-export type CommunityTagPostsQuery = (
-  { __typename?: 'Query' }
-  & { findTagBySlugs: (
-    { __typename?: 'TagResponse' }
-    & { errors?: Maybe<Array<(
-      { __typename?: 'ErrorResponse' }
-      & Pick<ErrorResponse, 'field' | 'message'>
-    )>>, tag?: Maybe<(
-      { __typename?: 'Tag' }
-      & Pick<Tag, 'title' | 'description' | 'postCount' | 'slug'>
-      & { posts: Array<(
-        { __typename?: 'Post' }
-        & Pick<Post, 'title' | 'description' | 'likes' | 'slug'>
-      )>, community: (
-        { __typename?: 'Community' }
-        & CommonCommunityFragment
-      ) }
-    )> }
-  ) }
-);
+export type CommunityTagPostsQuery = { __typename?: 'Query' } & {
+  findTagBySlugs: { __typename?: 'TagResponse' } & {
+    errors?: Maybe<
+      Array<
+        { __typename?: 'ErrorResponse' } & Pick<
+          ErrorResponse,
+          'field' | 'message'
+        >
+      >
+    >;
+    tag?: Maybe<
+      { __typename?: 'Tag' } & Pick<
+        Tag,
+        'title' | 'description' | 'postCount' | 'slug'
+      > & {
+          posts: Array<
+            { __typename?: 'Post' } & Pick<
+              Post,
+              'title' | 'description' | 'likes' | 'slug'
+            >
+          >;
+          community: { __typename?: 'Community' } & CommonCommunityFragment;
+        }
+    >;
+  };
+};
 
 export type FindCommunityTagsByUserInputQueryVariables = Exact<{
   communitySlug: Scalars['String'];
   input: Scalars['String'];
 }>;
 
+export type FindCommunityTagsByUserInputQuery = { __typename?: 'Query' } & {
+  findTagsByInput: { __typename?: 'TagsResponse' } & {
+    errors?: Maybe<
+      Array<
+        { __typename?: 'ErrorResponse' } & Pick<
+          ErrorResponse,
+          'field' | 'message'
+        >
+      >
+    >;
+    tags?: Maybe<Array<{ __typename?: 'Tag' } & Pick<Tag, '_id' | 'title'>>>;
+  };
+};
 
-export type FindCommunityTagsByUserInputQuery = (
-  { __typename?: 'Query' }
-  & { findTagsByInput: (
-    { __typename?: 'TagsResponse' }
-    & { errors?: Maybe<Array<(
-      { __typename?: 'ErrorResponse' }
-      & Pick<ErrorResponse, 'field' | 'message'>
-    )>>, tags?: Maybe<Array<(
-      { __typename?: 'Tag' }
-      & Pick<Tag, '_id' | 'title'>
-    )>> }
-  ) }
-);
+export type GetCommunitiesSlugsQueryVariables = Exact<{ [key: string]: never }>;
 
-export type GetCommunitiesSlugsQueryVariables = Exact<{ [key: string]: never; }>;
-
-
-export type GetCommunitiesSlugsQuery = (
-  { __typename?: 'Query' }
-  & { communities: (
-    { __typename?: 'CommunitiesResponse' }
-    & { errors?: Maybe<Array<(
-      { __typename?: 'ErrorResponse' }
-      & Pick<ErrorResponse, 'field' | 'message'>
-    )>>, communities?: Maybe<Array<(
-      { __typename?: 'Community' }
-      & Pick<Community, 'slug'>
-    )>> }
-  ) }
-);
+export type GetCommunitiesSlugsQuery = { __typename?: 'Query' } & {
+  communities: { __typename?: 'CommunitiesResponse' } & {
+    errors?: Maybe<
+      Array<
+        { __typename?: 'ErrorResponse' } & Pick<
+          ErrorResponse,
+          'field' | 'message'
+        >
+      >
+    >;
+    communities?: Maybe<
+      Array<{ __typename?: 'Community' } & Pick<Community, 'slug'>>
+    >;
+  };
+};
 
 export type GetCommunityHomeDataQueryVariables = Exact<{
   slug: Scalars['String'];
   postsStatus: PostStatus;
 }>;
 
-
-export type GetCommunityHomeDataQuery = (
-  { __typename?: 'Query' }
-  & { community: (
-    { __typename?: 'CommunityResponse' }
-    & { errors?: Maybe<Array<(
-      { __typename?: 'ErrorResponse' }
-      & Pick<ErrorResponse, 'field' | 'message'>
-    )>>, community?: Maybe<(
-      { __typename?: 'Community' }
-      & Pick<Community, '_id' | 'logo' | 'title' | 'description' | 'slug' | 'followersCount' | 'membersCount'>
-      & { banner?: Maybe<(
-        { __typename?: 'Media' }
-        & Pick<Media, 'url'>
-      )>, avatar?: Maybe<(
-        { __typename?: 'Media' }
-        & Pick<Media, 'url'>
-      )>, tags: Array<(
-        { __typename?: 'Tag' }
-        & Pick<Tag, 'title' | 'slug' | 'postCount'>
-        & { posts: Array<(
-          { __typename?: 'Post' }
-          & Pick<Post, 'title' | 'slug' | 'likes' | 'exclusive'>
-          & { mainMedia?: Maybe<(
-            { __typename?: 'Media' }
-            & Pick<Media, 'thumbnailUrl'>
-          )> }
-        )> }
-      )>, creator: (
-        { __typename?: 'User' }
-        & Pick<User, 'name' | 'surname'>
-      ) }
-    )> }
-  ) }
-);
+export type GetCommunityHomeDataQuery = { __typename?: 'Query' } & {
+  community: { __typename?: 'CommunityResponse' } & {
+    errors?: Maybe<
+      Array<
+        { __typename?: 'ErrorResponse' } & Pick<
+          ErrorResponse,
+          'field' | 'message'
+        >
+      >
+    >;
+    community?: Maybe<
+      { __typename?: 'Community' } & Pick<
+        Community,
+        | '_id'
+        | 'logo'
+        | 'title'
+        | 'description'
+        | 'slug'
+        | 'followersCount'
+        | 'membersCount'
+      > & {
+          banner?: Maybe<{ __typename?: 'Media' } & Pick<Media, 'url'>>;
+          avatar?: Maybe<{ __typename?: 'Media' } & Pick<Media, 'url'>>;
+          tags: Array<
+            { __typename?: 'Tag' } & Pick<
+              Tag,
+              'title' | 'slug' | 'postCount'
+            > & {
+                posts: Array<
+                  { __typename?: 'Post' } & Pick<
+                    Post,
+                    'title' | 'slug' | 'likes' | 'exclusive'
+                  > & {
+                      mainMedia?: Maybe<
+                        { __typename?: 'Media' } & Pick<Media, 'thumbnailUrl'>
+                      >;
+                    }
+                >;
+              }
+          >;
+          creator: { __typename?: 'User' } & Pick<User, 'name' | 'surname'>;
+        }
+    >;
+  };
+};
 
 export type GetCommunityTagsDataQueryVariables = Exact<{
   slug: Scalars['String'];
 }>;
 
-
-export type GetCommunityTagsDataQuery = (
-  { __typename?: 'Query' }
-  & { community: (
-    { __typename?: 'CommunityResponse' }
-    & { errors?: Maybe<Array<(
-      { __typename?: 'ErrorResponse' }
-      & Pick<ErrorResponse, 'field' | 'message'>
-    )>>, community?: Maybe<(
-      { __typename?: 'Community' }
-      & { tags: Array<(
-        { __typename?: 'Tag' }
-        & Pick<Tag, 'title' | 'slug'>
-      )> }
-      & CommonCommunityFragment
-    )> }
-  ) }
-);
+export type GetCommunityTagsDataQuery = { __typename?: 'Query' } & {
+  community: { __typename?: 'CommunityResponse' } & {
+    errors?: Maybe<
+      Array<
+        { __typename?: 'ErrorResponse' } & Pick<
+          ErrorResponse,
+          'field' | 'message'
+        >
+      >
+    >;
+    community?: Maybe<
+      { __typename?: 'Community' } & {
+        tags: Array<{ __typename?: 'Tag' } & Pick<Tag, 'title' | 'slug'>>;
+      } & CommonCommunityFragment
+    >;
+  };
+};
 
 export type GetPostByIdQueryVariables = Exact<{
   id: Scalars['String'];
 }>;
 
+export type GetPostByIdQuery = { __typename?: 'Query' } & {
+  findPostById?: Maybe<
+    { __typename?: 'PostResponse' } & {
+      errors?: Maybe<
+        Array<
+          { __typename?: 'ErrorResponse' } & Pick<
+            ErrorResponse,
+            'field' | 'message'
+          >
+        >
+      >;
+      post?: Maybe<
+        { __typename?: 'Post' } & Pick<
+          Post,
+          | '_id'
+          | 'title'
+          | 'formattedTitle'
+          | 'slug'
+          | 'description'
+          | 'status'
+          | 'content'
+          | 'exclusive'
+        > & {
+            mainMedia?: Maybe<
+              { __typename?: 'Media' } & Pick<
+                Media,
+                '_id' | 'url' | 'thumbnailUrl' | 'format'
+              >
+            >;
+            tags: Array<{ __typename?: 'Tag' } & Pick<Tag, '_id' | 'title'>>;
+          }
+      >;
+    }
+  >;
+};
 
-export type GetPostByIdQuery = (
-  { __typename?: 'Query' }
-  & { findPostById?: Maybe<(
-    { __typename?: 'PostResponse' }
-    & { errors?: Maybe<Array<(
-      { __typename?: 'ErrorResponse' }
-      & Pick<ErrorResponse, 'field' | 'message'>
-    )>>, post?: Maybe<(
-      { __typename?: 'Post' }
-      & Pick<Post, '_id' | 'title' | 'formattedTitle' | 'slug' | 'description' | 'status' | 'content' | 'exclusive'>
-      & { mainMedia?: Maybe<(
-        { __typename?: 'Media' }
-        & Pick<Media, '_id' | 'url' | 'thumbnailUrl' | 'format'>
-      )>, tags: Array<(
-        { __typename?: 'Tag' }
-        & Pick<Tag, '_id' | 'title'>
-      )> }
-    )> }
-  )> }
-);
+export type GetPostsSlugsQueryVariables = Exact<{ [key: string]: never }>;
 
-export type GetPostsSlugsQueryVariables = Exact<{ [key: string]: never; }>;
+export type GetPostsSlugsQuery = { __typename?: 'Query' } & {
+  allPosts: { __typename?: 'PostsResponse' } & {
+    errors?: Maybe<
+      Array<
+        { __typename?: 'ErrorResponse' } & Pick<
+          ErrorResponse,
+          'field' | 'message'
+        >
+      >
+    >;
+    posts?: Maybe<
+      Array<
+        { __typename?: 'Post' } & Pick<Post, 'slug'> & {
+            community: { __typename?: 'Community' } & Pick<Community, 'slug'>;
+          }
+      >
+    >;
+  };
+};
 
+export type HeaderMeQueryVariables = Exact<{ [key: string]: never }>;
 
-export type GetPostsSlugsQuery = (
-  { __typename?: 'Query' }
-  & { allPosts: (
-    { __typename?: 'PostsResponse' }
-    & { errors?: Maybe<Array<(
-      { __typename?: 'ErrorResponse' }
-      & Pick<ErrorResponse, 'field' | 'message'>
-    )>>, posts?: Maybe<Array<(
-      { __typename?: 'Post' }
-      & Pick<Post, 'slug'>
-      & { community: (
-        { __typename?: 'Community' }
-        & Pick<Community, 'slug'>
-      ) }
-    )>> }
-  ) }
-);
-
-export type HeaderMeQueryVariables = Exact<{ [key: string]: never; }>;
-
-
-export type HeaderMeQuery = (
-  { __typename?: 'Query' }
-  & { me?: Maybe<(
-    { __typename?: 'UserResponse' }
-    & { errors?: Maybe<Array<(
-      { __typename?: 'ErrorResponse' }
-      & Pick<ErrorResponse, 'field' | 'message'>
-    )>>, user?: Maybe<(
-      { __typename?: 'User' }
-      & { roles: Array<(
-        { __typename?: 'Role' }
-        & Pick<Role, 'role'>
-        & { community: (
-          { __typename?: 'Community' }
-          & Pick<Community, 'slug'>
-        ) }
-      )> }
-      & CommonUserFragment
-    )> }
-  )> }
-);
+export type HeaderMeQuery = { __typename?: 'Query' } & {
+  me?: Maybe<
+    { __typename?: 'UserResponse' } & {
+      errors?: Maybe<
+        Array<
+          { __typename?: 'ErrorResponse' } & Pick<
+            ErrorResponse,
+            'field' | 'message'
+          >
+        >
+      >;
+      user?: Maybe<
+        { __typename?: 'User' } & {
+          roles: Array<
+            { __typename?: 'Role' } & Pick<Role, 'role'> & {
+                community: { __typename?: 'Community' } & Pick<
+                  Community,
+                  'slug'
+                >;
+              }
+          >;
+        } & CommonUserFragment
+      >;
+    }
+  >;
+};
 
 export type PostBySlugsQueryVariables = Exact<{
   data: FindBySlugsInput;
 }>;
 
-
-export type PostBySlugsQuery = (
-  { __typename?: 'Query' }
-  & { findPostBySlugs: (
-    { __typename?: 'PostResponse' }
-    & { errors?: Maybe<Array<(
-      { __typename?: 'ErrorResponse' }
-      & Pick<ErrorResponse, 'field' | 'message'>
-    )>>, post?: Maybe<(
-      { __typename?: 'Post' }
-      & Pick<Post, 'title' | 'slug' | 'description' | 'content' | 'exclusive' | 'createdAt'>
-      & { mainMedia?: Maybe<(
-        { __typename?: 'Media' }
-        & Pick<Media, 'format' | 'url' | 'thumbnailUrl'>
-      )>, creator: (
-        { __typename?: 'User' }
-        & CreatorNameFragment
-      ), tags: Array<(
-        { __typename?: 'Tag' }
-        & Pick<Tag, 'title'>
-      )>, community: (
-        { __typename?: 'Community' }
-        & Pick<Community, 'title' | 'slug'>
-        & { creator: (
-          { __typename?: 'User' }
-          & CreatorNameFragment
-        ) }
-      ) }
-    )> }
-  ) }
-);
+export type PostBySlugsQuery = { __typename?: 'Query' } & {
+  findPostBySlugs: { __typename?: 'PostResponse' } & {
+    errors?: Maybe<
+      Array<
+        { __typename?: 'ErrorResponse' } & Pick<
+          ErrorResponse,
+          'field' | 'message'
+        >
+      >
+    >;
+    post?: Maybe<
+      { __typename?: 'Post' } & Pick<
+        Post,
+        'title' | 'slug' | 'description' | 'content' | 'exclusive' | 'createdAt'
+      > & {
+          mainMedia?: Maybe<
+            { __typename?: 'Media' } & Pick<
+              Media,
+              'format' | 'url' | 'thumbnailUrl'
+            >
+          >;
+          creator: { __typename?: 'User' } & CreatorNameFragment;
+          tags: Array<{ __typename?: 'Tag' } & Pick<Tag, 'title'>>;
+          community: { __typename?: 'Community' } & Pick<
+            Community,
+            'title' | 'slug'
+          > & { creator: { __typename?: 'User' } & CreatorNameFragment };
+        }
+    >;
+  };
+};
 
 export const CreatorNameFragmentDoc = gql`
-    fragment CreatorName on User {
-  name
-  surname
-}
-    `;
+  fragment CreatorName on User {
+    name
+    surname
+  }
+`;
 export const CommonCommunityFragmentDoc = gql`
-    fragment CommonCommunity on Community {
-  _id
-  logo
-  title
-  description
-  slug
-  creator {
-    ...CreatorName
+  fragment CommonCommunity on Community {
+    _id
+    logo
+    title
+    description
+    slug
+    creator {
+      ...CreatorName
+    }
+    followersCount
+    membersCount
   }
-  followersCount
-  membersCount
-}
-    ${CreatorNameFragmentDoc}`;
+  ${CreatorNameFragmentDoc}
+`;
 export const CommonUserFragmentDoc = gql`
-    fragment CommonUser on User {
-  _id
-  name
-  surname
-  email
-  avatar
-}
-    `;
+  fragment CommonUser on User {
+    _id
+    name
+    surname
+    email
+    avatar
+  }
+`;
 export const CreateCommunityTagDocument = gql`
-    mutation CreateCommunityTag($communitySlug: String!, $tagData: CreateTagInput!) {
-  createTag(communitySlug: $communitySlug, data: $tagData) {
-    errors {
-      field
-      message
-    }
-    tag {
-      _id
-      title
+  mutation CreateCommunityTag(
+    $communitySlug: String!
+    $tagData: CreateTagInput!
+  ) {
+    createTag(communitySlug: $communitySlug, data: $tagData) {
+      errors {
+        field
+        message
+      }
+      tag {
+        _id
+        title
+      }
     }
   }
-}
-    `;
-export type CreateCommunityTagMutationFn = Apollo.MutationFunction<CreateCommunityTagMutation, CreateCommunityTagMutationVariables>;
+`;
+export type CreateCommunityTagMutationFn = Apollo.MutationFunction<
+  CreateCommunityTagMutation,
+  CreateCommunityTagMutationVariables
+>;
 
 /**
  * __useCreateCommunityTagMutation__
@@ -1339,38 +1394,54 @@ export type CreateCommunityTagMutationFn = Apollo.MutationFunction<CreateCommuni
  *   },
  * });
  */
-export function useCreateCommunityTagMutation(baseOptions?: Apollo.MutationHookOptions<CreateCommunityTagMutation, CreateCommunityTagMutationVariables>) {
-        return Apollo.useMutation<CreateCommunityTagMutation, CreateCommunityTagMutationVariables>(CreateCommunityTagDocument, baseOptions);
-      }
-export type CreateCommunityTagMutationHookResult = ReturnType<typeof useCreateCommunityTagMutation>;
+export function useCreateCommunityTagMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    CreateCommunityTagMutation,
+    CreateCommunityTagMutationVariables
+  >,
+) {
+  return Apollo.useMutation<
+    CreateCommunityTagMutation,
+    CreateCommunityTagMutationVariables
+  >(CreateCommunityTagDocument, baseOptions);
+}
+export type CreateCommunityTagMutationHookResult = ReturnType<
+  typeof useCreateCommunityTagMutation
+>;
 export type CreateCommunityTagMutationResult = Apollo.MutationResult<CreateCommunityTagMutation>;
-export type CreateCommunityTagMutationOptions = Apollo.BaseMutationOptions<CreateCommunityTagMutation, CreateCommunityTagMutationVariables>;
+export type CreateCommunityTagMutationOptions = Apollo.BaseMutationOptions<
+  CreateCommunityTagMutation,
+  CreateCommunityTagMutationVariables
+>;
 export const CreatePostDocument = gql`
-    mutation CreatePost($communitySlug: String!, $post: CreatePostInput!) {
-  createPost(communitySlug: $communitySlug, data: $post) {
-    errors {
-      field
-      message
-    }
-    post {
-      _id
-      title
-      slug
-      description
-      status
-      content
-      mainMedia {
-        url
+  mutation CreatePost($communitySlug: String!, $post: CreatePostInput!) {
+    createPost(communitySlug: $communitySlug, data: $post) {
+      errors {
+        field
+        message
       }
-      exclusive
-      tags {
+      post {
+        _id
         title
+        slug
+        description
+        status
+        content
+        mainMedia {
+          url
+        }
+        exclusive
+        tags {
+          title
+        }
       }
     }
   }
-}
-    `;
-export type CreatePostMutationFn = Apollo.MutationFunction<CreatePostMutation, CreatePostMutationVariables>;
+`;
+export type CreatePostMutationFn = Apollo.MutationFunction<
+  CreatePostMutation,
+  CreatePostMutationVariables
+>;
 
 /**
  * __useCreatePostMutation__
@@ -1390,28 +1461,45 @@ export type CreatePostMutationFn = Apollo.MutationFunction<CreatePostMutation, C
  *   },
  * });
  */
-export function useCreatePostMutation(baseOptions?: Apollo.MutationHookOptions<CreatePostMutation, CreatePostMutationVariables>) {
-        return Apollo.useMutation<CreatePostMutation, CreatePostMutationVariables>(CreatePostDocument, baseOptions);
-      }
-export type CreatePostMutationHookResult = ReturnType<typeof useCreatePostMutation>;
+export function useCreatePostMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    CreatePostMutation,
+    CreatePostMutationVariables
+  >,
+) {
+  return Apollo.useMutation<CreatePostMutation, CreatePostMutationVariables>(
+    CreatePostDocument,
+    baseOptions,
+  );
+}
+export type CreatePostMutationHookResult = ReturnType<
+  typeof useCreatePostMutation
+>;
 export type CreatePostMutationResult = Apollo.MutationResult<CreatePostMutation>;
-export type CreatePostMutationOptions = Apollo.BaseMutationOptions<CreatePostMutation, CreatePostMutationVariables>;
+export type CreatePostMutationOptions = Apollo.BaseMutationOptions<
+  CreatePostMutation,
+  CreatePostMutationVariables
+>;
 export const LoginDocument = gql`
-    mutation Login($loginData: LoginUserInput!) {
-  login(loginData: $loginData) {
-    errors {
-      field
-      message
-    }
-    data {
-      user {
-        ...CommonUser
+  mutation Login($loginData: LoginUserInput!) {
+    login(loginData: $loginData) {
+      errors {
+        field
+        message
+      }
+      data {
+        user {
+          ...CommonUser
+        }
       }
     }
   }
-}
-    ${CommonUserFragmentDoc}`;
-export type LoginMutationFn = Apollo.MutationFunction<LoginMutation, LoginMutationVariables>;
+  ${CommonUserFragmentDoc}
+`;
+export type LoginMutationFn = Apollo.MutationFunction<
+  LoginMutation,
+  LoginMutationVariables
+>;
 
 /**
  * __useLoginMutation__
@@ -1430,18 +1518,32 @@ export type LoginMutationFn = Apollo.MutationFunction<LoginMutation, LoginMutati
  *   },
  * });
  */
-export function useLoginMutation(baseOptions?: Apollo.MutationHookOptions<LoginMutation, LoginMutationVariables>) {
-        return Apollo.useMutation<LoginMutation, LoginMutationVariables>(LoginDocument, baseOptions);
-      }
+export function useLoginMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    LoginMutation,
+    LoginMutationVariables
+  >,
+) {
+  return Apollo.useMutation<LoginMutation, LoginMutationVariables>(
+    LoginDocument,
+    baseOptions,
+  );
+}
 export type LoginMutationHookResult = ReturnType<typeof useLoginMutation>;
 export type LoginMutationResult = Apollo.MutationResult<LoginMutation>;
-export type LoginMutationOptions = Apollo.BaseMutationOptions<LoginMutation, LoginMutationVariables>;
+export type LoginMutationOptions = Apollo.BaseMutationOptions<
+  LoginMutation,
+  LoginMutationVariables
+>;
 export const LogoutDocument = gql`
-    mutation Logout {
-  logout
-}
-    `;
-export type LogoutMutationFn = Apollo.MutationFunction<LogoutMutation, LogoutMutationVariables>;
+  mutation Logout {
+    logout
+  }
+`;
+export type LogoutMutationFn = Apollo.MutationFunction<
+  LogoutMutation,
+  LogoutMutationVariables
+>;
 
 /**
  * __useLogoutMutation__
@@ -1459,28 +1561,43 @@ export type LogoutMutationFn = Apollo.MutationFunction<LogoutMutation, LogoutMut
  *   },
  * });
  */
-export function useLogoutMutation(baseOptions?: Apollo.MutationHookOptions<LogoutMutation, LogoutMutationVariables>) {
-        return Apollo.useMutation<LogoutMutation, LogoutMutationVariables>(LogoutDocument, baseOptions);
-      }
+export function useLogoutMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    LogoutMutation,
+    LogoutMutationVariables
+  >,
+) {
+  return Apollo.useMutation<LogoutMutation, LogoutMutationVariables>(
+    LogoutDocument,
+    baseOptions,
+  );
+}
 export type LogoutMutationHookResult = ReturnType<typeof useLogoutMutation>;
 export type LogoutMutationResult = Apollo.MutationResult<LogoutMutation>;
-export type LogoutMutationOptions = Apollo.BaseMutationOptions<LogoutMutation, LogoutMutationVariables>;
+export type LogoutMutationOptions = Apollo.BaseMutationOptions<
+  LogoutMutation,
+  LogoutMutationVariables
+>;
 export const RegisterDocument = gql`
-    mutation Register($data: RegisterUserInput!) {
-  register(data: $data) {
-    errors {
-      field
-      message
-    }
-    data {
-      user {
-        ...CommonUser
+  mutation Register($data: RegisterUserInput!) {
+    register(data: $data) {
+      errors {
+        field
+        message
+      }
+      data {
+        user {
+          ...CommonUser
+        }
       }
     }
   }
-}
-    ${CommonUserFragmentDoc}`;
-export type RegisterMutationFn = Apollo.MutationFunction<RegisterMutation, RegisterMutationVariables>;
+  ${CommonUserFragmentDoc}
+`;
+export type RegisterMutationFn = Apollo.MutationFunction<
+  RegisterMutation,
+  RegisterMutationVariables
+>;
 
 /**
  * __useRegisterMutation__
@@ -1499,28 +1616,42 @@ export type RegisterMutationFn = Apollo.MutationFunction<RegisterMutation, Regis
  *   },
  * });
  */
-export function useRegisterMutation(baseOptions?: Apollo.MutationHookOptions<RegisterMutation, RegisterMutationVariables>) {
-        return Apollo.useMutation<RegisterMutation, RegisterMutationVariables>(RegisterDocument, baseOptions);
-      }
+export function useRegisterMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    RegisterMutation,
+    RegisterMutationVariables
+  >,
+) {
+  return Apollo.useMutation<RegisterMutation, RegisterMutationVariables>(
+    RegisterDocument,
+    baseOptions,
+  );
+}
 export type RegisterMutationHookResult = ReturnType<typeof useRegisterMutation>;
 export type RegisterMutationResult = Apollo.MutationResult<RegisterMutation>;
-export type RegisterMutationOptions = Apollo.BaseMutationOptions<RegisterMutation, RegisterMutationVariables>;
+export type RegisterMutationOptions = Apollo.BaseMutationOptions<
+  RegisterMutation,
+  RegisterMutationVariables
+>;
 export const UpdateCommunityAvatarDocument = gql`
-    mutation UpdateCommunityAvatar($communityId: String!, $avatarId: String!) {
-  updateCommunity(id: $communityId, updateData: {avatar: $avatarId}) {
-    errors {
-      field
-      message
-    }
-    community {
-      banner {
-        url
+  mutation UpdateCommunityAvatar($communityId: String!, $avatarId: String!) {
+    updateCommunity(id: $communityId, updateData: { avatar: $avatarId }) {
+      errors {
+        field
+        message
+      }
+      community {
+        banner {
+          url
+        }
       }
     }
   }
-}
-    `;
-export type UpdateCommunityAvatarMutationFn = Apollo.MutationFunction<UpdateCommunityAvatarMutation, UpdateCommunityAvatarMutationVariables>;
+`;
+export type UpdateCommunityAvatarMutationFn = Apollo.MutationFunction<
+  UpdateCommunityAvatarMutation,
+  UpdateCommunityAvatarMutationVariables
+>;
 
 /**
  * __useUpdateCommunityAvatarMutation__
@@ -1540,28 +1671,44 @@ export type UpdateCommunityAvatarMutationFn = Apollo.MutationFunction<UpdateComm
  *   },
  * });
  */
-export function useUpdateCommunityAvatarMutation(baseOptions?: Apollo.MutationHookOptions<UpdateCommunityAvatarMutation, UpdateCommunityAvatarMutationVariables>) {
-        return Apollo.useMutation<UpdateCommunityAvatarMutation, UpdateCommunityAvatarMutationVariables>(UpdateCommunityAvatarDocument, baseOptions);
-      }
-export type UpdateCommunityAvatarMutationHookResult = ReturnType<typeof useUpdateCommunityAvatarMutation>;
+export function useUpdateCommunityAvatarMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    UpdateCommunityAvatarMutation,
+    UpdateCommunityAvatarMutationVariables
+  >,
+) {
+  return Apollo.useMutation<
+    UpdateCommunityAvatarMutation,
+    UpdateCommunityAvatarMutationVariables
+  >(UpdateCommunityAvatarDocument, baseOptions);
+}
+export type UpdateCommunityAvatarMutationHookResult = ReturnType<
+  typeof useUpdateCommunityAvatarMutation
+>;
 export type UpdateCommunityAvatarMutationResult = Apollo.MutationResult<UpdateCommunityAvatarMutation>;
-export type UpdateCommunityAvatarMutationOptions = Apollo.BaseMutationOptions<UpdateCommunityAvatarMutation, UpdateCommunityAvatarMutationVariables>;
+export type UpdateCommunityAvatarMutationOptions = Apollo.BaseMutationOptions<
+  UpdateCommunityAvatarMutation,
+  UpdateCommunityAvatarMutationVariables
+>;
 export const UpdateCommunityBannerDocument = gql`
-    mutation UpdateCommunityBanner($communityId: String!, $bannerId: String!) {
-  updateCommunity(id: $communityId, updateData: {banner: $bannerId}) {
-    errors {
-      field
-      message
-    }
-    community {
-      banner {
-        url
+  mutation UpdateCommunityBanner($communityId: String!, $bannerId: String!) {
+    updateCommunity(id: $communityId, updateData: { banner: $bannerId }) {
+      errors {
+        field
+        message
+      }
+      community {
+        banner {
+          url
+        }
       }
     }
   }
-}
-    `;
-export type UpdateCommunityBannerMutationFn = Apollo.MutationFunction<UpdateCommunityBannerMutation, UpdateCommunityBannerMutationVariables>;
+`;
+export type UpdateCommunityBannerMutationFn = Apollo.MutationFunction<
+  UpdateCommunityBannerMutation,
+  UpdateCommunityBannerMutationVariables
+>;
 
 /**
  * __useUpdateCommunityBannerMutation__
@@ -1581,38 +1728,63 @@ export type UpdateCommunityBannerMutationFn = Apollo.MutationFunction<UpdateComm
  *   },
  * });
  */
-export function useUpdateCommunityBannerMutation(baseOptions?: Apollo.MutationHookOptions<UpdateCommunityBannerMutation, UpdateCommunityBannerMutationVariables>) {
-        return Apollo.useMutation<UpdateCommunityBannerMutation, UpdateCommunityBannerMutationVariables>(UpdateCommunityBannerDocument, baseOptions);
-      }
-export type UpdateCommunityBannerMutationHookResult = ReturnType<typeof useUpdateCommunityBannerMutation>;
+export function useUpdateCommunityBannerMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    UpdateCommunityBannerMutation,
+    UpdateCommunityBannerMutationVariables
+  >,
+) {
+  return Apollo.useMutation<
+    UpdateCommunityBannerMutation,
+    UpdateCommunityBannerMutationVariables
+  >(UpdateCommunityBannerDocument, baseOptions);
+}
+export type UpdateCommunityBannerMutationHookResult = ReturnType<
+  typeof useUpdateCommunityBannerMutation
+>;
 export type UpdateCommunityBannerMutationResult = Apollo.MutationResult<UpdateCommunityBannerMutation>;
-export type UpdateCommunityBannerMutationOptions = Apollo.BaseMutationOptions<UpdateCommunityBannerMutation, UpdateCommunityBannerMutationVariables>;
+export type UpdateCommunityBannerMutationOptions = Apollo.BaseMutationOptions<
+  UpdateCommunityBannerMutation,
+  UpdateCommunityBannerMutationVariables
+>;
 export const UpdatePostDocument = gql`
-    mutation UpdatePost($communitySlug: String!, $postId: String!, $post: UpdatePostInput!) {
-  updatePost(communitySlug: $communitySlug, id: $postId, updateData: $post) {
-    errors {
-      field
-      message
-    }
-    post {
-      _id
-      title
-      formattedTitle
-      slug
-      description
-      status
-      mainMedia {
-        _id
-        url
-        thumbnailUrl
+  mutation UpdatePost(
+    $communitySlug: String!
+    $postId: String!
+    $post: UpdatePostInput!
+  ) {
+    updatePost(communitySlug: $communitySlug, id: $postId, updateData: $post) {
+      errors {
+        field
+        message
       }
-      content
-      exclusive
+      post {
+        _id
+        title
+        formattedTitle
+        slug
+        description
+        status
+        mainMedia {
+          _id
+          url
+          thumbnailUrl
+          format
+        }
+        content
+        exclusive
+        tags {
+          _id
+          title
+        }
+      }
     }
   }
-}
-    `;
-export type UpdatePostMutationFn = Apollo.MutationFunction<UpdatePostMutation, UpdatePostMutationVariables>;
+`;
+export type UpdatePostMutationFn = Apollo.MutationFunction<
+  UpdatePostMutation,
+  UpdatePostMutationVariables
+>;
 
 /**
  * __useUpdatePostMutation__
@@ -1633,32 +1805,52 @@ export type UpdatePostMutationFn = Apollo.MutationFunction<UpdatePostMutation, U
  *   },
  * });
  */
-export function useUpdatePostMutation(baseOptions?: Apollo.MutationHookOptions<UpdatePostMutation, UpdatePostMutationVariables>) {
-        return Apollo.useMutation<UpdatePostMutation, UpdatePostMutationVariables>(UpdatePostDocument, baseOptions);
-      }
-export type UpdatePostMutationHookResult = ReturnType<typeof useUpdatePostMutation>;
+export function useUpdatePostMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    UpdatePostMutation,
+    UpdatePostMutationVariables
+  >,
+) {
+  return Apollo.useMutation<UpdatePostMutation, UpdatePostMutationVariables>(
+    UpdatePostDocument,
+    baseOptions,
+  );
+}
+export type UpdatePostMutationHookResult = ReturnType<
+  typeof useUpdatePostMutation
+>;
 export type UpdatePostMutationResult = Apollo.MutationResult<UpdatePostMutation>;
-export type UpdatePostMutationOptions = Apollo.BaseMutationOptions<UpdatePostMutation, UpdatePostMutationVariables>;
+export type UpdatePostMutationOptions = Apollo.BaseMutationOptions<
+  UpdatePostMutation,
+  UpdatePostMutationVariables
+>;
 export const UpdatePostMainMediaThumbnailDocument = gql`
-    mutation UpdatePostMainMediaThumbnail($communityId: String!, $postId: String!, $mainMediaData: UpdateMediaInput!) {
-  updatePostMainMedia(
-    communityId: $communityId
-    postId: $postId
-    mainMediaData: $mainMediaData
+  mutation UpdatePostMainMediaThumbnail(
+    $communityId: String!
+    $postId: String!
+    $mainMediaData: UpdateMediaInput!
   ) {
-    errors {
-      field
-      message
-    }
-    post {
-      mainMedia {
-        thumbnailUrl
+    updatePostMainMedia(
+      communityId: $communityId
+      postId: $postId
+      mainMediaData: $mainMediaData
+    ) {
+      errors {
+        field
+        message
+      }
+      post {
+        mainMedia {
+          thumbnailUrl
+        }
       }
     }
   }
-}
-    `;
-export type UpdatePostMainMediaThumbnailMutationFn = Apollo.MutationFunction<UpdatePostMainMediaThumbnailMutation, UpdatePostMainMediaThumbnailMutationVariables>;
+`;
+export type UpdatePostMainMediaThumbnailMutationFn = Apollo.MutationFunction<
+  UpdatePostMainMediaThumbnailMutation,
+  UpdatePostMainMediaThumbnailMutationVariables
+>;
 
 /**
  * __useUpdatePostMainMediaThumbnailMutation__
@@ -1679,29 +1871,45 @@ export type UpdatePostMainMediaThumbnailMutationFn = Apollo.MutationFunction<Upd
  *   },
  * });
  */
-export function useUpdatePostMainMediaThumbnailMutation(baseOptions?: Apollo.MutationHookOptions<UpdatePostMainMediaThumbnailMutation, UpdatePostMainMediaThumbnailMutationVariables>) {
-        return Apollo.useMutation<UpdatePostMainMediaThumbnailMutation, UpdatePostMainMediaThumbnailMutationVariables>(UpdatePostMainMediaThumbnailDocument, baseOptions);
-      }
-export type UpdatePostMainMediaThumbnailMutationHookResult = ReturnType<typeof useUpdatePostMainMediaThumbnailMutation>;
+export function useUpdatePostMainMediaThumbnailMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    UpdatePostMainMediaThumbnailMutation,
+    UpdatePostMainMediaThumbnailMutationVariables
+  >,
+) {
+  return Apollo.useMutation<
+    UpdatePostMainMediaThumbnailMutation,
+    UpdatePostMainMediaThumbnailMutationVariables
+  >(UpdatePostMainMediaThumbnailDocument, baseOptions);
+}
+export type UpdatePostMainMediaThumbnailMutationHookResult = ReturnType<
+  typeof useUpdatePostMainMediaThumbnailMutation
+>;
 export type UpdatePostMainMediaThumbnailMutationResult = Apollo.MutationResult<UpdatePostMainMediaThumbnailMutation>;
-export type UpdatePostMainMediaThumbnailMutationOptions = Apollo.BaseMutationOptions<UpdatePostMainMediaThumbnailMutation, UpdatePostMainMediaThumbnailMutationVariables>;
+export type UpdatePostMainMediaThumbnailMutationOptions = Apollo.BaseMutationOptions<
+  UpdatePostMainMediaThumbnailMutation,
+  UpdatePostMainMediaThumbnailMutationVariables
+>;
 export const UploadImageDocument = gql`
-    mutation UploadImage($communitySlug: String!, $imageData: UploadImageInput!) {
-  uploadImage(communitySlug: $communitySlug, imageData: $imageData) {
-    errors {
-      field
-      message
-    }
-    media {
-      _id
-      uploadLink
-      url
-      thumbnailUrl
+  mutation UploadImage($communitySlug: String!, $imageData: UploadImageInput!) {
+    uploadImage(communitySlug: $communitySlug, imageData: $imageData) {
+      errors {
+        field
+        message
+      }
+      media {
+        _id
+        uploadLink
+        url
+        thumbnailUrl
+      }
     }
   }
-}
-    `;
-export type UploadImageMutationFn = Apollo.MutationFunction<UploadImageMutation, UploadImageMutationVariables>;
+`;
+export type UploadImageMutationFn = Apollo.MutationFunction<
+  UploadImageMutation,
+  UploadImageMutationVariables
+>;
 
 /**
  * __useUploadImageMutation__
@@ -1721,36 +1929,52 @@ export type UploadImageMutationFn = Apollo.MutationFunction<UploadImageMutation,
  *   },
  * });
  */
-export function useUploadImageMutation(baseOptions?: Apollo.MutationHookOptions<UploadImageMutation, UploadImageMutationVariables>) {
-        return Apollo.useMutation<UploadImageMutation, UploadImageMutationVariables>(UploadImageDocument, baseOptions);
-      }
-export type UploadImageMutationHookResult = ReturnType<typeof useUploadImageMutation>;
+export function useUploadImageMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    UploadImageMutation,
+    UploadImageMutationVariables
+  >,
+) {
+  return Apollo.useMutation<UploadImageMutation, UploadImageMutationVariables>(
+    UploadImageDocument,
+    baseOptions,
+  );
+}
+export type UploadImageMutationHookResult = ReturnType<
+  typeof useUploadImageMutation
+>;
 export type UploadImageMutationResult = Apollo.MutationResult<UploadImageMutation>;
-export type UploadImageMutationOptions = Apollo.BaseMutationOptions<UploadImageMutation, UploadImageMutationVariables>;
+export type UploadImageMutationOptions = Apollo.BaseMutationOptions<
+  UploadImageMutation,
+  UploadImageMutationVariables
+>;
 export const UploadVideoDocument = gql`
-    mutation UploadVideo($communitySlug: String!, $videoData: UploadMediaInput!) {
-  uploadVideo(communitySlug: $communitySlug, videoData: $videoData) {
-    errors {
-      field
-      message
-    }
-    media {
-      _id
-      url
-      thumbnailUrl
-      file {
-        name
-        size
-        extension
-        type
+  mutation UploadVideo($communitySlug: String!, $videoData: UploadMediaInput!) {
+    uploadVideo(communitySlug: $communitySlug, videoData: $videoData) {
+      errors {
+        field
+        message
       }
-      uploadLink
-      format
+      media {
+        _id
+        url
+        thumbnailUrl
+        file {
+          name
+          size
+          extension
+          type
+        }
+        uploadLink
+        format
+      }
     }
   }
-}
-    `;
-export type UploadVideoMutationFn = Apollo.MutationFunction<UploadVideoMutation, UploadVideoMutationVariables>;
+`;
+export type UploadVideoMutationFn = Apollo.MutationFunction<
+  UploadVideoMutation,
+  UploadVideoMutationVariables
+>;
 
 /**
  * __useUploadVideoMutation__
@@ -1770,25 +1994,39 @@ export type UploadVideoMutationFn = Apollo.MutationFunction<UploadVideoMutation,
  *   },
  * });
  */
-export function useUploadVideoMutation(baseOptions?: Apollo.MutationHookOptions<UploadVideoMutation, UploadVideoMutationVariables>) {
-        return Apollo.useMutation<UploadVideoMutation, UploadVideoMutationVariables>(UploadVideoDocument, baseOptions);
-      }
-export type UploadVideoMutationHookResult = ReturnType<typeof useUploadVideoMutation>;
+export function useUploadVideoMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    UploadVideoMutation,
+    UploadVideoMutationVariables
+  >,
+) {
+  return Apollo.useMutation<UploadVideoMutation, UploadVideoMutationVariables>(
+    UploadVideoDocument,
+    baseOptions,
+  );
+}
+export type UploadVideoMutationHookResult = ReturnType<
+  typeof useUploadVideoMutation
+>;
 export type UploadVideoMutationResult = Apollo.MutationResult<UploadVideoMutation>;
-export type UploadVideoMutationOptions = Apollo.BaseMutationOptions<UploadVideoMutation, UploadVideoMutationVariables>;
+export type UploadVideoMutationOptions = Apollo.BaseMutationOptions<
+  UploadVideoMutation,
+  UploadVideoMutationVariables
+>;
 export const GetCommunityBasicDataDocument = gql`
-    query getCommunityBasicData($slug: String!) {
-  community(slug: $slug) {
-    errors {
-      field
-      message
-    }
-    community {
-      ...CommonCommunity
+  query getCommunityBasicData($slug: String!) {
+    community(slug: $slug) {
+      errors {
+        field
+        message
+      }
+      community {
+        ...CommonCommunity
+      }
     }
   }
-}
-    ${CommonCommunityFragmentDoc}`;
+  ${CommonCommunityFragmentDoc}
+`;
 
 /**
  * __useGetCommunityBasicDataQuery__
@@ -1806,34 +2044,58 @@ export const GetCommunityBasicDataDocument = gql`
  *   },
  * });
  */
-export function useGetCommunityBasicDataQuery(baseOptions: Apollo.QueryHookOptions<GetCommunityBasicDataQuery, GetCommunityBasicDataQueryVariables>) {
-        return Apollo.useQuery<GetCommunityBasicDataQuery, GetCommunityBasicDataQueryVariables>(GetCommunityBasicDataDocument, baseOptions);
-      }
-export function useGetCommunityBasicDataLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetCommunityBasicDataQuery, GetCommunityBasicDataQueryVariables>) {
-          return Apollo.useLazyQuery<GetCommunityBasicDataQuery, GetCommunityBasicDataQueryVariables>(GetCommunityBasicDataDocument, baseOptions);
-        }
-export type GetCommunityBasicDataQueryHookResult = ReturnType<typeof useGetCommunityBasicDataQuery>;
-export type GetCommunityBasicDataLazyQueryHookResult = ReturnType<typeof useGetCommunityBasicDataLazyQuery>;
-export type GetCommunityBasicDataQueryResult = Apollo.QueryResult<GetCommunityBasicDataQuery, GetCommunityBasicDataQueryVariables>;
+export function useGetCommunityBasicDataQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    GetCommunityBasicDataQuery,
+    GetCommunityBasicDataQueryVariables
+  >,
+) {
+  return Apollo.useQuery<
+    GetCommunityBasicDataQuery,
+    GetCommunityBasicDataQueryVariables
+  >(GetCommunityBasicDataDocument, baseOptions);
+}
+export function useGetCommunityBasicDataLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetCommunityBasicDataQuery,
+    GetCommunityBasicDataQueryVariables
+  >,
+) {
+  return Apollo.useLazyQuery<
+    GetCommunityBasicDataQuery,
+    GetCommunityBasicDataQueryVariables
+  >(GetCommunityBasicDataDocument, baseOptions);
+}
+export type GetCommunityBasicDataQueryHookResult = ReturnType<
+  typeof useGetCommunityBasicDataQuery
+>;
+export type GetCommunityBasicDataLazyQueryHookResult = ReturnType<
+  typeof useGetCommunityBasicDataLazyQuery
+>;
+export type GetCommunityBasicDataQueryResult = Apollo.QueryResult<
+  GetCommunityBasicDataQuery,
+  GetCommunityBasicDataQueryVariables
+>;
 export const CommunityPageTemplateMeDocument = gql`
-    query CommunityPageTemplateMe {
-  me {
-    errors {
-      field
-      message
-    }
-    user {
-      ...CommonUser
-      roles {
-        community {
-          slug
+  query CommunityPageTemplateMe {
+    me {
+      errors {
+        field
+        message
+      }
+      user {
+        ...CommonUser
+        roles {
+          community {
+            slug
+          }
+          role
         }
-        role
       }
     }
   }
-}
-    ${CommonUserFragmentDoc}`;
+  ${CommonUserFragmentDoc}
+`;
 
 /**
  * __useCommunityPageTemplateMeQuery__
@@ -1850,40 +2112,64 @@ export const CommunityPageTemplateMeDocument = gql`
  *   },
  * });
  */
-export function useCommunityPageTemplateMeQuery(baseOptions?: Apollo.QueryHookOptions<CommunityPageTemplateMeQuery, CommunityPageTemplateMeQueryVariables>) {
-        return Apollo.useQuery<CommunityPageTemplateMeQuery, CommunityPageTemplateMeQueryVariables>(CommunityPageTemplateMeDocument, baseOptions);
-      }
-export function useCommunityPageTemplateMeLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<CommunityPageTemplateMeQuery, CommunityPageTemplateMeQueryVariables>) {
-          return Apollo.useLazyQuery<CommunityPageTemplateMeQuery, CommunityPageTemplateMeQueryVariables>(CommunityPageTemplateMeDocument, baseOptions);
-        }
-export type CommunityPageTemplateMeQueryHookResult = ReturnType<typeof useCommunityPageTemplateMeQuery>;
-export type CommunityPageTemplateMeLazyQueryHookResult = ReturnType<typeof useCommunityPageTemplateMeLazyQuery>;
-export type CommunityPageTemplateMeQueryResult = Apollo.QueryResult<CommunityPageTemplateMeQuery, CommunityPageTemplateMeQueryVariables>;
+export function useCommunityPageTemplateMeQuery(
+  baseOptions?: Apollo.QueryHookOptions<
+    CommunityPageTemplateMeQuery,
+    CommunityPageTemplateMeQueryVariables
+  >,
+) {
+  return Apollo.useQuery<
+    CommunityPageTemplateMeQuery,
+    CommunityPageTemplateMeQueryVariables
+  >(CommunityPageTemplateMeDocument, baseOptions);
+}
+export function useCommunityPageTemplateMeLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    CommunityPageTemplateMeQuery,
+    CommunityPageTemplateMeQueryVariables
+  >,
+) {
+  return Apollo.useLazyQuery<
+    CommunityPageTemplateMeQuery,
+    CommunityPageTemplateMeQueryVariables
+  >(CommunityPageTemplateMeDocument, baseOptions);
+}
+export type CommunityPageTemplateMeQueryHookResult = ReturnType<
+  typeof useCommunityPageTemplateMeQuery
+>;
+export type CommunityPageTemplateMeLazyQueryHookResult = ReturnType<
+  typeof useCommunityPageTemplateMeLazyQuery
+>;
+export type CommunityPageTemplateMeQueryResult = Apollo.QueryResult<
+  CommunityPageTemplateMeQuery,
+  CommunityPageTemplateMeQueryVariables
+>;
 export const CommunityTagPostsDocument = gql`
-    query CommunityTagPosts($data: FindByTagsInput!) {
-  findTagBySlugs(data: $data) {
-    errors {
-      field
-      message
-    }
-    tag {
-      title
-      description
-      postCount
-      slug
-      posts(limit: 5) {
+  query CommunityTagPosts($data: FindByTagsInput!) {
+    findTagBySlugs(data: $data) {
+      errors {
+        field
+        message
+      }
+      tag {
         title
         description
-        likes
+        postCount
         slug
-      }
-      community {
-        ...CommonCommunity
+        posts(limit: 5) {
+          title
+          description
+          likes
+          slug
+        }
+        community {
+          ...CommonCommunity
+        }
       }
     }
   }
-}
-    ${CommonCommunityFragmentDoc}`;
+  ${CommonCommunityFragmentDoc}
+`;
 
 /**
  * __useCommunityTagPostsQuery__
@@ -1901,29 +2187,54 @@ export const CommunityTagPostsDocument = gql`
  *   },
  * });
  */
-export function useCommunityTagPostsQuery(baseOptions: Apollo.QueryHookOptions<CommunityTagPostsQuery, CommunityTagPostsQueryVariables>) {
-        return Apollo.useQuery<CommunityTagPostsQuery, CommunityTagPostsQueryVariables>(CommunityTagPostsDocument, baseOptions);
-      }
-export function useCommunityTagPostsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<CommunityTagPostsQuery, CommunityTagPostsQueryVariables>) {
-          return Apollo.useLazyQuery<CommunityTagPostsQuery, CommunityTagPostsQueryVariables>(CommunityTagPostsDocument, baseOptions);
-        }
-export type CommunityTagPostsQueryHookResult = ReturnType<typeof useCommunityTagPostsQuery>;
-export type CommunityTagPostsLazyQueryHookResult = ReturnType<typeof useCommunityTagPostsLazyQuery>;
-export type CommunityTagPostsQueryResult = Apollo.QueryResult<CommunityTagPostsQuery, CommunityTagPostsQueryVariables>;
+export function useCommunityTagPostsQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    CommunityTagPostsQuery,
+    CommunityTagPostsQueryVariables
+  >,
+) {
+  return Apollo.useQuery<
+    CommunityTagPostsQuery,
+    CommunityTagPostsQueryVariables
+  >(CommunityTagPostsDocument, baseOptions);
+}
+export function useCommunityTagPostsLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    CommunityTagPostsQuery,
+    CommunityTagPostsQueryVariables
+  >,
+) {
+  return Apollo.useLazyQuery<
+    CommunityTagPostsQuery,
+    CommunityTagPostsQueryVariables
+  >(CommunityTagPostsDocument, baseOptions);
+}
+export type CommunityTagPostsQueryHookResult = ReturnType<
+  typeof useCommunityTagPostsQuery
+>;
+export type CommunityTagPostsLazyQueryHookResult = ReturnType<
+  typeof useCommunityTagPostsLazyQuery
+>;
+export type CommunityTagPostsQueryResult = Apollo.QueryResult<
+  CommunityTagPostsQuery,
+  CommunityTagPostsQueryVariables
+>;
 export const FindCommunityTagsByUserInputDocument = gql`
-    query FindCommunityTagsByUserInput($communitySlug: String!, $input: String!) {
-  findTagsByInput(data: {communitySlug: $communitySlug, userInput: $input}) {
-    errors {
-      field
-      message
-    }
-    tags {
-      _id
-      title
+  query FindCommunityTagsByUserInput($communitySlug: String!, $input: String!) {
+    findTagsByInput(
+      data: { communitySlug: $communitySlug, userInput: $input }
+    ) {
+      errors {
+        field
+        message
+      }
+      tags {
+        _id
+        title
+      }
     }
   }
-}
-    `;
+`;
 
 /**
  * __useFindCommunityTagsByUserInputQuery__
@@ -1942,28 +2253,51 @@ export const FindCommunityTagsByUserInputDocument = gql`
  *   },
  * });
  */
-export function useFindCommunityTagsByUserInputQuery(baseOptions: Apollo.QueryHookOptions<FindCommunityTagsByUserInputQuery, FindCommunityTagsByUserInputQueryVariables>) {
-        return Apollo.useQuery<FindCommunityTagsByUserInputQuery, FindCommunityTagsByUserInputQueryVariables>(FindCommunityTagsByUserInputDocument, baseOptions);
-      }
-export function useFindCommunityTagsByUserInputLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<FindCommunityTagsByUserInputQuery, FindCommunityTagsByUserInputQueryVariables>) {
-          return Apollo.useLazyQuery<FindCommunityTagsByUserInputQuery, FindCommunityTagsByUserInputQueryVariables>(FindCommunityTagsByUserInputDocument, baseOptions);
-        }
-export type FindCommunityTagsByUserInputQueryHookResult = ReturnType<typeof useFindCommunityTagsByUserInputQuery>;
-export type FindCommunityTagsByUserInputLazyQueryHookResult = ReturnType<typeof useFindCommunityTagsByUserInputLazyQuery>;
-export type FindCommunityTagsByUserInputQueryResult = Apollo.QueryResult<FindCommunityTagsByUserInputQuery, FindCommunityTagsByUserInputQueryVariables>;
+export function useFindCommunityTagsByUserInputQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    FindCommunityTagsByUserInputQuery,
+    FindCommunityTagsByUserInputQueryVariables
+  >,
+) {
+  return Apollo.useQuery<
+    FindCommunityTagsByUserInputQuery,
+    FindCommunityTagsByUserInputQueryVariables
+  >(FindCommunityTagsByUserInputDocument, baseOptions);
+}
+export function useFindCommunityTagsByUserInputLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    FindCommunityTagsByUserInputQuery,
+    FindCommunityTagsByUserInputQueryVariables
+  >,
+) {
+  return Apollo.useLazyQuery<
+    FindCommunityTagsByUserInputQuery,
+    FindCommunityTagsByUserInputQueryVariables
+  >(FindCommunityTagsByUserInputDocument, baseOptions);
+}
+export type FindCommunityTagsByUserInputQueryHookResult = ReturnType<
+  typeof useFindCommunityTagsByUserInputQuery
+>;
+export type FindCommunityTagsByUserInputLazyQueryHookResult = ReturnType<
+  typeof useFindCommunityTagsByUserInputLazyQuery
+>;
+export type FindCommunityTagsByUserInputQueryResult = Apollo.QueryResult<
+  FindCommunityTagsByUserInputQuery,
+  FindCommunityTagsByUserInputQueryVariables
+>;
 export const GetCommunitiesSlugsDocument = gql`
-    query GetCommunitiesSlugs {
-  communities {
-    errors {
-      field
-      message
-    }
+  query GetCommunitiesSlugs {
     communities {
-      slug
+      errors {
+        field
+        message
+      }
+      communities {
+        slug
+      }
     }
   }
-}
-    `;
+`;
 
 /**
  * __useGetCommunitiesSlugsQuery__
@@ -1980,58 +2314,81 @@ export const GetCommunitiesSlugsDocument = gql`
  *   },
  * });
  */
-export function useGetCommunitiesSlugsQuery(baseOptions?: Apollo.QueryHookOptions<GetCommunitiesSlugsQuery, GetCommunitiesSlugsQueryVariables>) {
-        return Apollo.useQuery<GetCommunitiesSlugsQuery, GetCommunitiesSlugsQueryVariables>(GetCommunitiesSlugsDocument, baseOptions);
-      }
-export function useGetCommunitiesSlugsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetCommunitiesSlugsQuery, GetCommunitiesSlugsQueryVariables>) {
-          return Apollo.useLazyQuery<GetCommunitiesSlugsQuery, GetCommunitiesSlugsQueryVariables>(GetCommunitiesSlugsDocument, baseOptions);
-        }
-export type GetCommunitiesSlugsQueryHookResult = ReturnType<typeof useGetCommunitiesSlugsQuery>;
-export type GetCommunitiesSlugsLazyQueryHookResult = ReturnType<typeof useGetCommunitiesSlugsLazyQuery>;
-export type GetCommunitiesSlugsQueryResult = Apollo.QueryResult<GetCommunitiesSlugsQuery, GetCommunitiesSlugsQueryVariables>;
+export function useGetCommunitiesSlugsQuery(
+  baseOptions?: Apollo.QueryHookOptions<
+    GetCommunitiesSlugsQuery,
+    GetCommunitiesSlugsQueryVariables
+  >,
+) {
+  return Apollo.useQuery<
+    GetCommunitiesSlugsQuery,
+    GetCommunitiesSlugsQueryVariables
+  >(GetCommunitiesSlugsDocument, baseOptions);
+}
+export function useGetCommunitiesSlugsLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetCommunitiesSlugsQuery,
+    GetCommunitiesSlugsQueryVariables
+  >,
+) {
+  return Apollo.useLazyQuery<
+    GetCommunitiesSlugsQuery,
+    GetCommunitiesSlugsQueryVariables
+  >(GetCommunitiesSlugsDocument, baseOptions);
+}
+export type GetCommunitiesSlugsQueryHookResult = ReturnType<
+  typeof useGetCommunitiesSlugsQuery
+>;
+export type GetCommunitiesSlugsLazyQueryHookResult = ReturnType<
+  typeof useGetCommunitiesSlugsLazyQuery
+>;
+export type GetCommunitiesSlugsQueryResult = Apollo.QueryResult<
+  GetCommunitiesSlugsQuery,
+  GetCommunitiesSlugsQueryVariables
+>;
 export const GetCommunityHomeDataDocument = gql`
-    query getCommunityHomeData($slug: String!, $postsStatus: PostStatus!) {
-  community(slug: $slug) {
-    errors {
-      field
-      message
-    }
-    community {
-      _id
-      logo
-      title
-      description
-      slug
-      banner {
-        url
+  query getCommunityHomeData($slug: String!, $postsStatus: PostStatus!) {
+    community(slug: $slug) {
+      errors {
+        field
+        message
       }
-      avatar {
-        url
-      }
-      tags(limit: 3) {
+      community {
+        _id
+        logo
         title
+        description
         slug
-        postCount(postOptions: {status: $postsStatus})
-        posts(limit: 10, postOptions: {status: $postsStatus}) {
+        banner {
+          url
+        }
+        avatar {
+          url
+        }
+        tags(limit: 3) {
           title
           slug
-          likes
-          exclusive
-          mainMedia {
-            thumbnailUrl
+          postCount(postOptions: { status: $postsStatus })
+          posts(limit: 10, postOptions: { status: $postsStatus }) {
+            title
+            slug
+            likes
+            exclusive
+            mainMedia {
+              thumbnailUrl
+            }
           }
         }
+        creator {
+          name
+          surname
+        }
+        followersCount
+        membersCount
       }
-      creator {
-        name
-        surname
-      }
-      followersCount
-      membersCount
     }
   }
-}
-    `;
+`;
 
 /**
  * __useGetCommunityHomeDataQuery__
@@ -2050,32 +2407,56 @@ export const GetCommunityHomeDataDocument = gql`
  *   },
  * });
  */
-export function useGetCommunityHomeDataQuery(baseOptions: Apollo.QueryHookOptions<GetCommunityHomeDataQuery, GetCommunityHomeDataQueryVariables>) {
-        return Apollo.useQuery<GetCommunityHomeDataQuery, GetCommunityHomeDataQueryVariables>(GetCommunityHomeDataDocument, baseOptions);
-      }
-export function useGetCommunityHomeDataLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetCommunityHomeDataQuery, GetCommunityHomeDataQueryVariables>) {
-          return Apollo.useLazyQuery<GetCommunityHomeDataQuery, GetCommunityHomeDataQueryVariables>(GetCommunityHomeDataDocument, baseOptions);
-        }
-export type GetCommunityHomeDataQueryHookResult = ReturnType<typeof useGetCommunityHomeDataQuery>;
-export type GetCommunityHomeDataLazyQueryHookResult = ReturnType<typeof useGetCommunityHomeDataLazyQuery>;
-export type GetCommunityHomeDataQueryResult = Apollo.QueryResult<GetCommunityHomeDataQuery, GetCommunityHomeDataQueryVariables>;
+export function useGetCommunityHomeDataQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    GetCommunityHomeDataQuery,
+    GetCommunityHomeDataQueryVariables
+  >,
+) {
+  return Apollo.useQuery<
+    GetCommunityHomeDataQuery,
+    GetCommunityHomeDataQueryVariables
+  >(GetCommunityHomeDataDocument, baseOptions);
+}
+export function useGetCommunityHomeDataLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetCommunityHomeDataQuery,
+    GetCommunityHomeDataQueryVariables
+  >,
+) {
+  return Apollo.useLazyQuery<
+    GetCommunityHomeDataQuery,
+    GetCommunityHomeDataQueryVariables
+  >(GetCommunityHomeDataDocument, baseOptions);
+}
+export type GetCommunityHomeDataQueryHookResult = ReturnType<
+  typeof useGetCommunityHomeDataQuery
+>;
+export type GetCommunityHomeDataLazyQueryHookResult = ReturnType<
+  typeof useGetCommunityHomeDataLazyQuery
+>;
+export type GetCommunityHomeDataQueryResult = Apollo.QueryResult<
+  GetCommunityHomeDataQuery,
+  GetCommunityHomeDataQueryVariables
+>;
 export const GetCommunityTagsDataDocument = gql`
-    query getCommunityTagsData($slug: String!) {
-  community(slug: $slug) {
-    errors {
-      field
-      message
-    }
-    community {
-      ...CommonCommunity
-      tags(limit: 5) {
-        title
-        slug
+  query getCommunityTagsData($slug: String!) {
+    community(slug: $slug) {
+      errors {
+        field
+        message
+      }
+      community {
+        ...CommonCommunity
+        tags(limit: 5) {
+          title
+          slug
+        }
       }
     }
   }
-}
-    ${CommonCommunityFragmentDoc}`;
+  ${CommonCommunityFragmentDoc}
+`;
 
 /**
  * __useGetCommunityTagsDataQuery__
@@ -2093,45 +2474,68 @@ export const GetCommunityTagsDataDocument = gql`
  *   },
  * });
  */
-export function useGetCommunityTagsDataQuery(baseOptions: Apollo.QueryHookOptions<GetCommunityTagsDataQuery, GetCommunityTagsDataQueryVariables>) {
-        return Apollo.useQuery<GetCommunityTagsDataQuery, GetCommunityTagsDataQueryVariables>(GetCommunityTagsDataDocument, baseOptions);
-      }
-export function useGetCommunityTagsDataLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetCommunityTagsDataQuery, GetCommunityTagsDataQueryVariables>) {
-          return Apollo.useLazyQuery<GetCommunityTagsDataQuery, GetCommunityTagsDataQueryVariables>(GetCommunityTagsDataDocument, baseOptions);
-        }
-export type GetCommunityTagsDataQueryHookResult = ReturnType<typeof useGetCommunityTagsDataQuery>;
-export type GetCommunityTagsDataLazyQueryHookResult = ReturnType<typeof useGetCommunityTagsDataLazyQuery>;
-export type GetCommunityTagsDataQueryResult = Apollo.QueryResult<GetCommunityTagsDataQuery, GetCommunityTagsDataQueryVariables>;
+export function useGetCommunityTagsDataQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    GetCommunityTagsDataQuery,
+    GetCommunityTagsDataQueryVariables
+  >,
+) {
+  return Apollo.useQuery<
+    GetCommunityTagsDataQuery,
+    GetCommunityTagsDataQueryVariables
+  >(GetCommunityTagsDataDocument, baseOptions);
+}
+export function useGetCommunityTagsDataLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetCommunityTagsDataQuery,
+    GetCommunityTagsDataQueryVariables
+  >,
+) {
+  return Apollo.useLazyQuery<
+    GetCommunityTagsDataQuery,
+    GetCommunityTagsDataQueryVariables
+  >(GetCommunityTagsDataDocument, baseOptions);
+}
+export type GetCommunityTagsDataQueryHookResult = ReturnType<
+  typeof useGetCommunityTagsDataQuery
+>;
+export type GetCommunityTagsDataLazyQueryHookResult = ReturnType<
+  typeof useGetCommunityTagsDataLazyQuery
+>;
+export type GetCommunityTagsDataQueryResult = Apollo.QueryResult<
+  GetCommunityTagsDataQuery,
+  GetCommunityTagsDataQueryVariables
+>;
 export const GetPostByIdDocument = gql`
-    query GetPostById($id: String!) {
-  findPostById(id: $id) {
-    errors {
-      field
-      message
-    }
-    post {
-      _id
-      title
-      formattedTitle
-      slug
-      description
-      status
-      mainMedia {
-        _id
-        url
-        thumbnailUrl
-        format
+  query GetPostById($id: String!) {
+    findPostById(id: $id) {
+      errors {
+        field
+        message
       }
-      content
-      exclusive
-      tags {
+      post {
         _id
         title
+        formattedTitle
+        slug
+        description
+        status
+        mainMedia {
+          _id
+          url
+          thumbnailUrl
+          format
+        }
+        content
+        exclusive
+        tags {
+          _id
+          title
+        }
       }
     }
   }
-}
-    `;
+`;
 
 /**
  * __useGetPostByIdQuery__
@@ -2149,31 +2553,52 @@ export const GetPostByIdDocument = gql`
  *   },
  * });
  */
-export function useGetPostByIdQuery(baseOptions: Apollo.QueryHookOptions<GetPostByIdQuery, GetPostByIdQueryVariables>) {
-        return Apollo.useQuery<GetPostByIdQuery, GetPostByIdQueryVariables>(GetPostByIdDocument, baseOptions);
-      }
-export function useGetPostByIdLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetPostByIdQuery, GetPostByIdQueryVariables>) {
-          return Apollo.useLazyQuery<GetPostByIdQuery, GetPostByIdQueryVariables>(GetPostByIdDocument, baseOptions);
-        }
+export function useGetPostByIdQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    GetPostByIdQuery,
+    GetPostByIdQueryVariables
+  >,
+) {
+  return Apollo.useQuery<GetPostByIdQuery, GetPostByIdQueryVariables>(
+    GetPostByIdDocument,
+    baseOptions,
+  );
+}
+export function useGetPostByIdLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetPostByIdQuery,
+    GetPostByIdQueryVariables
+  >,
+) {
+  return Apollo.useLazyQuery<GetPostByIdQuery, GetPostByIdQueryVariables>(
+    GetPostByIdDocument,
+    baseOptions,
+  );
+}
 export type GetPostByIdQueryHookResult = ReturnType<typeof useGetPostByIdQuery>;
-export type GetPostByIdLazyQueryHookResult = ReturnType<typeof useGetPostByIdLazyQuery>;
-export type GetPostByIdQueryResult = Apollo.QueryResult<GetPostByIdQuery, GetPostByIdQueryVariables>;
+export type GetPostByIdLazyQueryHookResult = ReturnType<
+  typeof useGetPostByIdLazyQuery
+>;
+export type GetPostByIdQueryResult = Apollo.QueryResult<
+  GetPostByIdQuery,
+  GetPostByIdQueryVariables
+>;
 export const GetPostsSlugsDocument = gql`
-    query GetPostsSlugs {
-  allPosts {
-    errors {
-      field
-      message
-    }
-    posts {
-      slug
-      community {
+  query GetPostsSlugs {
+    allPosts {
+      errors {
+        field
+        message
+      }
+      posts {
         slug
+        community {
+          slug
+        }
       }
     }
   }
-}
-    `;
+`;
 
 /**
  * __useGetPostsSlugsQuery__
@@ -2190,34 +2615,58 @@ export const GetPostsSlugsDocument = gql`
  *   },
  * });
  */
-export function useGetPostsSlugsQuery(baseOptions?: Apollo.QueryHookOptions<GetPostsSlugsQuery, GetPostsSlugsQueryVariables>) {
-        return Apollo.useQuery<GetPostsSlugsQuery, GetPostsSlugsQueryVariables>(GetPostsSlugsDocument, baseOptions);
-      }
-export function useGetPostsSlugsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetPostsSlugsQuery, GetPostsSlugsQueryVariables>) {
-          return Apollo.useLazyQuery<GetPostsSlugsQuery, GetPostsSlugsQueryVariables>(GetPostsSlugsDocument, baseOptions);
-        }
-export type GetPostsSlugsQueryHookResult = ReturnType<typeof useGetPostsSlugsQuery>;
-export type GetPostsSlugsLazyQueryHookResult = ReturnType<typeof useGetPostsSlugsLazyQuery>;
-export type GetPostsSlugsQueryResult = Apollo.QueryResult<GetPostsSlugsQuery, GetPostsSlugsQueryVariables>;
+export function useGetPostsSlugsQuery(
+  baseOptions?: Apollo.QueryHookOptions<
+    GetPostsSlugsQuery,
+    GetPostsSlugsQueryVariables
+  >,
+) {
+  return Apollo.useQuery<GetPostsSlugsQuery, GetPostsSlugsQueryVariables>(
+    GetPostsSlugsDocument,
+    baseOptions,
+  );
+}
+export function useGetPostsSlugsLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetPostsSlugsQuery,
+    GetPostsSlugsQueryVariables
+  >,
+) {
+  return Apollo.useLazyQuery<GetPostsSlugsQuery, GetPostsSlugsQueryVariables>(
+    GetPostsSlugsDocument,
+    baseOptions,
+  );
+}
+export type GetPostsSlugsQueryHookResult = ReturnType<
+  typeof useGetPostsSlugsQuery
+>;
+export type GetPostsSlugsLazyQueryHookResult = ReturnType<
+  typeof useGetPostsSlugsLazyQuery
+>;
+export type GetPostsSlugsQueryResult = Apollo.QueryResult<
+  GetPostsSlugsQuery,
+  GetPostsSlugsQueryVariables
+>;
 export const HeaderMeDocument = gql`
-    query HeaderMe {
-  me {
-    errors {
-      field
-      message
-    }
-    user {
-      ...CommonUser
-      roles {
-        community {
-          slug
+  query HeaderMe {
+    me {
+      errors {
+        field
+        message
+      }
+      user {
+        ...CommonUser
+        roles {
+          community {
+            slug
+          }
+          role
         }
-        role
       }
     }
   }
-}
-    ${CommonUserFragmentDoc}`;
+  ${CommonUserFragmentDoc}
+`;
 
 /**
  * __useHeaderMeQuery__
@@ -2234,51 +2683,70 @@ export const HeaderMeDocument = gql`
  *   },
  * });
  */
-export function useHeaderMeQuery(baseOptions?: Apollo.QueryHookOptions<HeaderMeQuery, HeaderMeQueryVariables>) {
-        return Apollo.useQuery<HeaderMeQuery, HeaderMeQueryVariables>(HeaderMeDocument, baseOptions);
-      }
-export function useHeaderMeLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<HeaderMeQuery, HeaderMeQueryVariables>) {
-          return Apollo.useLazyQuery<HeaderMeQuery, HeaderMeQueryVariables>(HeaderMeDocument, baseOptions);
-        }
+export function useHeaderMeQuery(
+  baseOptions?: Apollo.QueryHookOptions<HeaderMeQuery, HeaderMeQueryVariables>,
+) {
+  return Apollo.useQuery<HeaderMeQuery, HeaderMeQueryVariables>(
+    HeaderMeDocument,
+    baseOptions,
+  );
+}
+export function useHeaderMeLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    HeaderMeQuery,
+    HeaderMeQueryVariables
+  >,
+) {
+  return Apollo.useLazyQuery<HeaderMeQuery, HeaderMeQueryVariables>(
+    HeaderMeDocument,
+    baseOptions,
+  );
+}
 export type HeaderMeQueryHookResult = ReturnType<typeof useHeaderMeQuery>;
-export type HeaderMeLazyQueryHookResult = ReturnType<typeof useHeaderMeLazyQuery>;
-export type HeaderMeQueryResult = Apollo.QueryResult<HeaderMeQuery, HeaderMeQueryVariables>;
+export type HeaderMeLazyQueryHookResult = ReturnType<
+  typeof useHeaderMeLazyQuery
+>;
+export type HeaderMeQueryResult = Apollo.QueryResult<
+  HeaderMeQuery,
+  HeaderMeQueryVariables
+>;
 export const PostBySlugsDocument = gql`
-    query PostBySlugs($data: FindBySlugsInput!) {
-  findPostBySlugs(data: $data) {
-    errors {
-      field
-      message
-    }
-    post {
-      title
-      slug
-      description
-      content
-      exclusive
-      mainMedia {
-        format
-        url
-        thumbnailUrl
+  query PostBySlugs($data: FindBySlugsInput!) {
+    findPostBySlugs(data: $data) {
+      errors {
+        field
+        message
       }
-      creator {
-        ...CreatorName
-      }
-      tags {
-        title
-      }
-      community {
+      post {
         title
         slug
+        description
+        content
+        exclusive
+        mainMedia {
+          format
+          url
+          thumbnailUrl
+        }
         creator {
           ...CreatorName
         }
+        tags {
+          title
+        }
+        community {
+          title
+          slug
+          creator {
+            ...CreatorName
+          }
+        }
+        createdAt
       }
-      createdAt
     }
   }
-}
-    ${CreatorNameFragmentDoc}`;
+  ${CreatorNameFragmentDoc}
+`;
 
 /**
  * __usePostBySlugsQuery__
@@ -2296,12 +2764,33 @@ export const PostBySlugsDocument = gql`
  *   },
  * });
  */
-export function usePostBySlugsQuery(baseOptions: Apollo.QueryHookOptions<PostBySlugsQuery, PostBySlugsQueryVariables>) {
-        return Apollo.useQuery<PostBySlugsQuery, PostBySlugsQueryVariables>(PostBySlugsDocument, baseOptions);
-      }
-export function usePostBySlugsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<PostBySlugsQuery, PostBySlugsQueryVariables>) {
-          return Apollo.useLazyQuery<PostBySlugsQuery, PostBySlugsQueryVariables>(PostBySlugsDocument, baseOptions);
-        }
+export function usePostBySlugsQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    PostBySlugsQuery,
+    PostBySlugsQueryVariables
+  >,
+) {
+  return Apollo.useQuery<PostBySlugsQuery, PostBySlugsQueryVariables>(
+    PostBySlugsDocument,
+    baseOptions,
+  );
+}
+export function usePostBySlugsLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    PostBySlugsQuery,
+    PostBySlugsQueryVariables
+  >,
+) {
+  return Apollo.useLazyQuery<PostBySlugsQuery, PostBySlugsQueryVariables>(
+    PostBySlugsDocument,
+    baseOptions,
+  );
+}
 export type PostBySlugsQueryHookResult = ReturnType<typeof usePostBySlugsQuery>;
-export type PostBySlugsLazyQueryHookResult = ReturnType<typeof usePostBySlugsLazyQuery>;
-export type PostBySlugsQueryResult = Apollo.QueryResult<PostBySlugsQuery, PostBySlugsQueryVariables>;
+export type PostBySlugsLazyQueryHookResult = ReturnType<
+  typeof usePostBySlugsLazyQuery
+>;
+export type PostBySlugsQueryResult = Apollo.QueryResult<
+  PostBySlugsQuery,
+  PostBySlugsQueryVariables
+>;
