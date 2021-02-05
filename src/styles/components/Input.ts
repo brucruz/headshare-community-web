@@ -8,7 +8,7 @@ export const InputContainer = styled.section`
   position: relative;
 `;
 
-export const UserInput = styled.header<Input>`
+export const UserInput = styled.header<InputProps>`
   background: var(--page-background);
   width: 100%;
   height: 48px;
