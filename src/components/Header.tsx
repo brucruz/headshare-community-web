@@ -25,6 +25,8 @@ import {
   useCreatePostMutation,
 } from '../generated/graphql';
 import { isServer } from '../utils/isServer';
+import AuthModal from './AuthModal';
+import { useAuth, AuthType } from '../hooks/useAuth';
 
 interface HeaderProps {
   communityTitle: string;
@@ -51,6 +53,7 @@ const Header: React.FC<HeaderProps> = ({
     | undefined
   >(undefined);
 
+  const { openAuth } = useAuth();
   const router = useRouter();
   const apolloClient = useApolloClient();
   const [logout] = useLogoutMutation();
@@ -83,12 +86,12 @@ const Header: React.FC<HeaderProps> = ({
     logout();
     apolloClient.resetStore();
 
-    if (router.pathname === '/') {
+    if (router.pathname === `/${communitySlug}`) {
       router.reload();
     } else {
-      router.push('/');
+      router.push(`/${communitySlug}`);
     }
-  }, [router, apolloClient, logout]);
+  }, [router, apolloClient, logout, communitySlug]);
 
   const handleNewPost = useCallback(async () => {
     const result = await createPost({
@@ -107,40 +110,6 @@ const Header: React.FC<HeaderProps> = ({
       }
     }
   }, [createPost, router, communitySlug]);
-
-  const menuContent = useMemo(() => {
-    if (!user) {
-      return (
-        <MenuContainer>
-          <NextLink href="/login">
-            <MenuItem>Entrar</MenuItem>
-          </NextLink>
-          <NextLink href="/register">
-            <MenuItem>Cadastrar</MenuItem>
-          </NextLink>
-        </MenuContainer>
-      );
-    }
-    return (
-      <MenuContainer>
-        <MenuItem>
-          <p>
-            <strong>
-              {user.name} {user.surname}
-            </strong>
-          </p>
-          <p>{user.email}</p>
-        </MenuItem>
-        <NextLink href="/me">
-          <MenuItem>Meu Perfil</MenuItem>
-        </NextLink>
-        {/* <NextLink href="/"> */}
-        <MenuItem>Minhas comunidades</MenuItem>
-        {/* </NextLink> */}
-        <MenuItem onClick={handleLogout}>Logout</MenuItem>
-      </MenuContainer>
-    );
-  }, [user, handleLogout]);
 
   const ctaButton = useMemo((): JSX.Element | undefined => {
     if (!isCreator && !isMember) {
@@ -179,6 +148,53 @@ const Header: React.FC<HeaderProps> = ({
     setMenuIsOpen(!menuIsOpen);
   }, [menuIsOpen]);
 
+  const openAuthModal = useCallback(
+    (state?: AuthType) => {
+      setMenuIsOpen(false);
+
+      openAuth(state);
+    },
+    [openAuth],
+  );
+
+  const menuContent = useMemo(() => {
+    if (!user) {
+      return (
+        <MenuContainer>
+          {/* <NextLink href="/login"> */}
+          <button type="button" onClick={() => openAuthModal('login')}>
+            <MenuItem>Entrar</MenuItem>
+          </button>
+          {/* </NextLink> */}
+          {/* <NextLink href="/register"> */}
+          <button type="button" onClick={() => openAuthModal('register')}>
+            <MenuItem>Cadastrar</MenuItem>
+          </button>
+          {/* </NextLink> */}
+        </MenuContainer>
+      );
+    }
+    return (
+      <MenuContainer>
+        <MenuItem noHover>
+          <p>
+            <strong>
+              {user.name} {user.surname}
+            </strong>
+          </p>
+          <p>{user.email}</p>
+        </MenuItem>
+        <NextLink href="/me">
+          <MenuItem disabled>Meu Perfil</MenuItem>
+        </NextLink>
+        {/* <NextLink href="/"> */}
+        <MenuItem disabled>Minhas comunidades</MenuItem>
+        {/* </NextLink> */}
+        <MenuItem onClick={handleLogout}>Logout</MenuItem>
+      </MenuContainer>
+    );
+  }, [user, handleLogout, openAuthModal]);
+
   return (
     <HeaderContainer>
       <HeaderContent>
@@ -214,6 +230,8 @@ const Header: React.FC<HeaderProps> = ({
           {menuIsOpen && menuContent}
         </Menu>
       </HeaderContent>
+
+      <AuthModal />
     </HeaderContainer>
   );
 };

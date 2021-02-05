@@ -1,10 +1,14 @@
 import styled from 'styled-components';
 
+interface InputProps {
+  hasError: boolean;
+}
+
 export const InputContainer = styled.section`
   position: relative;
 `;
 
-export const UserInput = styled.header`
+export const UserInput = styled.header<Input>`
   background: var(--page-background);
   width: 100%;
   height: 48px;
@@ -12,6 +16,8 @@ export const UserInput = styled.header`
   display: flex;
 
   border: var(--input-border);
+
+  ${props => props.hasError && { borderColor: 'var(--error-color)' }};
   border-radius: 6px;
 
   padding: 0 12px;
@@ -23,7 +29,8 @@ export const UserInput = styled.header`
     font-weight: 500;
     letter-spacing: 0.4px;
     line-height: 20px;
-    color: #3c4759;
+    ${props =>
+      props.hasError ? { color: 'var(--error-color)' } : { color: '#3c4759' }};
 
     position: absolute;
     top: -10px;
@@ -46,4 +53,15 @@ export const InputTextArea = styled.div`
   flex: 1 0 auto;
   display: flex;
   flex-direction: column;
+`;
+
+export const InputError = styled.div`
+  position: absolute;
+
+  bottom: -17px;
+  left: 12px;
+
+  h5 {
+    color: var(--error-color);
+  }
 `;

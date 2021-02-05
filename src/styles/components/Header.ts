@@ -1,4 +1,4 @@
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 
 export const HeaderContainer = styled.header`
   box-shadow: 0px 1px 4px rgba(0, 0, 0, 0.01), 0px 4px 8px rgba(0, 0, 0, 0.02),
@@ -62,12 +62,39 @@ export const MenuContainer = styled.ul`
   z-index: 100;
 `;
 
-export const MenuItem = styled.li`
+interface MenuItemProps {
+  noHover?: boolean;
+  disabled?: boolean;
+}
+
+export const MenuItem = styled.li<MenuItemProps>`
   margin: 0 15px;
   padding: 10px 0;
   list-style-type: none;
   min-width: 80px;
-  cursor: pointer;
+  ${props =>
+    !props.noHover &&
+    css`
+      cursor: pointer;
+    `}
+
+  ${props =>
+    props.disabled &&
+    css`
+      cursor: not-allowed;
+    `}
+
+  text-align: left;
+  font-size: 14px;
+  color: var(--gray-text);
+
+  &:hover {
+    ${props =>
+      !props.noHover &&
+      css`
+        font-weight: 500;
+      `}
+  }
 `;
 
 export const PostSaveStatus = styled.div`

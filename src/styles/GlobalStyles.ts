@@ -30,6 +30,9 @@ export default createGlobalStyle`
 
     --gray-background: #E3E3E3;
     --card-background: #F5F5F5;
+
+    --error-color: #BA3737;
+    --success-color: #24A648;
     
     --input-placeholder: #737373;
     --input-border: 1px solid rgba(38, 50, 56, 0.16);
@@ -116,5 +119,9 @@ export default createGlobalStyle`
     cursor: pointer;
     border: 0;
     background-color: transparent;
+
+    &:disabled {
+      cursor: not-allowed;
+    }
   }
 `;

@@ -4,10 +4,8 @@ mutation Login($loginData: LoginUserInput!) {
       field
       message
     }
-    data {
-      user {
-        ...CommonUser
-      }
+    user {
+      ...CommonUser
     }
   }
 }

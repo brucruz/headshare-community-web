@@ -652,12 +652,7 @@ export type FileInput = {
 export type LoggedUserResponse = {
   __typename?: 'LoggedUserResponse';
   errors?: Maybe<Array<ErrorResponse>>;
-  data?: Maybe<LoggedUser>;
-};
-
-export type LoggedUser = {
-  __typename?: 'LoggedUser';
-  user: User;
+  user?: Maybe<User>;
 };
 
 export type RegisterUserInput = {
@@ -818,12 +813,9 @@ export type LoginMutation = (
     & { errors?: Maybe<Array<(
       { __typename?: 'ErrorResponse' }
       & Pick<ErrorResponse, 'field' | 'message'>
-    )>>, data?: Maybe<(
-      { __typename?: 'LoggedUser' }
-      & { user: (
-        { __typename?: 'User' }
-        & CommonUserFragment
-      ) }
+    )>>, user?: Maybe<(
+      { __typename?: 'User' }
+      & CommonUserFragment
     )> }
   ) }
 );
@@ -848,12 +840,9 @@ export type RegisterMutation = (
     & { errors?: Maybe<Array<(
       { __typename?: 'ErrorResponse' }
       & Pick<ErrorResponse, 'field' | 'message'>
-    )>>, data?: Maybe<(
-      { __typename?: 'LoggedUser' }
-      & { user: (
-        { __typename?: 'User' }
-        & CommonUserFragment
-      ) }
+    )>>, user?: Maybe<(
+      { __typename?: 'User' }
+      & CommonUserFragment
     )> }
   ) }
 );
@@ -1423,10 +1412,8 @@ export const LoginDocument = gql`
       field
       message
     }
-    data {
-      user {
-        ...CommonUser
-      }
+    user {
+      ...CommonUser
     }
   }
 }
@@ -1492,10 +1479,8 @@ export const RegisterDocument = gql`
       field
       message
     }
-    data {
-      user {
-        ...CommonUser
-      }
+    user {
+      ...CommonUser
     }
   }
 }

@@ -18,7 +18,13 @@ const Button: React.FC<ButtonProps> = ({
   icon,
   ...rest
 }) => (
-  <ButtonContainer priority={priority} stretch={stretch} size={size} {...rest}>
+  <ButtonContainer
+    disabled={disabled}
+    priority={priority}
+    stretch={stretch}
+    size={size}
+    {...rest}
+  >
     {icon && icon}
     {size === 'small' ? <p>{text}</p> : <h4>{text}</h4>}
   </ButtonContainer>

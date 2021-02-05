@@ -13,6 +13,14 @@ export const ButtonContainer = styled.button<ButtonProps>`
   justify-content: center;
   border-radius: 19px;
   font-weight: 600;
+  cursor: pointer;
+
+  ${props =>
+    props.disabled &&
+    css`
+      opacity: 0.6;
+      cursor: not-allowed;
+    `}
 
   ${props =>
     props.stretch &&
@@ -50,9 +58,13 @@ export const ButtonContainer = styled.button<ButtonProps>`
       color: #363636;
     `}
 
-  &:hover {
-    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+  ${props =>
+    !props.disabled &&
+    css`
+      &:hover {
+        box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
 
-    opacity: 0.9;
-  }
+        opacity: 0.9;
+      }
+    `}
 `;

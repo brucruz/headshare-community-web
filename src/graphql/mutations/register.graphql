@@ -4,10 +4,8 @@ mutation Register($data: RegisterUserInput!) {
       field
       message
     }
-    data {
-      user {
-        ...CommonUser
-      }
+    user {
+      ...CommonUser
     }
   }
 }
