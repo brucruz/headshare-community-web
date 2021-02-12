@@ -14,7 +14,7 @@ import {
   Maybe,
   Media,
 } from '../../generated/graphql';
-import { HomeContent } from '../../styles/pages/Home';
+import { HomeContent } from '../../styles/pages/CommunityHome';
 import {
   CategoriesButtons,
   CategoriesContainer,

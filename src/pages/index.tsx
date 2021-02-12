@@ -101,7 +101,9 @@ const Home: React.FC<HomeProps> = ({}) => {
                   max={50}
                   step={5}
                   color="secondary"
-                  onChange={(e, value) => setFee(value)}
+                  onChange={(e, value) =>
+                    setFee(typeof value === 'number' ? value : value[0])
+                  }
                   defaultValue={25}
                 />
               </CalculatorInput>
@@ -115,7 +117,9 @@ const Home: React.FC<HomeProps> = ({}) => {
                   max={1000}
                   step={100}
                   color="secondary"
-                  onChange={(e, value) => setMembers(value)}
+                  onChange={(e, value) =>
+                    setMembers(typeof value === 'number' ? value : value[0])
+                  }
                   defaultValue={500}
                 />
               </CalculatorInput>
