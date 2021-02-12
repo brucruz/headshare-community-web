@@ -23,6 +23,8 @@ export const LogoContainer = styled.div`
   height: 30px;
   width: 30px;
   flex: 0 0 auto;
+
+  cursor: pointer;
 `;
 
 export const CommunityTitle = styled.div`

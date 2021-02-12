@@ -32,9 +32,9 @@ import {
   HomeContent,
   PostContent,
   SeeMoreButton,
-} from '../../styles/pages/Home';
+} from '../../styles/pages/CommunityHome';
 
-interface HomeProps {
+interface CommunityHomeProps {
   community: Pick<
     Community,
     | '_id'
@@ -104,7 +104,7 @@ const PostCard: React.FC<PostCardProps> = ({
   </NextLink>
 );
 
-const Home: React.FC<HomeProps> = ({ community }) => {
+const CommunityHome: React.FC<CommunityHomeProps> = ({ community }) => {
   const router = useRouter();
 
   if (router.isFallback) {
@@ -179,7 +179,7 @@ const Home: React.FC<HomeProps> = ({ community }) => {
   );
 };
 
-export default Home;
+export default CommunityHome;
 
 export const getStaticPaths: GetStaticPaths = async () => {
   const apolloClient = initializeApollo();
@@ -220,7 +220,7 @@ export const getStaticPaths: GetStaticPaths = async () => {
 };
 
 export const getStaticProps: GetStaticProps<
-  HomeProps,
+  CommunityHomeProps,
   { communitySlug: string }
 > = async context => {
   const apolloClient = initializeApollo();

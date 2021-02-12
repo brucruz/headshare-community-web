@@ -198,14 +198,16 @@ const Header: React.FC<HeaderProps> = ({
   return (
     <HeaderContainer>
       <HeaderContent>
-        <LogoContainer>
-          <Image
-            src="https://headshare.s3.amazonaws.com/logos/logo_short_127x127.png"
-            alt="Logo"
-            width={30}
-            height={30}
-          />
-        </LogoContainer>
+        <NextLink href="/">
+          <LogoContainer>
+            <Image
+              src="https://headshare.s3.amazonaws.com/logos/logo_short_127x127.png"
+              alt="Logo"
+              width={30}
+              height={30}
+            />
+          </LogoContainer>
+        </NextLink>
         <CommunityTitle>
           <NextLink href={`/${communitySlug}`}>
             <button type="button">

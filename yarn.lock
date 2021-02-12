@@ -1443,6 +1443,13 @@
   dependencies:
     "@types/react" "*"
 
+"@types/react-scroll@^1.8.2":
+  version "1.8.2"
+  resolved "https://registry.yarnpkg.com/@types/react-scroll/-/react-scroll-1.8.2.tgz#44bbbadabb9014517eb865d6fa47937535a2234a"
+  integrity sha512-oavV6BZLfaIghX4JSmrm6mJkeVayQlmsFx1Rz8ffGjMngHAI/juZkRZM/zV/H5D0pGqjzACvBmKYUU4YBecwLg==
+  dependencies:
+    "@types/react" "*"
+
 "@types/react-transition-group@^4.2.0":
   version "4.4.0"
   resolved "https://registry.yarnpkg.com/@types/react-transition-group/-/react-transition-group-4.4.0.tgz#882839db465df1320e4753e6e9f70ca7e9b4d46d"
@@ -7302,6 +7309,14 @@ react-refresh@0.8.3:
   version "0.8.3"
   resolved "https://registry.yarnpkg.com/react-refresh/-/react-refresh-0.8.3.tgz#721d4657672d400c5e3c75d063c4a85fb2d5d68f"
   integrity sha512-X8jZHc7nCMjaCqoU+V2I0cOhNW+QMBwSUkeXnTi8IPe6zaRWfn60ZzvFDZqWPfmSJfjub7dDW1SP0jaHWLu/hg==
+
+react-scroll@^1.8.1:
+  version "1.8.1"
+  resolved "https://registry.yarnpkg.com/react-scroll/-/react-scroll-1.8.1.tgz#eb4052265f1606cf60855c981ebcfed1bc3beff3"
+  integrity sha512-UAKmawFHn+c7x/DoXuHqOsQ5xwNk2Dxv7vP8Ft41K2hglPWkshcSos0tMTr8704UkFqImoUGzMTdN4vuZXoqbw==
+  dependencies:
+    lodash.throttle "^4.1.1"
+    prop-types "^15.7.2"
 
 react-transition-group@^4.4.0:
   version "4.4.1"
