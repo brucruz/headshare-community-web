@@ -7,7 +7,6 @@ import { PostBuilderWrapper } from '../styles/PostBuilder';
 import saveActions from '../constants/saveActions';
 import { useUpdatePostMutation } from '../generated/graphql';
 import textBetweenTags from '../utils/textBetweenTags';
-import TextEditor from './TextEditor';
 
 interface ContentProps {
   title: string;
