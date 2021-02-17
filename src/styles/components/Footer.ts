@@ -28,6 +28,10 @@ export const LegalContainer = styled.div`
 `;
 
 export const ShareContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
   button {
     margin-top: 20px;
 

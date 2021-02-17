@@ -64,6 +64,11 @@ export type QueryPostsArgs = {
 };
 
 
+export type QueryAllPostsArgs = {
+  postOptions?: Maybe<PostOptionsInput>;
+};
+
+
 export type QueryFindPostByIdArgs = {
   id: Scalars['String'];
 };
@@ -2188,7 +2193,7 @@ export type GetPostByIdLazyQueryHookResult = ReturnType<typeof useGetPostByIdLaz
 export type GetPostByIdQueryResult = Apollo.QueryResult<GetPostByIdQuery, GetPostByIdQueryVariables>;
 export const GetPostsSlugsDocument = gql`
     query GetPostsSlugs {
-  allPosts {
+  allPosts(postOptions: {status: PUBLISHED}) {
     errors {
       field
       message
