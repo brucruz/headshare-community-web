@@ -7,6 +7,7 @@ import { PostBuilderWrapper } from '../styles/PostBuilder';
 import saveActions from '../constants/saveActions';
 import { useUpdatePostMutation } from '../generated/graphql';
 import textBetweenTags from '../utils/textBetweenTags';
+import TextEditor from './TextEditor';
 
 interface ContentProps {
   title: string;
@@ -104,9 +105,10 @@ const contentEditorConfig: RawEditorSettings & {
     'quickbars',
     'codesample',
     'help',
+    'hr',
   ],
   toolbar: false,
-  quickbars_insert_toolbar: 'quicktable image media codesample',
+  quickbars_insert_toolbar: 'quicktable image media codesample hr',
   quickbars_selection_toolbar:
     'bold italic underline | formatselect | blockquote quicklink',
   contextmenu: 'undo redo | inserttable | cell row column deletetable | help',

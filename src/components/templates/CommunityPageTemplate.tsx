@@ -71,8 +71,9 @@ const CommunityPageTemplate: React.FC<CommunityPageTemplateProps> = ({
     if (userData) {
       if (userData.me) {
         if (userData.me.user) {
-          const commRole = userData.me.user.roles.find(role => role.community)
-            ?.role;
+          const commRole = userData.me.user.roles.find(
+            role => role.community.slug === community.slug,
+          )?.role;
 
           if (commRole === RoleOptions.Creator) {
             setIsCreator(true);
@@ -82,7 +83,7 @@ const CommunityPageTemplate: React.FC<CommunityPageTemplateProps> = ({
         }
       }
     }
-  }, [userData]);
+  }, [userData, community]);
 
   const handleMediaUpload = useCallback(
     async (file: File, communitySlug: string) => {
@@ -165,6 +166,8 @@ const CommunityPageTemplate: React.FC<CommunityPageTemplateProps> = ({
             avatarId,
           },
         });
+
+        console.log('avatarData: ', avatarData);
 
         if (
           avatarData &&

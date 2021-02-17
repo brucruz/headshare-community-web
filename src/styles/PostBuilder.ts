@@ -28,6 +28,11 @@ export const PostBuilderWrapper = styled.section`
     font-size: 17px;
     line-height: 28px;
     margin-bottom: 20px;
+
+    img {
+      width: 100%;
+      height: auto;
+    }
   }
 
   td {
@@ -58,6 +63,10 @@ export const PostBuilderWrapper = styled.section`
   a {
     text-decoration-line: underline;
     color: var(--headshare-coral);
+  }
+
+  hr {
+    margin-bottom: 30px;
   }
 `;
 
