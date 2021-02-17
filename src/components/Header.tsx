@@ -69,8 +69,9 @@ const Header: React.FC<HeaderProps> = ({
         if (userData.me.user) {
           setUser(userData.me.user);
 
-          const commRole = userData.me.user.roles.find(role => role.community)
-            ?.role;
+          const commRole = userData.me.user.roles.find(
+            role => role.community.slug === communitySlug,
+          )?.role;
 
           if (commRole === RoleOptions.Creator) {
             setIsCreator(true);

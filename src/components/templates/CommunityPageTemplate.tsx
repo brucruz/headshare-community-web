@@ -167,8 +167,6 @@ const CommunityPageTemplate: React.FC<CommunityPageTemplateProps> = ({
           },
         });
 
-        console.log('avatarData: ', avatarData);
-
         if (
           avatarData &&
           avatarData.updateCommunity &&
