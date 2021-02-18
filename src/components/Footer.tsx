@@ -36,7 +36,7 @@ const Footer: React.FC<FooterProps> = ({
     )}
 
     <LegalContainer>
-      <p>© 2020 {author}</p>
+      <p>© 2021 {author}</p>
       <p>
         Leia a <a href="">política de privacidade</a> e os{' '}
         <a href="">termos de serviço</a>

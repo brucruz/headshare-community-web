@@ -1,6 +1,7 @@
 import { GetStaticPaths, GetStaticProps } from 'next';
 import Image from 'next/image';
 import NextLink from 'next/link';
+import { useRouter } from 'next/router';
 import { initializeApollo } from '../../lib/apolloClient';
 import {
   Tag,
@@ -13,6 +14,7 @@ import {
   CommonCommunityFragment,
   Maybe,
   Media,
+  useGetCommunityTagsDataQuery,
 } from '../../generated/graphql';
 import { HomeContent } from '../../styles/pages/CommunityHome';
 import {
@@ -21,6 +23,7 @@ import {
   CategoryButton,
 } from '../../styles/pages/Categories';
 import CommunityPageTemplate from '../../components/templates/CommunityPageTemplate';
+import { withApollo } from '../../utils/withApollo';
 
 interface CategoriesProps {
   community: {
@@ -36,132 +39,156 @@ interface CategoriesProps {
   } & CommonCommunityFragment;
 }
 
-const Categories: React.FC<CategoriesProps> = ({ community }) => (
-  <CommunityPageTemplate
-    community={community}
-    title={community && community.title}
-    subtitle={community && community.description}
-    backButton
-  >
-    <HomeContent>
-      <CategoriesContainer>
-        <h4>Categorias</h4>
+function Categories(): JSX.Element {
+  const router = useRouter();
+  const { communitySlug } = router.query as { communitySlug: string };
 
-        <CategoriesButtons>
-          {community &&
-            community.tags.map(tag => (
-              <NextLink
-                href={`/${community && community.slug}/category/${tag.slug}`}
-              >
-                <CategoryButton>
-                  <p>{tag.title}</p>
-                  <Image
-                    src="https://headshare.s3.amazonaws.com/assets/arrow_right.png"
-                    height={24}
-                    width={24}
-                  />
-                </CategoryButton>
-              </NextLink>
-            ))}
-        </CategoriesButtons>
-      </CategoriesContainer>
-    </HomeContent>
-  </CommunityPageTemplate>
-);
-
-export default Categories;
-
-export const getStaticPaths: GetStaticPaths = async () => {
-  const apolloClient = initializeApollo();
-
-  const { data } = await apolloClient.query<
-    GetCommunitiesSlugsQuery,
-    GetCommunitiesSlugsQueryVariables
-  >({
-    query: GetCommunitiesSlugsDocument,
+  const { data, loading, error } = useGetCommunityTagsDataQuery({
+    variables: { slug: communitySlug },
   });
 
-  const { errors, communities } = data.communities;
+  const community = data && data.community && data.community.community;
 
-  if (errors) {
-    return {
-      paths: [],
-      fallback: true,
-    };
+  if ((!loading && !data) || !community) {
+    return (
+      <div>
+        <div>you got query failed for some reason</div>
+        <div>{error?.message}</div>
+      </div>
+    );
   }
 
-  if (!communities) {
-    return {
-      paths: [],
-      fallback: true,
-    };
+  if (!data && loading) {
+    return <h1>Carregando...</h1>;
   }
 
-  const paths = communities.map(community => ({
-    params: {
-      communitySlug: community.slug,
-    },
-  }));
+  return (
+    <CommunityPageTemplate
+      community={community}
+      title={community && community.title}
+      subtitle={community && community.description}
+      backButton
+    >
+      <HomeContent>
+        <CategoriesContainer>
+          <h4>Categorias</h4>
 
-  return {
-    paths,
-    fallback: true,
-  };
-};
+          <CategoriesButtons>
+            {community &&
+              community.tags.map(tag => (
+                <NextLink
+                  href={`/${community && community.slug}/category/${tag.slug}`}
+                >
+                  <CategoryButton>
+                    <p>{tag.title}</p>
+                    <Image
+                      src="https://headshare.s3.amazonaws.com/assets/arrow_right.png"
+                      height={24}
+                      width={24}
+                    />
+                  </CategoryButton>
+                </NextLink>
+              ))}
+          </CategoriesButtons>
+        </CategoriesContainer>
+      </HomeContent>
+    </CommunityPageTemplate>
+  );
+}
 
-export const getStaticProps: GetStaticProps<
-  CategoriesProps,
-  { communitySlug: string }
-> = async context => {
-  const apolloClient = initializeApollo();
+export default withApollo({ ssr: true })(Categories);
 
-  if (context.params) {
-    const { communitySlug } = context.params;
+// export const getStaticPaths: GetStaticPaths = async () => {
+//   const apolloClient = initializeApollo();
 
-    try {
-      const { data } = await apolloClient.query<
-        GetCommunityTagsDataQuery,
-        GetCommunityTagsDataQueryVariables
-      >({
-        query: GetCommunityTagsDataDocument,
-        variables: { slug: communitySlug },
-      });
+//   const { data } = await apolloClient.query<
+//     GetCommunitiesSlugsQuery,
+//     GetCommunitiesSlugsQueryVariables
+//   >({
+//     query: GetCommunitiesSlugsDocument,
+//   });
 
-      const { errors, community } = data.community;
+//   const { errors, communities } = data.communities;
 
-      if (errors) {
-        const { message } = errors[0];
+//   if (errors) {
+//     return {
+//       paths: [],
+//       fallback: true,
+//     };
+//   }
 
-        if (message === 'No community found with this slug') {
-          return {
-            redirect: {
-              destination: '/',
-              statusCode: 301,
-            },
-          };
-        }
-      }
+//   if (!communities) {
+//     return {
+//       paths: [],
+//       fallback: true,
+//     };
+//   }
 
-      if (!community) {
-        return {
-          redirect: {
-            destination: '/',
-            statusCode: 301,
-          },
-        };
-      }
+//   const paths = communities.map(community => ({
+//     params: {
+//       communitySlug: community.slug,
+//     },
+//   }));
 
-      return {
-        props: {
-          community,
-        },
-      };
-    } catch (err) {
-      console.log(err);
-    }
-  }
+//   return {
+//     paths,
+//     fallback: true,
+//   };
+// };
 
-  return {
-    notFound: true,
-  };
-};
+// export const getStaticProps: GetStaticProps<
+//   CategoriesProps,
+//   { communitySlug: string }
+// > = async context => {
+//   const apolloClient = initializeApollo();
+
+//   if (context.params) {
+//     const { communitySlug } = context.params;
+
+//     try {
+//       const { data } = await apolloClient.query<
+//         GetCommunityTagsDataQuery,
+//         GetCommunityTagsDataQueryVariables
+//       >({
+//         query: GetCommunityTagsDataDocument,
+//         variables: { slug: communitySlug },
+//       });
+
+//       const { errors, community } = data.community;
+
+//       if (errors) {
+//         const { message } = errors[0];
+
+//         if (message === 'No community found with this slug') {
+//           return {
+//             redirect: {
+//               destination: '/',
+//               statusCode: 301,
+//             },
+//           };
+//         }
+//       }
+
+//       if (!community) {
+//         return {
+//           redirect: {
+//             destination: '/',
+//             statusCode: 301,
+//           },
+//         };
+//       }
+
+//       return {
+//         props: {
+//           community,
+//         },
+//       };
+//     } catch (err) {
+//       console.log(err);
+//     }
+//   }
+
+//   return {
+//     notFound: true,
+//   };
+// };

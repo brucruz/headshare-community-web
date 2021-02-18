@@ -16,6 +16,7 @@ import {
   Maybe,
   Media,
   MediaFormat,
+  useCommunityTagPostsQuery,
 } from '../../../generated/graphql';
 import { initializeApollo } from '../../../lib/apolloClient';
 import {
@@ -26,6 +27,7 @@ import {
   CardContent,
   AllCategoriesButtonContainer,
 } from '../../../styles/pages/TagPosts';
+import { withApollo } from '../../../utils/withApollo';
 
 interface TagPostsProps {
   tag: Pick<Tag, 'title' | 'description' | 'postCount' | 'slug'> & {
@@ -96,10 +98,29 @@ export const TagPost: React.FC<TagPostProps> = ({
   );
 };
 
-const TagPosts: React.FC<TagPostsProps> = ({ tag }) => {
+function TagPosts(): JSX.Element {
   const router = useRouter();
+  const { tagSlug, communitySlug } = router.query as {
+    tagSlug: string;
+    communitySlug: string;
+  };
 
-  if (router.isFallback) {
+  const { data, loading, error } = useCommunityTagPostsQuery({
+    variables: { data: { communitySlug, tagSlug } },
+  });
+
+  const tag = data && data.findTagBySlugs && data.findTagBySlugs.tag;
+
+  if ((!loading && !data) || !tag) {
+    return (
+      <div>
+        <div>you got query failed for some reason</div>
+        <div>{error?.message}</div>
+      </div>
+    );
+  }
+
+  if (!data && loading) {
     return <h1>Carregando...</h1>;
   }
 
@@ -145,68 +166,68 @@ const TagPosts: React.FC<TagPostsProps> = ({ tag }) => {
       </NextLink>
     </CommunityPageTemplate>
   );
-};
+}
 
-export default TagPosts;
+export default withApollo({ ssr: true })(TagPosts);
 
-export const getStaticPaths: GetStaticPaths = async () => ({
-  paths: [],
-  fallback: true,
-});
+// export const getStaticPaths: GetStaticPaths = async () => ({
+//   paths: [],
+//   fallback: true,
+// });
 
-export const getStaticProps: GetStaticProps<
-  TagPostsProps,
-  { communitySlug: string; tagSlug: string }
-> = async context => {
-  const apolloClient = initializeApollo();
+// export const getStaticProps: GetStaticProps<
+//   TagPostsProps,
+//   { communitySlug: string; tagSlug: string }
+// > = async context => {
+//   const apolloClient = initializeApollo();
 
-  if (context.params) {
-    const { communitySlug, tagSlug } = context.params;
+//   if (context.params) {
+//     const { communitySlug, tagSlug } = context.params;
 
-    try {
-      const { data } = await apolloClient.query<
-        CommunityTagPostsQuery,
-        CommunityTagPostsQueryVariables
-      >({
-        query: CommunityTagPostsDocument,
-        variables: { data: { communitySlug, tagSlug } },
-      });
+//     try {
+//       const { data } = await apolloClient.query<
+//         CommunityTagPostsQuery,
+//         CommunityTagPostsQueryVariables
+//       >({
+//         query: CommunityTagPostsDocument,
+//         variables: { data: { communitySlug, tagSlug } },
+//       });
 
-      const { errors, tag } = data.findTagBySlugs;
+//       const { errors, tag } = data.findTagBySlugs;
 
-      if (errors) {
-        const { message } = errors[0];
+//       if (errors) {
+//         const { message } = errors[0];
 
-        if (message === 'No community found with this slug') {
-          return {
-            redirect: {
-              destination: '/',
-              statusCode: 301,
-            },
-          };
-        }
-      }
+//         if (message === 'No community found with this slug') {
+//           return {
+//             redirect: {
+//               destination: '/',
+//               statusCode: 301,
+//             },
+//           };
+//         }
+//       }
 
-      if (!tag) {
-        return {
-          redirect: {
-            destination: '/',
-            statusCode: 301,
-          },
-        };
-      }
+//       if (!tag) {
+//         return {
+//           redirect: {
+//             destination: '/',
+//             statusCode: 301,
+//           },
+//         };
+//       }
 
-      return {
-        props: {
-          tag,
-        },
-      };
-    } catch (err) {
-      console.log(err);
-    }
-  }
+//       return {
+//         props: {
+//           tag,
+//         },
+//       };
+//     } catch (err) {
+//       console.log(err);
+//     }
+//   }
 
-  return {
-    notFound: true,
-  };
-};
+//   return {
+//     notFound: true,
+//   };
+// };
