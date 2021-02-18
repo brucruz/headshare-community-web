@@ -59,7 +59,7 @@ interface QueryProps {
   communitySlug: string;
 }
 
-const NewPost: React.FC = () => {
+function NewPost(): JSX.Element {
   const router = useRouter();
   const { id } = router.query as { id: string };
   const { communitySlug } = (router.query as unknown) as QueryProps;
@@ -241,7 +241,7 @@ const NewPost: React.FC = () => {
           post: {
             // eslint-disable-next-line no-underscore-dangle
             mainMedia: uploadInfo.mainMedia._id,
-            exclusive: false,
+            exclusive,
           },
         },
       }).then(result => {
@@ -254,7 +254,15 @@ const NewPost: React.FC = () => {
         }
       });
     }
-  }, [mainMediaState, post, updatePost, communitySlug, id, uploadInfo]);
+  }, [
+    mainMediaState,
+    post,
+    updatePost,
+    communitySlug,
+    id,
+    uploadInfo,
+    exclusive,
+  ]);
 
   const formattedUpload = useMemo(() => {
     const bytesSent =
@@ -275,6 +283,8 @@ const NewPost: React.FC = () => {
   const getEditorSaveState = useCallback((state: 'saved' | 'saving'): void => {
     setSaveState(state);
   }, []);
+
+  console.log(exclusive);
 
   const publishPost = useCallback(async () => {
     const result = await updatePost({
@@ -533,6 +543,6 @@ const NewPost: React.FC = () => {
       </Modal>
     </>
   );
-};
+}
 
 export default withApollo({ ssr: false })(NewPost);
