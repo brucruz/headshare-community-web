@@ -49,6 +49,7 @@ import Modal from '../../components/Modal';
 import Switch from '../../components/Switch';
 import MediaInput from '../../components/MediaInput';
 import { formatS3Filename, uploadToS3 } from '../../lib/s3';
+import { withApollo } from '../../utils/withApollo';
 
 const PostBuilder = dynamic(() => import('../../components/PostBuilder'), {
   ssr: false,
@@ -534,4 +535,4 @@ const NewPost: React.FC = () => {
   );
 };
 
-export default NewPost;
+export default withApollo({ ssr: false })(NewPost);

@@ -20,6 +20,7 @@ import {
   GetCommunityHomeDataQueryVariables,
   Media,
   PostStatus,
+  useGetCommunityHomeDataQuery,
 } from '../../generated/graphql';
 import { initializeApollo } from '../../lib/apolloClient';
 import {
@@ -33,6 +34,7 @@ import {
   PostContent,
   SeeMoreButton,
 } from '../../styles/pages/CommunityHome';
+import { withApollo } from '../../utils/withApollo';
 
 interface CommunityHomeProps {
   community: Pick<
@@ -104,11 +106,27 @@ const PostCard: React.FC<PostCardProps> = ({
   </NextLink>
 );
 
-const CommunityHome: React.FC<CommunityHomeProps> = ({ community }) => {
+const CommunityHome = (): JSX.Element => {
   const router = useRouter();
+  const { communitySlug } = router.query as { communitySlug: string };
 
-  if (router.isFallback) {
-    <h1>Carregando...</h1>;
+  const { data, error, loading } = useGetCommunityHomeDataQuery({
+    variables: { slug: communitySlug, postsStatus: PostStatus.Published },
+  });
+
+  const community = data && data.community && data.community.community;
+
+  if ((!loading && !data) || !community) {
+    return (
+      <div>
+        <div>you got query failed for some reason</div>
+        <div>{error?.message}</div>
+      </div>
+    );
+  }
+
+  if (!data && loading) {
+    return <h1>Carregando...</h1>;
   }
 
   return (
@@ -179,98 +197,98 @@ const CommunityHome: React.FC<CommunityHomeProps> = ({ community }) => {
   );
 };
 
-export default CommunityHome;
+export default withApollo({ ssr: true })(CommunityHome);
 
-export const getStaticPaths: GetStaticPaths = async () => {
-  const apolloClient = initializeApollo();
+// export const getStaticPaths: GetStaticPaths = async () => {
+//   const apolloClient = initializeApollo();
 
-  const { data } = await apolloClient.query<
-    GetCommunitiesSlugsQuery,
-    GetCommunitiesSlugsQueryVariables
-  >({
-    query: GetCommunitiesSlugsDocument,
-  });
+//   const { data } = await apolloClient.query<
+//     GetCommunitiesSlugsQuery,
+//     GetCommunitiesSlugsQueryVariables
+//   >({
+//     query: GetCommunitiesSlugsDocument,
+//   });
 
-  const { errors, communities } = data.communities;
+//   const { errors, communities } = data.communities;
 
-  if (errors) {
-    return {
-      paths: [],
-      fallback: true,
-    };
-  }
+//   if (errors) {
+//     return {
+//       paths: [],
+//       fallback: true,
+//     };
+//   }
 
-  if (!communities) {
-    return {
-      paths: [],
-      fallback: true,
-    };
-  }
+//   if (!communities) {
+//     return {
+//       paths: [],
+//       fallback: true,
+//     };
+//   }
 
-  const paths = communities.map(community => ({
-    params: {
-      communitySlug: community.slug,
-    },
-  }));
+//   const paths = communities.map(community => ({
+//     params: {
+//       communitySlug: community.slug,
+//     },
+//   }));
 
-  return {
-    paths,
-    fallback: true,
-  };
-};
+//   return {
+//     paths,
+//     fallback: true,
+//   };
+// };
 
-export const getStaticProps: GetStaticProps<
-  CommunityHomeProps,
-  { communitySlug: string }
-> = async context => {
-  const apolloClient = initializeApollo();
+// export const getStaticProps: GetStaticProps<
+//   CommunityHomeProps,
+//   { communitySlug: string }
+// > = async context => {
+//   const apolloClient = initializeApollo();
 
-  if (context.params) {
-    const { communitySlug } = context.params;
+//   if (context.params) {
+//     const { communitySlug } = context.params;
 
-    try {
-      const { data } = await apolloClient.query<
-        GetCommunityHomeDataQuery,
-        GetCommunityHomeDataQueryVariables
-      >({
-        query: GetCommunityHomeDataDocument,
-        variables: { slug: communitySlug, postsStatus: PostStatus.Published },
-      });
+//     try {
+//       const { data } = await apolloClient.query<
+//         GetCommunityHomeDataQuery,
+//         GetCommunityHomeDataQueryVariables
+//       >({
+//         query: GetCommunityHomeDataDocument,
+//         variables: { slug: communitySlug, postsStatus: PostStatus.Published },
+//       });
 
-      const { errors, community } = data.community;
+//       const { errors, community } = data.community;
 
-      if (errors) {
-        const { message } = errors[0];
+//       if (errors) {
+//         const { message } = errors[0];
 
-        if (message === 'No community found with this slug') {
-          return {
-            redirect: {
-              destination: '/',
-              permanent: false,
-            },
-          };
-        }
-      }
+//         if (message === 'No community found with this slug') {
+//           return {
+//             redirect: {
+//               destination: '/',
+//               permanent: false,
+//             },
+//           };
+//         }
+//       }
 
-      if (!community) {
-        return {
-          redirect: {
-            destination: '/',
-            statusCode: 301,
-          },
-        };
-      }
+//       if (!community) {
+//         return {
+//           redirect: {
+//             destination: '/',
+//             statusCode: 301,
+//           },
+//         };
+//       }
 
-      return {
-        props: {
-          community,
-        },
-      };
-    } catch (err) {
-      console.log(err);
-    }
-  }
-  return {
-    notFound: true,
-  };
-};
+//       return {
+//         props: {
+//           community,
+//         },
+//       };
+//     } catch (err) {
+//       console.log(err);
+//     }
+//   }
+//   return {
+//     notFound: true,
+//   };
+// };

@@ -22,6 +22,7 @@ import {
   PostBySlugsQuery,
   PostBySlugsQueryVariables,
   Tag,
+  usePostBySlugsQuery,
 } from '../../../generated/graphql';
 import { initializeApollo } from '../../../lib/apolloClient';
 import {
@@ -30,6 +31,7 @@ import {
   PostContentContainer,
   PostDateLikeComments,
 } from '../../../styles/pages/PostContent';
+import { withApollo } from '../../../utils/withApollo';
 
 interface PostContentProps {
   post: Pick<
@@ -57,13 +59,30 @@ interface PostContentProps {
   };
 }
 
-const PostContent: React.FC<PostContentProps> = ({ post }) => {
+function PostContent(): JSX.Element {
   const router = useRouter();
+  const { postSlug, communitySlug } = router.query as {
+    postSlug: string;
+    communitySlug: string;
+  };
 
-  const { communitySlug } = router.query;
+  const { data, loading, error } = usePostBySlugsQuery({
+    variables: { data: { communitySlug, postSlug } },
+  });
 
-  if (router.isFallback) {
-    return <p>Carregando...</p>;
+  const post = data && data.findPostBySlugs && data.findPostBySlugs.post;
+
+  if ((!loading && !data) || !post) {
+    return (
+      <div>
+        <div>you got query failed for some reason</div>
+        <div>{error?.message}</div>
+      </div>
+    );
+  }
+
+  if (!data && loading) {
+    return <h1>Carregando...</h1>;
   }
 
   // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -76,7 +95,7 @@ const PostContent: React.FC<PostContentProps> = ({ post }) => {
   return (
     <>
       <Header
-        communitySlug={post.community.slug}
+        communitySlug={communitySlug}
         communityTitle={post.community.title}
       />
 
@@ -124,102 +143,102 @@ const PostContent: React.FC<PostContentProps> = ({ post }) => {
       </PostContainer>
     </>
   );
-};
+}
 
-export default PostContent;
+export default withApollo({ ssr: true })(PostContent);
 
-export const getStaticPaths: GetStaticPaths = async () => {
-  const apolloClient = initializeApollo();
+// export const getStaticPaths: GetStaticPaths = async () => {
+//   const apolloClient = initializeApollo();
 
-  const { data } = await apolloClient.query<
-    GetPostsSlugsQuery,
-    GetPostsSlugsQueryVariables
-  >({
-    query: GetPostsSlugsDocument,
-  });
+//   const { data } = await apolloClient.query<
+//     GetPostsSlugsQuery,
+//     GetPostsSlugsQueryVariables
+//   >({
+//     query: GetPostsSlugsDocument,
+//   });
 
-  const { errors, posts } = data.allPosts;
+//   const { errors, posts } = data.allPosts;
 
-  if (errors) {
-    return {
-      paths: [],
-      fallback: true,
-    };
-  }
+//   if (errors) {
+//     return {
+//       paths: [],
+//       fallback: true,
+//     };
+//   }
 
-  if (!posts) {
-    return {
-      paths: [],
-      fallback: true,
-    };
-  }
+//   if (!posts) {
+//     return {
+//       paths: [],
+//       fallback: true,
+//     };
+//   }
 
-  const paths = posts.map(post => ({
-    params: {
-      postSlug: post.slug || '',
-      communitySlug: post.community.slug,
-    },
-  }));
+//   const paths = posts.map(post => ({
+//     params: {
+//       postSlug: post.slug || '',
+//       communitySlug: post.community.slug,
+//     },
+//   }));
 
-  return {
-    paths,
-    fallback: true,
-  };
-};
+//   return {
+//     paths,
+//     fallback: true,
+//   };
+// };
 
-export const getStaticProps: GetStaticProps<
-  PostContentProps,
-  { communitySlug: string; postSlug: string }
-> = async context => {
-  const apolloClient = initializeApollo();
+// export const getStaticProps: GetStaticProps<
+//   PostContentProps,
+//   { communitySlug: string; postSlug: string }
+// > = async context => {
+//   const apolloClient = initializeApollo();
 
-  if (context.params) {
-    const { communitySlug, postSlug } = context.params;
+//   if (context.params) {
+//     const { communitySlug, postSlug } = context.params;
 
-    try {
-      const { data } = await apolloClient.query<
-        PostBySlugsQuery,
-        PostBySlugsQueryVariables
-      >({
-        query: PostBySlugsDocument,
-        variables: { data: { communitySlug, postSlug } },
-      });
+//     try {
+//       const { data } = await apolloClient.query<
+//         PostBySlugsQuery,
+//         PostBySlugsQueryVariables
+//       >({
+//         query: PostBySlugsDocument,
+//         variables: { data: { communitySlug, postSlug } },
+//       });
 
-      const { errors, post } = data.findPostBySlugs;
+//       const { errors, post } = data.findPostBySlugs;
 
-      if (errors) {
-        const { message } = errors[0];
+//       if (errors) {
+//         const { message } = errors[0];
 
-        if (message === 'No community found with this slug') {
-          return {
-            redirect: {
-              destination: '/',
-              statusCode: 301,
-            },
-          };
-        }
-      }
+//         if (message === 'No community found with this slug') {
+//           return {
+//             redirect: {
+//               destination: '/',
+//               statusCode: 301,
+//             },
+//           };
+//         }
+//       }
 
-      if (!post) {
-        return {
-          redirect: {
-            destination: '/',
-            statusCode: 301,
-          },
-        };
-      }
+//       if (!post) {
+//         return {
+//           redirect: {
+//             destination: '/',
+//             statusCode: 301,
+//           },
+//         };
+//       }
 
-      return {
-        props: {
-          post,
-        },
-      };
-    } catch (err) {
-      console.log(err);
-    }
-  }
+//       return {
+//         props: {
+//           post,
+//         },
+//       };
+//     } catch (err) {
+//       console.log(err);
+//     }
+//   }
 
-  return {
-    notFound: true,
-  };
-};
+//   return {
+//     notFound: true,
+//   };
+// };
