@@ -77,7 +77,7 @@ interface PostCardProps {
   href: string | UrlObject;
 }
 
-const PostCard: React.FC<PostCardProps> = ({
+function PostCard({
   title,
   thumbnail,
   exclusive = false,
@@ -85,28 +85,30 @@ const PostCard: React.FC<PostCardProps> = ({
   likes,
   comments,
   href,
-}) => (
-  <NextLink href={href} passHref>
-    <CategoryPost>
-      {thumbnail && <img src={thumbnail} alt="post-card" />}
+}: PostCardProps): JSX.Element {
+  return (
+    <NextLink href={href} passHref>
+      <CategoryPost>
+        {thumbnail && <img src={thumbnail} alt="post-card" />}
 
-      {!thumbnail && (
-        <CategoryPostImagePlaceholder>
-          <MdPhoto />
-        </CategoryPostImagePlaceholder>
-      )}
+        {!thumbnail && (
+          <CategoryPostImagePlaceholder>
+            <MdPhoto />
+          </CategoryPostImagePlaceholder>
+        )}
 
-      <PostContent exclusive={exclusive}>
-        {exclusive && <h5>Exclusivo</h5>}
-        <p>{title}</p>
+        <PostContent exclusive={exclusive}>
+          {exclusive && <h5>Exclusivo</h5>}
+          <p>{title}</p>
 
-        <LikeCommentCount liked={liked} likes={likes} comments={comments} />
-      </PostContent>
-    </CategoryPost>
-  </NextLink>
-);
+          <LikeCommentCount liked={liked} likes={likes} comments={comments} />
+        </PostContent>
+      </CategoryPost>
+    </NextLink>
+  );
+}
 
-const CommunityHome = (): JSX.Element => {
+function CommunityHome(): JSX.Element {
   const router = useRouter();
   const { communitySlug } = router.query as { communitySlug: string };
 
@@ -195,7 +197,7 @@ const CommunityHome = (): JSX.Element => {
       </HomeContent>
     </CommunityPageTemplate>
   );
-};
+}
 
 export default withApollo({ ssr: true })(CommunityHome);
 

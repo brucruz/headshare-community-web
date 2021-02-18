@@ -1,4 +1,5 @@
 import styled, { css } from 'styled-components';
+import device from '../../utils/devices';
 
 export const HomeContent = styled.main`
   max-width: 940px;
@@ -44,13 +45,14 @@ export const CategoryPost = styled.a`
 
   img {
     border-radius: 8px 8px 0 0;
-    /* height: 100px;
-    width: 150px; */
     height: 84px;
     width: 150px;
     object-fit: cover;
-    /* height: 100px;
-    width: 178px; */
+
+    @media ${device.laptop} {
+      height: 101px;
+      width: 180px;
+    }
   }
 
   & + a {
@@ -69,6 +71,11 @@ export const CategoryPostImagePlaceholder = styled.div`
   height: 84px;
   width: 150px;
 
+  @media ${device.laptop} {
+    height: 101px;
+    width: 180px;
+  }
+
   svg {
     height: 30px;
     width: 30px;
@@ -85,6 +92,11 @@ export const PostContent = styled.div<PostContentProps>`
   display: flex;
   flex-direction: column;
   height: 85px;
+
+  @media ${device.laptop} {
+    height: 105px;
+  }
+
   padding-right: 5px;
   padding-left: 5px;
   padding-bottom: 12px;
