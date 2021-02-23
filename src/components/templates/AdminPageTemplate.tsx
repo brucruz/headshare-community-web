@@ -1,4 +1,4 @@
-import { ReactNode } from 'react';
+import { ReactNode, MouseEvent } from 'react';
 import {
   AdminMain,
   AdminSideMenu,
@@ -17,6 +17,7 @@ interface AdminPageTemplateProps {
   pageTitle: string;
   topButton?: {
     text: string;
+    onClick?: (event: MouseEvent<HTMLButtonElement, Event>) => void;
   };
   children: ReactNode;
 }
@@ -48,7 +49,11 @@ export function AdminPageTemplate({
 
           {topButton && (
             <AdminTopButton>
-              <Button text={topButton.text} priority="secondary" />
+              <Button
+                text={topButton.text}
+                priority="secondary"
+                onClick={topButton.onClick}
+              />
             </AdminTopButton>
           )}
 

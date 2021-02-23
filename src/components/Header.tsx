@@ -11,6 +11,7 @@ import {
   CommunityTitle,
   MenuContainer,
   MenuItem as MenuItemOld,
+  MeItem,
   Menu,
   PostSaveStatus,
 } from '../styles/components/Header';
@@ -172,14 +173,14 @@ const Header: React.FC<HeaderProps> = ({
     }
     return (
       <MenuContainer>
-        <MenuItemOld noHover>
+        <MeItem>
           <p>
             <strong>
               {me.name} {me.surname}
             </strong>
           </p>
           <p>{me.email}</p>
-        </MenuItemOld>
+        </MeItem>
         <MenuItem text="Meu Perfil" href="/me" />
         {/* <MenuItem text="Minhas comunidades" /> */}
         <MenuItem text="Posts" href={`/${communitySlug}/admin/posts`} />

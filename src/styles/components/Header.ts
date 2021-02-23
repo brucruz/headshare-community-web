@@ -101,6 +101,17 @@ export const MenuItem = styled.li<MenuItemProps>`
   }
 `;
 
+export const MeItem = styled.li`
+  margin: 0 15px;
+  padding: 10px 0;
+  list-style-type: none;
+  min-width: 80px;
+
+  text-align: left;
+  font-size: 14px;
+  color: var(--gray-text);
+`;
+
 export const PostSaveStatus = styled.div`
   margin-right: 10px;
 

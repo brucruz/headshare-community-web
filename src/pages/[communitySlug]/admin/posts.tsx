@@ -1,8 +1,12 @@
 /* eslint-disable no-underscore-dangle */
 import { useRouter } from 'next/router';
+import { useCallback } from 'react';
 import { PostCard } from '../../../components/PostCard';
 import { AdminPageTemplate } from '../../../components/templates/AdminPageTemplate';
-import { useCommunityAdminPostsQuery } from '../../../generated/graphql';
+import {
+  useCommunityAdminPostsQuery,
+  useCreatePostMutation,
+} from '../../../generated/graphql';
 import { useAuth } from '../../../hooks/useAuth';
 import { AdminPost, AdminPostList } from '../../../styles/pages/AdminPosts';
 import { withApollo } from '../../../utils/withApollo';
@@ -19,8 +23,25 @@ function AdminPosts(): JSX.Element {
   });
 
   const { isCreator } = useAuth();
+  const [createPost] = useCreatePostMutation();
 
-  console.log(isCreator);
+  const handleNewPost = useCallback(async () => {
+    const result = await createPost({
+      variables: {
+        communitySlug,
+        post: {},
+      },
+    });
+
+    if (result.data) {
+      if (result.data.createPost.post) {
+        // eslint-disable-next-line no-underscore-dangle
+        const id = result.data?.createPost.post?._id;
+
+        router.push(`/${communitySlug}/draft?id=${id.toString()}`);
+      }
+    }
+  }, [createPost, router, communitySlug]);
 
   if (!data && loading) {
     return <h1>Carregando...</h1>;
@@ -51,6 +72,7 @@ function AdminPosts(): JSX.Element {
       pageTitle="Posts"
       topButton={{
         text: 'Criar um post',
+        onClick: handleNewPost,
       }}
     >
       <AdminPostList>
