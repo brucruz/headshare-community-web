@@ -10,7 +10,7 @@ import {
   HamburguerContainer,
   CommunityTitle,
   MenuContainer,
-  MenuItem,
+  MenuItem as MenuItemOld,
   Menu,
   PostSaveStatus,
 } from '../styles/components/Header';
@@ -18,15 +18,13 @@ import Button from './Button';
 import {
   useHeaderMeQuery,
   useLogoutMutation,
-  CommonUserFragment,
-  Community,
-  Role,
   RoleOptions,
   useCreatePostMutation,
 } from '../generated/graphql';
 import { isServer } from '../utils/isServer';
 import AuthModal from './AuthModal';
 import { useAuth, AuthType } from '../hooks/useAuth';
+import { MenuItem } from './MenuItem';
 
 interface HeaderProps {
   communityTitle: string;
@@ -40,18 +38,14 @@ const Header: React.FC<HeaderProps> = ({
   editorMode,
 }) => {
   const [menuIsOpen, setMenuIsOpen] = useState(false);
-  const [isCreator, setIsCreator] = useState(false);
-  const [isMember, setIsMember] = useState(false);
-  const [user, setUser] = useState<
-    | ({
-        roles: Array<
-          { __typename?: 'Role' } & Pick<Role, 'role'> & {
-              community: { __typename?: 'Community' } & Pick<Community, 'slug'>;
-            }
-        >;
-      } & CommonUserFragment)
-    | undefined
-  >(undefined);
+  const {
+    isCreator,
+    isMember,
+    setIsCreator,
+    setIsMember,
+    me,
+    setMe,
+  } = useAuth();
 
   const { openAuth } = useAuth();
   const router = useRouter();
@@ -67,7 +61,7 @@ const Header: React.FC<HeaderProps> = ({
     if (userData) {
       if (userData.me) {
         if (userData.me.user) {
-          setUser(userData.me.user);
+          setMe(userData.me.user);
 
           const commRole = userData.me.user.roles.find(
             role => role.community.slug === communitySlug,
@@ -75,24 +69,30 @@ const Header: React.FC<HeaderProps> = ({
 
           if (commRole === RoleOptions.Creator) {
             setIsCreator(true);
+            setIsMember(false);
           } else if (commRole === RoleOptions.Member) {
+            setIsCreator(false);
             setIsMember(true);
+          } else {
+            setIsCreator(false);
+            setIsMember(false);
           }
         }
       }
     }
-  }, [userData, communitySlug]);
+  }, [userData, communitySlug, setMe, setIsCreator, setIsMember]);
 
   const handleLogout = useCallback(() => {
     logout();
     apolloClient.resetStore();
+    setMe(undefined);
 
     if (router.pathname === '/[communitySlug]') {
       router.reload();
     } else {
       router.push(`/${communitySlug}`);
     }
-  }, [router, apolloClient, logout, communitySlug]);
+  }, [router, apolloClient, logout, communitySlug, setMe]);
 
   const handleNewPost = useCallback(async () => {
     const result = await createPost({
@@ -159,42 +159,34 @@ const Header: React.FC<HeaderProps> = ({
   );
 
   const menuContent = useMemo(() => {
-    if (!user) {
+    if (!me) {
       return (
         <MenuContainer>
-          {/* <NextLink href="/login"> */}
-          <button type="button" onClick={() => openAuthModal('login')}>
-            <MenuItem>Entrar</MenuItem>
-          </button>
-          {/* </NextLink> */}
-          {/* <NextLink href="/register"> */}
-          <button type="button" onClick={() => openAuthModal('register')}>
-            <MenuItem>Cadastrar</MenuItem>
-          </button>
-          {/* </NextLink> */}
+          <MenuItem text="Entrar" onClick={() => openAuthModal('login')} />
+          <MenuItem
+            text="Cadastrar"
+            onClick={() => openAuthModal('register')}
+          />
         </MenuContainer>
       );
     }
     return (
       <MenuContainer>
-        <MenuItem noHover>
+        <MenuItemOld noHover>
           <p>
             <strong>
-              {user.name} {user.surname}
+              {me.name} {me.surname}
             </strong>
           </p>
-          <p>{user.email}</p>
-        </MenuItem>
-        <NextLink href="/me">
-          <MenuItem disabled>Meu Perfil</MenuItem>
-        </NextLink>
-        {/* <NextLink href="/"> */}
-        <MenuItem disabled>Minhas comunidades</MenuItem>
-        {/* </NextLink> */}
-        <MenuItem onClick={handleLogout}>Logout</MenuItem>
+          <p>{me.email}</p>
+        </MenuItemOld>
+        <MenuItem text="Meu Perfil" href="/me" />
+        {/* <MenuItem text="Minhas comunidades" /> */}
+        <MenuItem text="Posts" href={`/${communitySlug}/admin/posts`} />
+        <MenuItem text="Logout" onClick={handleLogout} />
       </MenuContainer>
     );
-  }, [user, handleLogout, openAuthModal]);
+  }, [me, communitySlug, handleLogout, openAuthModal]);
 
   return (
     <HeaderContainer>

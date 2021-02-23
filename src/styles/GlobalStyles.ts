@@ -24,15 +24,27 @@ export default createGlobalStyle`
   :root {
     --page-background: #FAFAFA;
     --headshare-coral: #E74F4F;
+    --headshare-coral-10: rgba(231, 79, 79, 0.1);
+
     --main-titles: #3E3E3E;
     --subtitles: #5A5A5A;
     --gray-text: #363636;
 
+    --light-gray-background: #EEEEEE;
     --gray-background: #E3E3E3;
+    --dark-gray-background: #CACACA;
     --card-background: #F5F5F5;
 
     --error-color: #BA3737;
+    
     --success-color: #24A648;
+    --success-fade: rgba(36, 166, 72, 0.2);
+
+    --warning-color: #B98E0C;
+    --warning-fade: rgba(242, 201, 76, 0.2);
+
+    --draft-color: #2D9CDB;
+    --draft-fade: rgba(45, 156, 219, 0.2);
     
     --input-placeholder: #737373;
     --input-border: 1px solid rgba(38, 50, 56, 0.16);

@@ -1,4 +1,3 @@
-import { GetStaticPaths, GetStaticProps } from 'next';
 import Image from 'next/image';
 import NextLink from 'next/link';
 import { useRouter } from 'next/router';
@@ -7,18 +6,9 @@ import Button from '../../../components/Button';
 import LikeCommentCount from '../../../components/LikeCommentCount';
 import CommunityPageTemplate from '../../../components/templates/CommunityPageTemplate';
 import {
-  Tag,
-  CommunityTagPostsDocument,
-  CommunityTagPostsQuery,
-  CommunityTagPostsQueryVariables,
-  CommonCommunityFragment,
-  Post,
-  Maybe,
-  Media,
   MediaFormat,
   useCommunityTagPostsQuery,
 } from '../../../generated/graphql';
-import { initializeApollo } from '../../../lib/apolloClient';
 import {
   PostCountContainer,
   TagPostCard,
@@ -28,32 +18,6 @@ import {
   AllCategoriesButtonContainer,
 } from '../../../styles/pages/TagPosts';
 import { withApollo } from '../../../utils/withApollo';
-
-interface TagPostsProps {
-  tag: Pick<Tag, 'title' | 'description' | 'postCount' | 'slug'> & {
-    posts: Array<
-      {
-        __typename?: 'Post';
-      } & Pick<
-        Post,
-        'title' | 'description' | 'likes' | 'slug' | 'exclusive'
-      > & {
-          mainMedia?: Maybe<
-            { __typename?: 'Media' } & Pick<
-              Media,
-              'url' | 'thumbnailUrl' | 'format'
-            >
-          >;
-        }
-    >;
-    community: {
-      __typename?: 'Community';
-    } & CommonCommunityFragment & {
-        banner?: Maybe<{ __typename?: 'Media' } & Pick<Media, 'url'>>;
-        avatar?: Maybe<{ __typename?: 'Media' } & Pick<Media, 'url'>>;
-      };
-  };
-}
 
 interface TagPostProps {
   title: string;
@@ -66,7 +30,7 @@ interface TagPostProps {
   href: string | UrlObject;
 }
 
-export const TagPost: React.FC<TagPostProps> = ({
+function TagPost({
   title,
   image,
   description,
@@ -75,7 +39,7 @@ export const TagPost: React.FC<TagPostProps> = ({
   likes = 0,
   comments = 0,
   href,
-}) => {
+}: TagPostProps): JSX.Element {
   'hello';
 
   return (
@@ -96,7 +60,7 @@ export const TagPost: React.FC<TagPostProps> = ({
       </TagPostCard>
     </NextLink>
   );
-};
+}
 
 function TagPosts(): JSX.Element {
   const router = useRouter();
@@ -169,65 +133,3 @@ function TagPosts(): JSX.Element {
 }
 
 export default withApollo({ ssr: true })(TagPosts);
-
-// export const getStaticPaths: GetStaticPaths = async () => ({
-//   paths: [],
-//   fallback: true,
-// });
-
-// export const getStaticProps: GetStaticProps<
-//   TagPostsProps,
-//   { communitySlug: string; tagSlug: string }
-// > = async context => {
-//   const apolloClient = initializeApollo();
-
-//   if (context.params) {
-//     const { communitySlug, tagSlug } = context.params;
-
-//     try {
-//       const { data } = await apolloClient.query<
-//         CommunityTagPostsQuery,
-//         CommunityTagPostsQueryVariables
-//       >({
-//         query: CommunityTagPostsDocument,
-//         variables: { data: { communitySlug, tagSlug } },
-//       });
-
-//       const { errors, tag } = data.findTagBySlugs;
-
-//       if (errors) {
-//         const { message } = errors[0];
-
-//         if (message === 'No community found with this slug') {
-//           return {
-//             redirect: {
-//               destination: '/',
-//               statusCode: 301,
-//             },
-//           };
-//         }
-//       }
-
-//       if (!tag) {
-//         return {
-//           redirect: {
-//             destination: '/',
-//             statusCode: 301,
-//           },
-//         };
-//       }
-
-//       return {
-//         props: {
-//           tag,
-//         },
-//       };
-//     } catch (err) {
-//       console.log(err);
-//     }
-//   }
-
-//   return {
-//     notFound: true,
-//   };
-// };

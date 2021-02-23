@@ -1,6 +1,22 @@
-import { createContext, useCallback, useContext, useState } from 'react';
+import {
+  createContext,
+  Dispatch,
+  SetStateAction,
+  useCallback,
+  useContext,
+  useState,
+} from 'react';
+import { CommonUserFragment, Community, Role } from '../generated/graphql';
 
 export type AuthType = 'login' | 'register' | 'forgotPassword';
+
+type LoggedUser = {
+  roles: Array<
+    { __typename?: 'Role' } & Pick<Role, 'role'> & {
+        community: { __typename?: 'Community' } & Pick<Community, 'slug'>;
+      }
+  >;
+} & CommonUserFragment;
 
 interface AuthContextData {
   isAuthOpen: boolean;
@@ -8,6 +24,12 @@ interface AuthContextData {
   closeAuth(): void;
   authType: AuthType;
   changeAuthType(type: AuthType): void;
+  me?: LoggedUser;
+  setMe: Dispatch<SetStateAction<LoggedUser | undefined>>;
+  isMember?: boolean;
+  setIsMember: Dispatch<SetStateAction<boolean | undefined>>;
+  isCreator?: boolean;
+  setIsCreator: Dispatch<SetStateAction<boolean | undefined>>;
 }
 
 const AuthContext = createContext<AuthContextData>({} as AuthContextData);
@@ -15,6 +37,10 @@ const AuthContext = createContext<AuthContextData>({} as AuthContextData);
 const AuthProvider: React.FC = ({ children }) => {
   const [isAuthOpen, setAuthOpen] = useState<boolean>(false);
   const [authType, setAuthType] = useState<AuthType>('login');
+
+  const [isCreator, setIsCreator] = useState<boolean | undefined>(undefined);
+  const [isMember, setIsMember] = useState<boolean | undefined>(undefined);
+  const [me, setMe] = useState<LoggedUser | undefined>(undefined);
 
   const openAuth = useCallback((state?: AuthType) => {
     state && setAuthType(state);
@@ -37,6 +63,12 @@ const AuthProvider: React.FC = ({ children }) => {
         closeAuth,
         authType,
         changeAuthType,
+        me,
+        setMe,
+        isCreator,
+        setIsCreator,
+        isMember,
+        setIsMember,
       }}
     >
       {children}

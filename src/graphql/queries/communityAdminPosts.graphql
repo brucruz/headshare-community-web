@@ -1,0 +1,26 @@
+query communityAdminPosts ($slug: String!){
+  community (slug: $slug) {
+    errors {
+      field
+      message
+    }
+    community {
+      title
+      creator {
+        name
+        surname
+      }
+      posts {
+        _id
+        title
+        description
+        slug
+        status
+        mainMedia {
+          thumbnailUrl
+        }
+        exclusive
+      }
+    }
+  }
+}

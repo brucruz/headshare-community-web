@@ -994,6 +994,36 @@ export type UploadVideoMutation = (
   ) }
 );
 
+export type CommunityAdminPostsQueryVariables = Exact<{
+  slug: Scalars['String'];
+}>;
+
+
+export type CommunityAdminPostsQuery = (
+  { __typename?: 'Query' }
+  & { community: (
+    { __typename?: 'CommunityResponse' }
+    & { errors?: Maybe<Array<(
+      { __typename?: 'ErrorResponse' }
+      & Pick<ErrorResponse, 'field' | 'message'>
+    )>>, community?: Maybe<(
+      { __typename?: 'Community' }
+      & Pick<Community, 'title'>
+      & { creator: (
+        { __typename?: 'User' }
+        & Pick<User, 'name' | 'surname'>
+      ), posts: Array<(
+        { __typename?: 'Post' }
+        & Pick<Post, '_id' | 'title' | 'description' | 'slug' | 'status' | 'exclusive'>
+        & { mainMedia?: Maybe<(
+          { __typename?: 'Media' }
+          & Pick<Media, 'thumbnailUrl'>
+        )> }
+      )> }
+    )> }
+  ) }
+);
+
 export type GetCommunityBasicDataQueryVariables = Exact<{
   slug: Scalars['String'];
 }>;
@@ -1791,6 +1821,60 @@ export function useUploadVideoMutation(baseOptions?: Apollo.MutationHookOptions<
 export type UploadVideoMutationHookResult = ReturnType<typeof useUploadVideoMutation>;
 export type UploadVideoMutationResult = Apollo.MutationResult<UploadVideoMutation>;
 export type UploadVideoMutationOptions = Apollo.BaseMutationOptions<UploadVideoMutation, UploadVideoMutationVariables>;
+export const CommunityAdminPostsDocument = gql`
+    query communityAdminPosts($slug: String!) {
+  community(slug: $slug) {
+    errors {
+      field
+      message
+    }
+    community {
+      title
+      creator {
+        name
+        surname
+      }
+      posts {
+        _id
+        title
+        description
+        slug
+        status
+        mainMedia {
+          thumbnailUrl
+        }
+        exclusive
+      }
+    }
+  }
+}
+    `;
+
+/**
+ * __useCommunityAdminPostsQuery__
+ *
+ * To run a query within a React component, call `useCommunityAdminPostsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useCommunityAdminPostsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useCommunityAdminPostsQuery({
+ *   variables: {
+ *      slug: // value for 'slug'
+ *   },
+ * });
+ */
+export function useCommunityAdminPostsQuery(baseOptions: Apollo.QueryHookOptions<CommunityAdminPostsQuery, CommunityAdminPostsQueryVariables>) {
+        return Apollo.useQuery<CommunityAdminPostsQuery, CommunityAdminPostsQueryVariables>(CommunityAdminPostsDocument, baseOptions);
+      }
+export function useCommunityAdminPostsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<CommunityAdminPostsQuery, CommunityAdminPostsQueryVariables>) {
+          return Apollo.useLazyQuery<CommunityAdminPostsQuery, CommunityAdminPostsQueryVariables>(CommunityAdminPostsDocument, baseOptions);
+        }
+export type CommunityAdminPostsQueryHookResult = ReturnType<typeof useCommunityAdminPostsQuery>;
+export type CommunityAdminPostsLazyQueryHookResult = ReturnType<typeof useCommunityAdminPostsLazyQuery>;
+export type CommunityAdminPostsQueryResult = Apollo.QueryResult<CommunityAdminPostsQuery, CommunityAdminPostsQueryVariables>;
 export const GetCommunityBasicDataDocument = gql`
     query getCommunityBasicData($slug: String!) {
   community(slug: $slug) {

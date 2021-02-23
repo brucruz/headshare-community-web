@@ -62,6 +62,8 @@ export const MenuContainer = styled.ul`
   text-decoration: none;
 
   z-index: 100;
+
+  min-width: 120px;
 `;
 
 interface MenuItemProps {
