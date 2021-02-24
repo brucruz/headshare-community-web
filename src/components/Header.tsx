@@ -184,6 +184,10 @@ const Header: React.FC<HeaderProps> = ({
         <MenuItem text="Meu Perfil" href="/me" />
         {/* <MenuItem text="Minhas comunidades" /> */}
         <MenuItem text="Posts" href={`/${communitySlug}/admin/posts`} />
+        <MenuItem
+          text="Categorias"
+          href={`/${communitySlug}/admin/categories`}
+        />
         <MenuItem text="Logout" onClick={handleLogout} />
       </MenuContainer>
     );

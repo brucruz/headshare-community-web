@@ -7,6 +7,8 @@ mutation CreateCommunityTag($communitySlug: String!, $tagData: CreateTagInput!) 
     tag {
       _id
       title
+      description
+      slug
     }
   }
 }

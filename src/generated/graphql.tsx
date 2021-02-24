@@ -774,7 +774,7 @@ export type CreateCommunityTagMutation = (
       & Pick<ErrorResponse, 'field' | 'message'>
     )>>, tag?: Maybe<(
       { __typename?: 'Tag' }
-      & Pick<Tag, '_id' | 'title'>
+      & Pick<Tag, '_id' | 'title' | 'description' | 'slug'>
     )> }
   ) }
 );
@@ -850,6 +850,27 @@ export type RegisterMutation = (
       & CommonUserFragment
     )> }
   ) }
+);
+
+export type UpdateCategoryMutationVariables = Exact<{
+  communitySlug: Scalars['String'];
+  id: Scalars['String'];
+  updateData: UpdateTagInput;
+}>;
+
+
+export type UpdateCategoryMutation = (
+  { __typename?: 'Mutation' }
+  & { updateTag?: Maybe<(
+    { __typename?: 'TagResponse' }
+    & { errors?: Maybe<Array<(
+      { __typename?: 'ErrorResponse' }
+      & Pick<ErrorResponse, 'field' | 'message'>
+    )>>, tag?: Maybe<(
+      { __typename?: 'Tag' }
+      & Pick<Tag, '_id' | 'title' | 'slug' | 'description'>
+    )> }
+  )> }
 );
 
 export type UpdateCommunityAvatarMutationVariables = Exact<{
@@ -990,6 +1011,32 @@ export type UploadVideoMutation = (
         { __typename?: 'File' }
         & Pick<File, 'name' | 'size' | 'extension' | 'type'>
       ) }
+    )> }
+  ) }
+);
+
+export type CommunityAdminCategoriesQueryVariables = Exact<{
+  slug: Scalars['String'];
+}>;
+
+
+export type CommunityAdminCategoriesQuery = (
+  { __typename?: 'Query' }
+  & { community: (
+    { __typename?: 'CommunityResponse' }
+    & { errors?: Maybe<Array<(
+      { __typename?: 'ErrorResponse' }
+      & Pick<ErrorResponse, 'field' | 'message'>
+    )>>, community?: Maybe<(
+      { __typename?: 'Community' }
+      & Pick<Community, 'title'>
+      & { creator: (
+        { __typename?: 'User' }
+        & Pick<User, 'name' | 'surname'>
+      ), tags: Array<(
+        { __typename?: 'Tag' }
+        & Pick<Tag, '_id' | 'title' | 'slug' | 'description' | 'postCount'>
+      )> }
     )> }
   ) }
 );
@@ -1359,6 +1406,8 @@ export const CreateCommunityTagDocument = gql`
     tag {
       _id
       title
+      description
+      slug
     }
   }
 }
@@ -1545,6 +1594,49 @@ export function useRegisterMutation(baseOptions?: Apollo.MutationHookOptions<Reg
 export type RegisterMutationHookResult = ReturnType<typeof useRegisterMutation>;
 export type RegisterMutationResult = Apollo.MutationResult<RegisterMutation>;
 export type RegisterMutationOptions = Apollo.BaseMutationOptions<RegisterMutation, RegisterMutationVariables>;
+export const UpdateCategoryDocument = gql`
+    mutation UpdateCategory($communitySlug: String!, $id: String!, $updateData: UpdateTagInput!) {
+  updateTag(communitySlug: $communitySlug, id: $id, updateData: $updateData) {
+    errors {
+      field
+      message
+    }
+    tag {
+      _id
+      title
+      slug
+      description
+    }
+  }
+}
+    `;
+export type UpdateCategoryMutationFn = Apollo.MutationFunction<UpdateCategoryMutation, UpdateCategoryMutationVariables>;
+
+/**
+ * __useUpdateCategoryMutation__
+ *
+ * To run a mutation, you first call `useUpdateCategoryMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateCategoryMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateCategoryMutation, { data, loading, error }] = useUpdateCategoryMutation({
+ *   variables: {
+ *      communitySlug: // value for 'communitySlug'
+ *      id: // value for 'id'
+ *      updateData: // value for 'updateData'
+ *   },
+ * });
+ */
+export function useUpdateCategoryMutation(baseOptions?: Apollo.MutationHookOptions<UpdateCategoryMutation, UpdateCategoryMutationVariables>) {
+        return Apollo.useMutation<UpdateCategoryMutation, UpdateCategoryMutationVariables>(UpdateCategoryDocument, baseOptions);
+      }
+export type UpdateCategoryMutationHookResult = ReturnType<typeof useUpdateCategoryMutation>;
+export type UpdateCategoryMutationResult = Apollo.MutationResult<UpdateCategoryMutation>;
+export type UpdateCategoryMutationOptions = Apollo.BaseMutationOptions<UpdateCategoryMutation, UpdateCategoryMutationVariables>;
 export const UpdateCommunityAvatarDocument = gql`
     mutation UpdateCommunityAvatar($communityId: String!, $avatarId: String!) {
   updateCommunity(id: $communityId, updateData: {avatar: $avatarId}) {
@@ -1821,6 +1913,56 @@ export function useUploadVideoMutation(baseOptions?: Apollo.MutationHookOptions<
 export type UploadVideoMutationHookResult = ReturnType<typeof useUploadVideoMutation>;
 export type UploadVideoMutationResult = Apollo.MutationResult<UploadVideoMutation>;
 export type UploadVideoMutationOptions = Apollo.BaseMutationOptions<UploadVideoMutation, UploadVideoMutationVariables>;
+export const CommunityAdminCategoriesDocument = gql`
+    query communityAdminCategories($slug: String!) {
+  community(slug: $slug) {
+    errors {
+      field
+      message
+    }
+    community {
+      title
+      creator {
+        name
+        surname
+      }
+      tags(limit: 10) {
+        _id
+        title
+        slug
+        description
+        postCount
+      }
+    }
+  }
+}
+    `;
+
+/**
+ * __useCommunityAdminCategoriesQuery__
+ *
+ * To run a query within a React component, call `useCommunityAdminCategoriesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useCommunityAdminCategoriesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useCommunityAdminCategoriesQuery({
+ *   variables: {
+ *      slug: // value for 'slug'
+ *   },
+ * });
+ */
+export function useCommunityAdminCategoriesQuery(baseOptions: Apollo.QueryHookOptions<CommunityAdminCategoriesQuery, CommunityAdminCategoriesQueryVariables>) {
+        return Apollo.useQuery<CommunityAdminCategoriesQuery, CommunityAdminCategoriesQueryVariables>(CommunityAdminCategoriesDocument, baseOptions);
+      }
+export function useCommunityAdminCategoriesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<CommunityAdminCategoriesQuery, CommunityAdminCategoriesQueryVariables>) {
+          return Apollo.useLazyQuery<CommunityAdminCategoriesQuery, CommunityAdminCategoriesQueryVariables>(CommunityAdminCategoriesDocument, baseOptions);
+        }
+export type CommunityAdminCategoriesQueryHookResult = ReturnType<typeof useCommunityAdminCategoriesQuery>;
+export type CommunityAdminCategoriesLazyQueryHookResult = ReturnType<typeof useCommunityAdminCategoriesLazyQuery>;
+export type CommunityAdminCategoriesQueryResult = Apollo.QueryResult<CommunityAdminCategoriesQuery, CommunityAdminCategoriesQueryVariables>;
 export const CommunityAdminPostsDocument = gql`
     query communityAdminPosts($slug: String!) {
   community(slug: $slug) {

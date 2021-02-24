@@ -32,6 +32,7 @@ export function OptionsMenu({ menuItems }: OptionsMenuProps): JSX.Element {
                 selected={menuItem.selected}
                 textSize="small"
                 href={menuItem.href}
+                onClick={menuItem.onClick}
               />
             ))}
           </ul>

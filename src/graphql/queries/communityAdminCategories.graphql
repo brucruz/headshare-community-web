@@ -1,0 +1,22 @@
+query communityAdminCategories ($slug: String!){
+  community (slug: $slug) {
+    errors {
+      field
+      message
+    }
+    community {
+      title
+      creator {
+        name
+        surname
+      }
+      tags (limit: 10) {
+        _id
+        title
+        slug
+        description
+        postCount
+      }
+    }
+  }
+}

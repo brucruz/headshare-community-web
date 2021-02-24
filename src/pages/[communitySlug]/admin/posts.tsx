@@ -74,6 +74,21 @@ function AdminPosts(): JSX.Element {
         text: 'Criar um post',
         onClick: handleNewPost,
       }}
+      sideMenu={[
+        {
+          title: 'Posts',
+          selected: true,
+          path: `/${communitySlug}/admin/posts`,
+        },
+        {
+          title: 'Categorias',
+          path: `/${communitySlug}/admin/categories`,
+        },
+        {
+          title: 'Configurações',
+          path: `/${communitySlug}/admin/configuration`,
+        },
+      ]}
     >
       <AdminPostList>
         {community.posts.map(post => (

@@ -1,0 +1,18 @@
+mutation UpdateCategory(
+  $communitySlug: String!
+  $id: String!
+  $updateData: UpdateTagInput!
+) {
+  updateTag(communitySlug: $communitySlug, id: $id, updateData: $updateData) {
+    errors {
+      field
+      message
+    }
+    tag {
+      _id
+      title
+      slug
+      description
+    }
+  }
+}

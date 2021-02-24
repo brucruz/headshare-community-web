@@ -24,6 +24,7 @@ export const MenuItemContainer = styled.li<MenuItemContainerProps>`
     css`
       color: var(--headshare-coral);
       background-color: var(--headshare-coral-10);
+      cursor: auto;
 
       &:hover {
         background-color: var(--headshare-coral-10);

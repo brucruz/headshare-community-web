@@ -93,8 +93,6 @@ const AuthModal: React.FC<AuthModalProps> = ({}) => {
         .required('Password is required!'),
     }),
     onSubmit: async (values, { setErrors }) => {
-      console.log(values);
-
       const response = await login({
         variables: {
           loginData: {

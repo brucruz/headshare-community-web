@@ -1,4 +1,5 @@
 import { ReactNode, MouseEvent } from 'react';
+import NextLink from 'next/link';
 import {
   AdminMain,
   AdminSideMenu,
@@ -19,6 +20,11 @@ interface AdminPageTemplateProps {
     text: string;
     onClick?: (event: MouseEvent<HTMLButtonElement, Event>) => void;
   };
+  sideMenu: {
+    title: string;
+    path: string;
+    selected?: boolean;
+  }[];
   children: ReactNode;
 }
 
@@ -28,6 +34,7 @@ export function AdminPageTemplate({
   communityTitle,
   pageTitle,
   topButton,
+  sideMenu,
   children,
 }: AdminPageTemplateProps): JSX.Element {
   return (
@@ -38,9 +45,23 @@ export function AdminPageTemplate({
       <ContentContainer>
         <AdminSideMenu>
           <ul>
-            <MenuItem selected text="Posts" textSize="medium" />
-            <MenuItem text="Categorias" textSize="medium" />
-            <MenuItem text="Configurações" textSize="medium" />
+            {sideMenu.map(item =>
+              item.selected ? (
+                <MenuItem
+                  selected={item.selected || false}
+                  text={item.title}
+                  textSize="medium"
+                />
+              ) : (
+                <NextLink href={item.path}>
+                  <MenuItem
+                    selected={item.selected || false}
+                    text={item.title}
+                    textSize="medium"
+                  />
+                </NextLink>
+              ),
+            )}
           </ul>
         </AdminSideMenu>
 
