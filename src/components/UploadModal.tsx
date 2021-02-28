@@ -1,3 +1,4 @@
+import { useRouter } from 'next/router';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { MdClose } from 'react-icons/md';
 import * as tus from 'tus-js-client';
@@ -7,7 +8,9 @@ import {
   useUploadVideoMutation,
   MediaFormat,
   Media,
+  useUpdatePostMainImageMutation,
 } from '../generated/graphql';
+import { formatS3Filename, uploadToS3 } from '../lib/s3';
 import {
   MediaFormatSelection,
   UploadModalContainer,
@@ -15,7 +18,7 @@ import {
   VideoUploadOptions,
 } from '../styles/components/UploadModal';
 import Button from './Button';
-import MediaInput from './MediaInput';
+import MediaInput, { ImageDimensions } from './MediaInput';
 import Modal from './Modal';
 import RadioButton from './RadioButton';
 
@@ -29,12 +32,20 @@ export interface UploadInfoProps {
   error?: string;
   mainMedia?: Pick<
     Media,
-    '_id' | 'url' | 'thumbnailUrl' | 'uploadLink' | 'file' | 'format'
+    | '_id'
+    | 'url'
+    | 'thumbnailUrl'
+    | 'uploadLink'
+    | 'file'
+    | 'format'
+    | 'width'
+    | 'height'
   > | null;
 }
 
 interface UploadModalProps {
   communitySlug: string;
+  postId: string;
   mediaInitialSelection?: SelectedMediaProps;
   displayUploadModal: boolean;
   setDisplayUploadModal: (args: boolean) => void;
@@ -44,6 +55,7 @@ interface UploadModalProps {
 
 const UploadModal: React.FC<UploadModalProps> = ({
   communitySlug,
+  postId,
   mediaInitialSelection = 'none',
   displayUploadModal,
   setDisplayUploadModal,
@@ -63,8 +75,14 @@ const UploadModal: React.FC<UploadModalProps> = ({
     bytesTotal: 0,
     progress: 0,
   });
+  const [imageDimensions, setImageDimensions] = useState<
+    ImageDimensions | undefined
+  >(undefined);
 
   const [uploadVideo] = useUploadVideoMutation();
+  const [uploadImage] = useUpdatePostMainImageMutation();
+
+  const router = useRouter();
 
   useEffect(() => {
     passUploadInfo(uploadInfo);
@@ -178,14 +196,94 @@ const UploadModal: React.FC<UploadModalProps> = ({
     setMainMediaState,
   ]);
 
+  const handleUploadImageAsMain = useCallback(
+    async (thisPostId: string, commSlug: string) => {
+      if (selectedFile) {
+        const [filename, fileExtension] = formatS3Filename(
+          selectedFile.name,
+          commSlug,
+        );
+
+        const { data: uploadData } = await uploadImage({
+          variables: {
+            communitySlug: commSlug,
+            postId: thisPostId,
+            imageData: {
+              format: MediaFormat.Image,
+              width: imageDimensions?.width,
+              height: imageDimensions?.height,
+              file: {
+                name: filename,
+                type: selectedFile.type,
+                extension: fileExtension,
+                size: selectedFile.size,
+              },
+            },
+          },
+        });
+
+        if (
+          uploadData &&
+          uploadData.updatePostMainImage &&
+          uploadData.updatePostMainImage.post &&
+          uploadData.updatePostMainImage.post.mainMedia
+        ) {
+          const { mainMedia } = uploadData.updatePostMainImage.post;
+          const { uploadLink } = mainMedia;
+
+          try {
+            await uploadToS3(selectedFile, uploadLink);
+
+            setUploadInfo({
+              status: 'finished',
+              bytesSent: selectedFile.size,
+              bytesTotal: selectedFile.size,
+              progress: 1,
+              mainMedia,
+            });
+          } catch (err) {
+            setUploadInfo({
+              status: 'errored',
+              bytesSent: 0,
+              bytesTotal: selectedFile.size,
+              progress: 0,
+              error: err,
+              mainMedia,
+            });
+          }
+        }
+
+        setMainMediaState('ready');
+
+        setDisplayUploadModal(false);
+
+        router.reload();
+      }
+    },
+    [
+      selectedFile,
+      uploadImage,
+      imageDimensions?.width,
+      imageDimensions?.height,
+      setMainMediaState,
+      setDisplayUploadModal,
+      router,
+    ],
+  );
+
+  const closeUploadModal = useCallback(() => {
+    setDisplayUploadModal(false);
+
+    setClickedMediaSelector('none');
+
+    setSelectedMedia('none');
+  }, [setDisplayUploadModal]);
+
   return (
-    <Modal
-      isOpen={displayUploadModal}
-      setIsOpen={() => setDisplayUploadModal(false)}
-    >
+    <Modal isOpen={displayUploadModal} setIsOpen={closeUploadModal}>
       <UploadModalContainer>
         <UploadHeaderContainer>
-          <button type="button" onClick={() => setDisplayUploadModal(false)}>
+          <button type="button" onClick={closeUploadModal}>
             <MdClose />
           </button>
 
@@ -224,6 +322,7 @@ const UploadModal: React.FC<UploadModalProps> = ({
                 name="main-video"
                 label="Selecione um arquivo"
                 getFile={handleGetFile}
+                fileType="video"
               />
             </VideoUploadOptions>
 
@@ -231,6 +330,26 @@ const UploadModal: React.FC<UploadModalProps> = ({
               text={state.buttonTitle}
               stretch
               onClick={handleUploadVideo}
+            />
+          </>
+        )}
+
+        {selectedMedia === IMAGE && (
+          <>
+            <VideoUploadOptions>
+              <MediaInput
+                name="main-video"
+                label="Selecione um arquivo"
+                getFile={handleGetFile}
+                fileType="image"
+                getImageDimensions={setImageDimensions}
+              />
+            </VideoUploadOptions>
+
+            <Button
+              text={state.buttonTitle}
+              stretch
+              onClick={() => handleUploadImageAsMain(postId, communitySlug)}
             />
           </>
         )}

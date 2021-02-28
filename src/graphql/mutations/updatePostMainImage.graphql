@@ -1,0 +1,45 @@
+mutation UpdatePostMainImage(
+  $communitySlug: String!
+  $postId: String!
+  $imageData: UploadImageInput!
+) {
+  updatePostMainImage(
+    communitySlug: $communitySlug
+    postId: $postId
+    imageData: $imageData
+  ) {
+    errors {
+      field
+      message
+    }
+    	post {
+      _id
+      title
+      formattedTitle
+      slug
+      description
+      status
+      mainMedia {
+        _id
+        url
+        thumbnailUrl
+        format
+        uploadLink
+        height
+        width
+        file {
+          name
+          size
+          extension
+          type
+        }
+      }
+      content
+      exclusive
+      tags {
+        _id
+        title
+      }
+    }
+  }
+}

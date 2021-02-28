@@ -114,30 +114,6 @@ export const UploadPauseResumeButton = styled.div`
   }
 `;
 
-export const ImageVideoUploaded = styled.div`
-  width: 100%;
-  height: calc((9 / 16) * 100vw);
-  max-height: calc(100vh - 169px);
-  min-height: 320px;
-  /* min-height: 480px; */
-
-  background-color: black;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  iframe {
-    width: 100%;
-    height: 100%;
-  }
-
-  div {
-    /* width: 100%;
-    height: 100%; */
-  }
-`;
-
 export const ContentWrapperArea = styled.main`
   display: flex;
   justify-content: center;

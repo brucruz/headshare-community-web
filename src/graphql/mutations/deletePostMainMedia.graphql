@@ -1,0 +1,13 @@
+mutation DeletePostMainMedia($communitySlug: String!, $postId: String!) {
+  deletePostMainMedia(communitySlug: $communitySlug, postId: $postId) {
+    errors {
+      field
+      message
+    }
+    post {
+      mainMedia {
+        url
+      }
+    }
+  }
+}

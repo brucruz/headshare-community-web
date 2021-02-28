@@ -1,6 +1,6 @@
 /* eslint-disable react/no-danger */
+import NextImage from 'next/image';
 import { format, parseISO } from 'date-fns';
-import { Maybe } from 'graphql/jsutils/Maybe';
 import { useRouter } from 'next/router';
 import { useMemo } from 'react';
 import ReactPlayer from 'react-player';
@@ -10,10 +10,11 @@ import LikeCommentCount from '../../../components/LikeCommentCount';
 import TitleSubtitle from '../../../components/TitleSubtitle';
 import { MediaFormat, usePostBySlugsQuery } from '../../../generated/graphql';
 import {
-  ImageVideoContainer,
+  VideoContainer,
   PostContainer,
   PostContentContainer,
   PostDateLikeComments,
+  MainMediaImage,
 } from '../../../styles/pages/PostContent';
 import { withApollo } from '../../../utils/withApollo';
 
@@ -62,8 +63,8 @@ function PostContent(): JSX.Element {
 
       <div style={{ height: '56px' }} />
 
-      <ImageVideoContainer>
-        {post.mainMedia?.format === MediaFormat.Video && (
+      {post.mainMedia?.format === MediaFormat.Video && (
+        <VideoContainer>
           <ReactPlayer
             url={post.mainMedia?.url}
             controls
@@ -72,8 +73,19 @@ function PostContent(): JSX.Element {
             height="100%"
             width="100%"
           />
-        )}
-      </ImageVideoContainer>
+        </VideoContainer>
+      )}
+
+      {post.mainMedia?.format === MediaFormat.Image && post.mainMedia.url && (
+        <MainMediaImage>
+          <NextImage
+            src={post.mainMedia.url}
+            layout="intrinsic"
+            width={Number(post.mainMedia.width)}
+            height={Number(post.mainMedia.height)}
+          />
+        </MainMediaImage>
+      )}
 
       <PostContainer>
         <TitleSubtitle

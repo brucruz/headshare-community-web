@@ -16,6 +16,8 @@ query GetPostById($id: String!) {
         url
         thumbnailUrl
         format
+        width
+        height
       }
       content
       exclusive

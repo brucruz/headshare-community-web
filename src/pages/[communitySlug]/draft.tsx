@@ -3,8 +3,6 @@ import dynamic from 'next/dynamic';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/router';
 import Image from 'next/image';
-import ReactPlayer from 'react-player';
-
 import { MdPause } from 'react-icons/md';
 import Header from '../../components/Header';
 import {
@@ -18,12 +16,12 @@ import {
   PostStatus,
   useUploadImageMutation,
   useUpdatePostMainMediaThumbnailMutation,
+  useDeletePostMainMediaMutation,
 } from '../../generated/graphql';
 import {
   ImageVideoIcon,
   ImageVideoUpload,
   ImageVideoUploading,
-  ImageVideoUploaded,
   UploadStatus,
   UploadStatusHeader,
   UploadPauseResumeButton,
@@ -50,6 +48,7 @@ import Switch from '../../components/Switch';
 import MediaInput from '../../components/MediaInput';
 import { formatS3Filename, uploadToS3 } from '../../lib/s3';
 import { withApollo } from '../../utils/withApollo';
+import MainMedia from '../../components/MainMedia';
 
 const PostBuilder = dynamic(() => import('../../components/PostBuilder'), {
   ssr: false,
@@ -112,6 +111,7 @@ function NewPost(): JSX.Element {
   const [thumbnailUrl, setThumbnailUrl] = useState<string | undefined>();
 
   const [uploadImage] = useUploadImageMutation();
+  const [removeMainMedia] = useDeletePostMainMediaMutation();
 
   const { data: communityData } = useGetCommunityBasicDataQuery({
     variables: {
@@ -284,8 +284,6 @@ function NewPost(): JSX.Element {
     setSaveState(state);
   }, []);
 
-  console.log(exclusive);
-
   const publishPost = useCallback(async () => {
     const result = await updatePost({
       variables: {
@@ -305,6 +303,58 @@ function NewPost(): JSX.Element {
     router.push(postURL);
   }, [updatePost, communitySlug, id, description, slug, exclusive, router]);
 
+  const mainMedia = useMemo(() => {
+    const postMainMedia = postData?.findPostById?.post?.mainMedia;
+    const uploadInfoMainMedia = uploadInfo?.mainMedia;
+
+    if (postMainMedia) {
+      return {
+        format: postMainMedia.format,
+        url: postMainMedia.url,
+        height: Number(postMainMedia.height),
+        width: Number(postMainMedia.width),
+      };
+    }
+
+    if (uploadInfoMainMedia) {
+      return {
+        format: uploadInfoMainMedia.format,
+        url: uploadInfoMainMedia.url,
+        height: Number(uploadInfoMainMedia.height),
+        width: Number(uploadInfoMainMedia.width),
+      };
+    }
+  }, [postData?.findPostById?.post?.mainMedia, uploadInfo.mainMedia]);
+
+  const removePostMainMedia = useCallback(async () => {
+    const { data: removeResponse } = await removeMainMedia({
+      variables: {
+        communitySlug,
+        postId: post?._id,
+      },
+    });
+
+    const errors = removeResponse?.deletePostMainMedia.errors;
+    const url = removeResponse?.deletePostMainMedia.post?.mainMedia?.url;
+
+    if (url || errors) {
+      alert('Houve um problema ao remover a mídia principal do seu post');
+    }
+
+    if (!url && !errors && postData?.findPostById?.post) {
+      setUploadInfo(oldState => {
+        const { mainMedia: _, status: __, ...rest } = oldState;
+
+        return {
+          status: undefined,
+          mainMedia: undefined,
+          ...rest,
+        };
+      });
+      setMainMediaState('empty');
+    }
+  }, [communitySlug, post?._id, postData?.findPostById?.post, removeMainMedia]);
+
   return (
     <>
       <Header
@@ -320,7 +370,7 @@ function NewPost(): JSX.Element {
         >
           <ImageVideoIcon>
             <Image
-              src="https://headshare.s3.amazonaws.com/assets/components/image_icon.png"
+              src="https://headshare.s3.amazonaws.com/assets/image_icon.png"
               height={100}
               width={100}
             />
@@ -348,29 +398,16 @@ function NewPost(): JSX.Element {
         </ImageVideoUploading>
       )}
 
-      {mainMediaState === 'ready' &&
-        postData &&
-        postData.findPostById &&
-        postData.findPostById.post &&
-        (postData.findPostById.post.mainMedia || uploadInfo.mainMedia?.url) && (
-          <ImageVideoUploaded>
-            {(postData.findPostById.post.mainMedia?.format ===
-              MediaFormat.Video ||
-              uploadInfo.mainMedia?.format === MediaFormat.Video) && (
-              <ReactPlayer
-                url={
-                  postData.findPostById.post.mainMedia?.url ||
-                  uploadInfo.mainMedia?.url
-                }
-                controls
-                muted={false}
-                light
-                height="100%"
-                width="100%"
-              />
-            )}
-          </ImageVideoUploaded>
-        )}
+      {mainMediaState === 'ready' && mainMedia && (
+        <MainMedia
+          mediaUrl={mainMedia.url}
+          format={mainMedia.format}
+          width={mainMedia?.width}
+          height={mainMedia?.height}
+          editClick={() => setDisplayMainMediaModal(!displayMainMediaModal)}
+          removeClick={() => removePostMainMedia()}
+        />
+      )}
 
       <ContentWrapperArea>
         <ContentArea>
@@ -480,6 +517,7 @@ function NewPost(): JSX.Element {
                           )
                         }
                         currentFileUrl={thumbnailUrl}
+                        fileType="image"
                       >
                         <img src={thumbnailUrl} alt="thumbnail" />
                       </MediaInput>
@@ -519,6 +557,7 @@ function NewPost(): JSX.Element {
         displayUploadModal={displayMainMediaModal}
         setDisplayUploadModal={setDisplayMainMediaModal}
         communitySlug={communitySlug}
+        postId={post?._id}
         setMainMediaState={args => setMainMediaState(args)}
         passUploadInfo={args => setUploadInfo(args)}
       />

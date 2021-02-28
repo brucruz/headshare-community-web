@@ -188,6 +188,10 @@ export type Media = {
   description?: Maybe<Scalars['String']>;
   /** Media file information */
   file: File;
+  /** Media original width */
+  width?: Maybe<Scalars['Float']>;
+  /** Media original height */
+  height?: Maybe<Scalars['Float']>;
   /** Link through which the media file should be uploaded to */
   uploadLink: Scalars['String'];
   community: Community;
@@ -465,6 +469,10 @@ export type Mutation = {
   createPost: PostResponse;
   updatePost?: Maybe<PostResponse>;
   updatePostMainMedia: PostResponse;
+  /** Users can remove main media from a post */
+  deletePostMainMedia: PostResponse;
+  /** Users can upload a image directly as a post main media */
+  updatePostMainImage: PostResponse;
   register: LoggedUserResponse;
   login: LoggedUserResponse;
   updateUser?: Maybe<UserResponse>;
@@ -508,6 +516,19 @@ export type MutationUpdatePostMainMediaArgs = {
   mainMediaData: UpdateMediaInput;
   postId: Scalars['String'];
   communityId: Scalars['String'];
+};
+
+
+export type MutationDeletePostMainMediaArgs = {
+  postId: Scalars['String'];
+  communitySlug: Scalars['String'];
+};
+
+
+export type MutationUpdatePostMainImageArgs = {
+  imageData: UploadImageInput;
+  postId: Scalars['String'];
+  communitySlug: Scalars['String'];
 };
 
 
@@ -641,6 +662,10 @@ export type UpdateMediaInput = {
   description?: Maybe<Scalars['String']>;
   /** Media file information */
   file?: Maybe<FileInput>;
+  /** Media original width (for images) */
+  width?: Maybe<Scalars['Float']>;
+  /** Media original height (for images) */
+  height?: Maybe<Scalars['Float']>;
 };
 
 export type FileInput = {
@@ -652,6 +677,23 @@ export type FileInput = {
   type?: Maybe<Scalars['String']>;
   /** Media file extension */
   extension?: Maybe<Scalars['String']>;
+};
+
+export type UploadImageInput = {
+  /** Media format */
+  format: MediaFormat;
+  /** Media thumbnail picture url */
+  thumbnailUrl?: Maybe<Scalars['String']>;
+  /** Media internal name */
+  name?: Maybe<Scalars['String']>;
+  /** Media internal description */
+  description?: Maybe<Scalars['String']>;
+  /** Media file information */
+  file: FileInput;
+  /** Media original width */
+  width?: Maybe<Scalars['Float']>;
+  /** Media original height */
+  height?: Maybe<Scalars['Float']>;
 };
 
 export type LoggedUserResponse = {
@@ -727,19 +769,6 @@ export type UploadMediaInput = {
   file: FileInput;
 };
 
-export type UploadImageInput = {
-  /** Media format */
-  format: MediaFormat;
-  /** Media thumbnail picture url */
-  thumbnailUrl?: Maybe<Scalars['String']>;
-  /** Media internal name */
-  name?: Maybe<Scalars['String']>;
-  /** Media internal description */
-  description?: Maybe<Scalars['String']>;
-  /** Media file information */
-  file: FileInput;
-};
-
 export type CommonCommunityFragment = (
   { __typename?: 'Community' }
   & Pick<Community, '_id' | 'logo' | 'title' | 'description' | 'slug' | 'followersCount' | 'membersCount'>
@@ -801,6 +830,29 @@ export type CreatePostMutation = (
       )>, tags: Array<(
         { __typename?: 'Tag' }
         & Pick<Tag, 'title'>
+      )> }
+    )> }
+  ) }
+);
+
+export type DeletePostMainMediaMutationVariables = Exact<{
+  communitySlug: Scalars['String'];
+  postId: Scalars['String'];
+}>;
+
+
+export type DeletePostMainMediaMutation = (
+  { __typename?: 'Mutation' }
+  & { deletePostMainMedia: (
+    { __typename?: 'PostResponse' }
+    & { errors?: Maybe<Array<(
+      { __typename?: 'ErrorResponse' }
+      & Pick<ErrorResponse, 'field' | 'message'>
+    )>>, post?: Maybe<(
+      { __typename?: 'Post' }
+      & { mainMedia?: Maybe<(
+        { __typename?: 'Media' }
+        & Pick<Media, 'url'>
       )> }
     )> }
   ) }
@@ -945,6 +997,38 @@ export type UpdatePostMutation = (
       )> }
     )> }
   )> }
+);
+
+export type UpdatePostMainImageMutationVariables = Exact<{
+  communitySlug: Scalars['String'];
+  postId: Scalars['String'];
+  imageData: UploadImageInput;
+}>;
+
+
+export type UpdatePostMainImageMutation = (
+  { __typename?: 'Mutation' }
+  & { updatePostMainImage: (
+    { __typename?: 'PostResponse' }
+    & { errors?: Maybe<Array<(
+      { __typename?: 'ErrorResponse' }
+      & Pick<ErrorResponse, 'field' | 'message'>
+    )>>, post?: Maybe<(
+      { __typename?: 'Post' }
+      & Pick<Post, '_id' | 'title' | 'formattedTitle' | 'slug' | 'description' | 'status' | 'content' | 'exclusive'>
+      & { mainMedia?: Maybe<(
+        { __typename?: 'Media' }
+        & Pick<Media, '_id' | 'url' | 'thumbnailUrl' | 'format' | 'uploadLink' | 'height' | 'width'>
+        & { file: (
+          { __typename?: 'File' }
+          & Pick<File, 'name' | 'size' | 'extension' | 'type'>
+        ) }
+      )>, tags: Array<(
+        { __typename?: 'Tag' }
+        & Pick<Tag, '_id' | 'title'>
+      )> }
+    )> }
+  ) }
 );
 
 export type UpdatePostMainMediaThumbnailMutationVariables = Exact<{
@@ -1276,7 +1360,7 @@ export type GetPostByIdQuery = (
       & Pick<Post, '_id' | 'title' | 'formattedTitle' | 'slug' | 'description' | 'status' | 'content' | 'exclusive'>
       & { mainMedia?: Maybe<(
         { __typename?: 'Media' }
-        & Pick<Media, '_id' | 'url' | 'thumbnailUrl' | 'format'>
+        & Pick<Media, '_id' | 'url' | 'thumbnailUrl' | 'format' | 'width' | 'height'>
       )>, tags: Array<(
         { __typename?: 'Tag' }
         & Pick<Tag, '_id' | 'title'>
@@ -1348,7 +1432,7 @@ export type PostBySlugsQuery = (
       & Pick<Post, 'title' | 'slug' | 'description' | 'content' | 'exclusive' | 'createdAt'>
       & { mainMedia?: Maybe<(
         { __typename?: 'Media' }
-        & Pick<Media, 'format' | 'url' | 'thumbnailUrl'>
+        & Pick<Media, 'format' | 'url' | 'thumbnailUrl' | 'width' | 'height'>
       )>, creator: (
         { __typename?: 'User' }
         & CreatorNameFragment
@@ -1489,6 +1573,47 @@ export function useCreatePostMutation(baseOptions?: Apollo.MutationHookOptions<C
 export type CreatePostMutationHookResult = ReturnType<typeof useCreatePostMutation>;
 export type CreatePostMutationResult = Apollo.MutationResult<CreatePostMutation>;
 export type CreatePostMutationOptions = Apollo.BaseMutationOptions<CreatePostMutation, CreatePostMutationVariables>;
+export const DeletePostMainMediaDocument = gql`
+    mutation DeletePostMainMedia($communitySlug: String!, $postId: String!) {
+  deletePostMainMedia(communitySlug: $communitySlug, postId: $postId) {
+    errors {
+      field
+      message
+    }
+    post {
+      mainMedia {
+        url
+      }
+    }
+  }
+}
+    `;
+export type DeletePostMainMediaMutationFn = Apollo.MutationFunction<DeletePostMainMediaMutation, DeletePostMainMediaMutationVariables>;
+
+/**
+ * __useDeletePostMainMediaMutation__
+ *
+ * To run a mutation, you first call `useDeletePostMainMediaMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeletePostMainMediaMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deletePostMainMediaMutation, { data, loading, error }] = useDeletePostMainMediaMutation({
+ *   variables: {
+ *      communitySlug: // value for 'communitySlug'
+ *      postId: // value for 'postId'
+ *   },
+ * });
+ */
+export function useDeletePostMainMediaMutation(baseOptions?: Apollo.MutationHookOptions<DeletePostMainMediaMutation, DeletePostMainMediaMutationVariables>) {
+        return Apollo.useMutation<DeletePostMainMediaMutation, DeletePostMainMediaMutationVariables>(DeletePostMainMediaDocument, baseOptions);
+      }
+export type DeletePostMainMediaMutationHookResult = ReturnType<typeof useDeletePostMainMediaMutation>;
+export type DeletePostMainMediaMutationResult = Apollo.MutationResult<DeletePostMainMediaMutation>;
+export type DeletePostMainMediaMutationOptions = Apollo.BaseMutationOptions<DeletePostMainMediaMutation, DeletePostMainMediaMutationVariables>;
 export const LoginDocument = gql`
     mutation Login($loginData: LoginUserInput!) {
   login(loginData: $loginData) {
@@ -1776,6 +1901,76 @@ export function useUpdatePostMutation(baseOptions?: Apollo.MutationHookOptions<U
 export type UpdatePostMutationHookResult = ReturnType<typeof useUpdatePostMutation>;
 export type UpdatePostMutationResult = Apollo.MutationResult<UpdatePostMutation>;
 export type UpdatePostMutationOptions = Apollo.BaseMutationOptions<UpdatePostMutation, UpdatePostMutationVariables>;
+export const UpdatePostMainImageDocument = gql`
+    mutation UpdatePostMainImage($communitySlug: String!, $postId: String!, $imageData: UploadImageInput!) {
+  updatePostMainImage(
+    communitySlug: $communitySlug
+    postId: $postId
+    imageData: $imageData
+  ) {
+    errors {
+      field
+      message
+    }
+    post {
+      _id
+      title
+      formattedTitle
+      slug
+      description
+      status
+      mainMedia {
+        _id
+        url
+        thumbnailUrl
+        format
+        uploadLink
+        height
+        width
+        file {
+          name
+          size
+          extension
+          type
+        }
+      }
+      content
+      exclusive
+      tags {
+        _id
+        title
+      }
+    }
+  }
+}
+    `;
+export type UpdatePostMainImageMutationFn = Apollo.MutationFunction<UpdatePostMainImageMutation, UpdatePostMainImageMutationVariables>;
+
+/**
+ * __useUpdatePostMainImageMutation__
+ *
+ * To run a mutation, you first call `useUpdatePostMainImageMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdatePostMainImageMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updatePostMainImageMutation, { data, loading, error }] = useUpdatePostMainImageMutation({
+ *   variables: {
+ *      communitySlug: // value for 'communitySlug'
+ *      postId: // value for 'postId'
+ *      imageData: // value for 'imageData'
+ *   },
+ * });
+ */
+export function useUpdatePostMainImageMutation(baseOptions?: Apollo.MutationHookOptions<UpdatePostMainImageMutation, UpdatePostMainImageMutationVariables>) {
+        return Apollo.useMutation<UpdatePostMainImageMutation, UpdatePostMainImageMutationVariables>(UpdatePostMainImageDocument, baseOptions);
+      }
+export type UpdatePostMainImageMutationHookResult = ReturnType<typeof useUpdatePostMainImageMutation>;
+export type UpdatePostMainImageMutationResult = Apollo.MutationResult<UpdatePostMainImageMutation>;
+export type UpdatePostMainImageMutationOptions = Apollo.BaseMutationOptions<UpdatePostMainImageMutation, UpdatePostMainImageMutationVariables>;
 export const UpdatePostMainMediaThumbnailDocument = gql`
     mutation UpdatePostMainMediaThumbnail($communityId: String!, $postId: String!, $mainMediaData: UpdateMediaInput!) {
   updatePostMainMedia(
@@ -2380,6 +2575,8 @@ export const GetPostByIdDocument = gql`
         url
         thumbnailUrl
         format
+        width
+        height
       }
       content
       exclusive
@@ -2519,6 +2716,8 @@ export const PostBySlugsDocument = gql`
         format
         url
         thumbnailUrl
+        width
+        height
       }
       creator {
         ...CreatorName
