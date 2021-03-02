@@ -69,18 +69,19 @@ export const CategoryPost = styled.a`
 
   img {
     border-radius: 8px 8px 0 0;
-    height: 84px;
-    width: 150px;
+    height: calc(80vw / 16 * 9);
+    width: 80vw;
+    max-height: 198px;
+    max-width: 352px;
     object-fit: cover;
-
-    @media ${device.laptop} {
-      height: 101px;
-      width: 180px;
-    }
   }
 
   & + a {
     margin-left: 5px;
+  }
+
+  &:last-child {
+    padding-right: 12px;
   }
 `;
 
@@ -92,13 +93,10 @@ export const CategoryPostImagePlaceholder = styled.div`
   background-color: var(--gray-background);
 
   border-radius: 8px 8px 0 0;
-  height: 84px;
-  width: 150px;
-
-  @media ${device.laptop} {
-    height: 101px;
-    width: 180px;
-  }
+  height: calc(80vw / 16 * 9);
+  width: 80vw;
+  max-height: 198px;
+  max-width: 352px;
 
   svg {
     height: 30px;
