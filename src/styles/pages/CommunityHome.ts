@@ -33,6 +33,32 @@ export const CategoryPosts = styled.section`
 
   display: flex;
   overflow-x: auto;
+
+  height: 173px;
+`;
+
+export const EmptyCategory = styled.div`
+  height: 100%;
+  width: 100%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  div {
+    color: var(--subtitles);
+    text-align: center;
+
+    svg {
+      height: 45px;
+      width: 45px;
+    }
+
+    p {
+      width: 250px;
+      margin-top: 10px;
+    }
+  }
 `;
 
 export const CategoryPost = styled.a`

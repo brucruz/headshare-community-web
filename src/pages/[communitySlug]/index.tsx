@@ -1,5 +1,4 @@
-import { Maybe } from 'graphql/jsutils/Maybe';
-import { GetStaticPaths, GetStaticProps } from 'next';
+import { FiAlertCircle } from 'react-icons/fi';
 import NextLink from 'next/link';
 import { useRouter } from 'next/router';
 import { MdKeyboardArrowRight, MdPhoto } from 'react-icons/md';
@@ -8,21 +7,9 @@ import Button from '../../components/Button';
 import LikeCommentCount from '../../components/LikeCommentCount';
 import CommunityPageTemplate from '../../components/templates/CommunityPageTemplate';
 import {
-  Community,
-  Tag,
-  Post,
-  User,
-  GetCommunitiesSlugsDocument,
-  GetCommunitiesSlugsQuery,
-  GetCommunitiesSlugsQueryVariables,
-  GetCommunityHomeDataDocument,
-  GetCommunityHomeDataQuery,
-  GetCommunityHomeDataQueryVariables,
-  Media,
   PostStatus,
   useGetCommunityHomeDataQuery,
 } from '../../generated/graphql';
-import { initializeApollo } from '../../lib/apolloClient';
 import {
   CategoriesDetailContainer,
   CategoriesPosts,
@@ -30,42 +17,12 @@ import {
   CategoryPost,
   CategoryPostImagePlaceholder,
   CategoryPosts,
+  EmptyCategory,
   HomeContent,
   PostContent,
   SeeMoreButton,
 } from '../../styles/pages/CommunityHome';
 import { withApollo } from '../../utils/withApollo';
-
-interface CommunityHomeProps {
-  community: Pick<
-    Community,
-    | '_id'
-    | 'logo'
-    | 'title'
-    | 'slug'
-    | 'description'
-    | 'followersCount'
-    | 'membersCount'
-  > & {
-    banner?: Maybe<{ __typename?: 'Media' } & Pick<Media, 'url'>>;
-    avatar?: Maybe<{ __typename?: 'Media' } & Pick<Media, 'url'>>;
-    tags: Array<
-      { __typename?: 'Tag' } & Pick<Tag, 'title' | 'slug' | 'postCount'> & {
-          posts: Array<
-            { __typename?: 'Post' } & Pick<
-              Post,
-              'title' | 'slug' | 'likes' | 'exclusive'
-            > & {
-                mainMedia?: Maybe<
-                  { __typename?: 'Media' } & Pick<Media, 'thumbnailUrl'>
-                >;
-              }
-          >;
-        }
-    >;
-    creator: { __typename?: 'User' } & Pick<User, 'name' | 'surname'>;
-  };
-}
 
 interface PostCardProps {
   title: string;
@@ -140,49 +97,53 @@ function CommunityHome(): JSX.Element {
       <HomeContent>
         <CategoriesPosts>
           {community &&
-            community.tags.map(tag => {
-              if (tag.postCount > 0) {
-                return (
-                  <CategoryContent key={tag.slug}>
-                    <h4>
-                      <NextLink
-                        href={`/${community.slug}/${tag.slug}`}
-                        passHref
-                      >
-                        <a>{tag.title}</a>
-                      </NextLink>
-                    </h4>
-                    <h5>
-                      {tag.postCount === 1
-                        ? `${tag.postCount} post`
-                        : `${tag.postCount} posts`}
-                    </h5>
+            community.tags.map(tag => (
+              <CategoryContent key={tag.slug}>
+                <h4>
+                  <NextLink href={`/${community.slug}/${tag.slug}`} passHref>
+                    <a>{tag.title}</a>
+                  </NextLink>
+                </h4>
+                <h5>
+                  {tag.postCount === 1
+                    ? `${tag.postCount} post`
+                    : `${tag.postCount} posts`}
+                </h5>
 
-                    <CategoryPosts>
-                      {tag.posts.map(post => (
-                        <PostCard
-                          key={post.slug}
-                          title={post.title || 'Draft'}
-                          liked
-                          comments={2}
-                          exclusive={post.exclusive}
-                          thumbnail={post.mainMedia?.thumbnailUrl}
-                          likes={post.likes || 0}
-                          href={`/${community.slug}/post/${post.slug}`}
-                        />
-                      ))}
-                      {tag.posts.length > 5 && (
-                        <SeeMoreButton>
-                          <MdKeyboardArrowRight />
-                          <h4>ver mais</h4>
-                        </SeeMoreButton>
-                      )}
-                    </CategoryPosts>
-                  </CategoryContent>
-                );
-              }
-              return undefined;
-            })}
+                <CategoryPosts>
+                  {tag.postCount === 0 && (
+                    <EmptyCategory>
+                      <div>
+                        <FiAlertCircle />
+
+                        <p>
+                          Esta categoria ainda não tem nenhum post publicado
+                        </p>
+                      </div>
+                    </EmptyCategory>
+                  )}
+                  {tag.postCount <= 10 ? (
+                    tag.posts.map(post => (
+                      <PostCard
+                        key={post.slug}
+                        title={post.title || 'Draft'}
+                        liked
+                        comments={2}
+                        exclusive={post.exclusive}
+                        thumbnail={post.mainMedia?.thumbnailUrl}
+                        likes={post.likes || 0}
+                        href={`/${community.slug}/post/${post.slug}`}
+                      />
+                    ))
+                  ) : (
+                    <SeeMoreButton>
+                      <MdKeyboardArrowRight />
+                      <h4>ver mais</h4>
+                    </SeeMoreButton>
+                  )}
+                </CategoryPosts>
+              </CategoryContent>
+            ))}
         </CategoriesPosts>
 
         <NextLink href={`/${community && community.slug}/categories`}>
@@ -200,97 +161,3 @@ function CommunityHome(): JSX.Element {
 }
 
 export default withApollo({ ssr: true })(CommunityHome);
-
-// export const getStaticPaths: GetStaticPaths = async () => {
-//   const apolloClient = initializeApollo();
-
-//   const { data } = await apolloClient.query<
-//     GetCommunitiesSlugsQuery,
-//     GetCommunitiesSlugsQueryVariables
-//   >({
-//     query: GetCommunitiesSlugsDocument,
-//   });
-
-//   const { errors, communities } = data.communities;
-
-//   if (errors) {
-//     return {
-//       paths: [],
-//       fallback: true,
-//     };
-//   }
-
-//   if (!communities) {
-//     return {
-//       paths: [],
-//       fallback: true,
-//     };
-//   }
-
-//   const paths = communities.map(community => ({
-//     params: {
-//       communitySlug: community.slug,
-//     },
-//   }));
-
-//   return {
-//     paths,
-//     fallback: true,
-//   };
-// };
-
-// export const getStaticProps: GetStaticProps<
-//   CommunityHomeProps,
-//   { communitySlug: string }
-// > = async context => {
-//   const apolloClient = initializeApollo();
-
-//   if (context.params) {
-//     const { communitySlug } = context.params;
-
-//     try {
-//       const { data } = await apolloClient.query<
-//         GetCommunityHomeDataQuery,
-//         GetCommunityHomeDataQueryVariables
-//       >({
-//         query: GetCommunityHomeDataDocument,
-//         variables: { slug: communitySlug, postsStatus: PostStatus.Published },
-//       });
-
-//       const { errors, community } = data.community;
-
-//       if (errors) {
-//         const { message } = errors[0];
-
-//         if (message === 'No community found with this slug') {
-//           return {
-//             redirect: {
-//               destination: '/',
-//               permanent: false,
-//             },
-//           };
-//         }
-//       }
-
-//       if (!community) {
-//         return {
-//           redirect: {
-//             destination: '/',
-//             statusCode: 301,
-//           },
-//         };
-//       }
-
-//       return {
-//         props: {
-//           community,
-//         },
-//       };
-//     } catch (err) {
-//       console.log(err);
-//     }
-//   }
-//   return {
-//     notFound: true,
-//   };
-// };
