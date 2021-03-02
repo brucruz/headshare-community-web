@@ -36,7 +36,7 @@ const MediaInput: React.FC<MediaInputProps> = ({
           return 'image/png, image/jpeg';
 
         case 'video':
-          return 'video/mp4, video/quicktime, video/x-ms-wmv, video/x-msvideo, video/x-flv';
+          return 'video/mp4, video/quicktime, video/x-ms-wmv, video/x-msvideo, video/x-flv, video/mpeg';
 
         default:
           return undefined;
