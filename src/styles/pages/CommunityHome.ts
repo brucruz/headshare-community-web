@@ -33,12 +33,10 @@ export const CategoryPosts = styled.section`
 
   display: flex;
   overflow-x: auto;
-
-  height: 173px;
 `;
 
 export const EmptyCategory = styled.div`
-  height: 100%;
+  height: 173px;
   width: 100%;
 
   display: flex;
