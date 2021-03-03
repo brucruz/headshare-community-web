@@ -75,17 +75,17 @@ function TagPosts(): JSX.Element {
 
   const tag = data && data.findTagBySlugs && data.findTagBySlugs.tag;
 
-  if ((!loading && !data) || !tag) {
-    return (
-      <div>
-        <div>you got query failed for some reason</div>
-        <div>{error?.message}</div>
-      </div>
-    );
-  }
+  // if ((!loading && !data) || !tag) {
+  //   return (
+  //     <div>
+  //       <div>you got query failed for some reason</div>
+  //       <div>{error?.message}</div>
+  //     </div>
+  //   );
+  // }
 
-  if (!data && loading) {
-    return <h1>Carregando...</h1>;
+  if ((!data && loading) || !tag) {
+    return <div />;
   }
 
   return (

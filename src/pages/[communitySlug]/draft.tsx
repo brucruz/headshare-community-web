@@ -479,52 +479,50 @@ function NewPost(): JSX.Element {
                 </PublishOptionSwitch>
               </PublishOptionInput>
 
-              {post?.mainMedia?.format === MediaFormat.Video && (
-                <PublishOptionInput>
-                  <p>
-                    Importe uma miniatura do seu vídeo:{' '}
-                    <small>(melhor formato: 1280x720px)</small>
-                  </p>
+              <PublishOptionInput>
+                <p>
+                  Importe uma miniatura do seu vídeo:{' '}
+                  <small>(melhor formato: 1280x720px)</small>
+                </p>
 
-                  {!thumbnailUrl && (
-                    <VideoThumbnailContainer>
-                      <MediaInput
-                        name="video-thumbnail"
-                        label="Miniatura"
-                        getFile={file =>
-                          handleThumbnailSelect(
-                            file,
-                            id,
-                            community?._id,
-                            communitySlug,
-                          )
-                        }
-                      />
-                    </VideoThumbnailContainer>
-                  )}
+                {!thumbnailUrl && (
+                  <VideoThumbnailContainer>
+                    <MediaInput
+                      name="video-thumbnail"
+                      label="Miniatura"
+                      getFile={file =>
+                        handleThumbnailSelect(
+                          file,
+                          id,
+                          community?._id,
+                          communitySlug,
+                        )
+                      }
+                    />
+                  </VideoThumbnailContainer>
+                )}
 
-                  {thumbnailUrl && (
-                    <VideoThumbnailPreview>
-                      <MediaInput
-                        name="video-thumbnail"
-                        label="Miniatura"
-                        getFile={file =>
-                          handleThumbnailSelect(
-                            file,
-                            id,
-                            community?._id,
-                            communitySlug,
-                          )
-                        }
-                        currentFileUrl={thumbnailUrl}
-                        fileType="image"
-                      >
-                        <img src={thumbnailUrl} alt="thumbnail" />
-                      </MediaInput>
-                    </VideoThumbnailPreview>
-                  )}
-                </PublishOptionInput>
-              )}
+                {thumbnailUrl && (
+                  <VideoThumbnailPreview>
+                    <MediaInput
+                      name="video-thumbnail"
+                      label="Miniatura"
+                      getFile={file =>
+                        handleThumbnailSelect(
+                          file,
+                          id,
+                          community?._id,
+                          communitySlug,
+                        )
+                      }
+                      currentFileUrl={thumbnailUrl}
+                      fileType="image"
+                    >
+                      <img src={thumbnailUrl} alt="thumbnail" />
+                    </MediaInput>
+                  </VideoThumbnailPreview>
+                )}
+              </PublishOptionInput>
             </PublishOption>
 
             <PublishOption index={2} title="Tags">

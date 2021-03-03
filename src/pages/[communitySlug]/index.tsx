@@ -75,17 +75,17 @@ function CommunityHome(): JSX.Element {
 
   const community = data && data.community && data.community.community;
 
-  if ((!loading && !data) || !community) {
-    return (
-      <div>
-        <div>you got query failed for some reason</div>
-        <div>{error?.message}</div>
-      </div>
-    );
-  }
+  // if ((!loading && !data) || !community) {
+  //   return (
+  //     <div>
+  //       <div>you got query failed for some reason</div>
+  //       <div>{error?.message}</div>
+  //     </div>
+  //   );
+  // }
 
-  if (!data && loading) {
-    return <h1>Carregando...</h1>;
+  if ((!data && loading) || !community) {
+    return <div />;
   }
 
   return (
@@ -100,7 +100,10 @@ function CommunityHome(): JSX.Element {
             community.tags.map(tag => (
               <CategoryContent key={tag.slug}>
                 <h4>
-                  <NextLink href={`/${community.slug}/${tag.slug}`} passHref>
+                  <NextLink
+                    href={`/${community.slug}/category/${tag.slug}`}
+                    passHref
+                  >
                     <a>{tag.title}</a>
                   </NextLink>
                 </h4>

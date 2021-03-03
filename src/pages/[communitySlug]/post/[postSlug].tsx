@@ -41,17 +41,17 @@ function PostContent(): JSX.Element {
     return '';
   }, [post]);
 
-  if ((!loading && !data) || !post) {
-    return (
-      <div>
-        <div>you got query failed for some reason</div>
-        <div>{error?.message}</div>
-      </div>
-    );
-  }
+  // if ((!loading && !data) || !post) {
+  //   return (
+  //     <div>
+  //       <div>you got query failed for some reason</div>
+  //       <div>{error?.message}</div>
+  //     </div>
+  //   );
+  // }
 
-  if (!data && loading) {
-    return <h1>Carregando...</h1>;
+  if ((!data && loading) || !post) {
+    return <div />;
   }
 
   return (

@@ -77,7 +77,7 @@ export const CategoryPost = styled.a`
   }
 
   & + a {
-    margin-left: 5px;
+    margin-left: 10px;
   }
 
   &:last-child {
