@@ -1,0 +1,9 @@
+mutation DeletePost($communitySlug: String!, $postId: String!) {
+  deletePost(communitySlug: $communitySlug, postId: $postId) {
+    errors {
+      field
+      message
+    }
+    success
+  }
+}

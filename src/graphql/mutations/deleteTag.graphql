@@ -1,0 +1,9 @@
+mutation DeleteTag($communitySlug: String!, $tagId: String!) {
+  deleteTag(communitySlug: $communitySlug, tagId: $tagId) {
+    errors {
+      field
+      message
+    }
+    success
+  }
+}

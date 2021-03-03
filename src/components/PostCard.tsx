@@ -1,6 +1,6 @@
 import NextLink from 'next/link';
 import NextImage from 'next/image';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import {
   PostCardContainer,
   PostCardImageContainer,
@@ -14,7 +14,8 @@ import {
 import LikeCommentCount from './LikeCommentCount';
 import { OptionsMenu } from './OptionsMenu';
 import { MenuItemProps } from './MenuItem';
-import { PostStatus } from '../generated/graphql';
+import { PostStatus, useDeletePostMutation } from '../generated/graphql';
+import { ConfirmationModal } from './ConfirmationModal';
 
 interface PostCardProps {
   id: string;
@@ -29,6 +30,7 @@ interface PostCardProps {
   likes?: number;
   comments?: number;
   isOwner?: boolean;
+  removePost?: (id: string) => void;
 }
 
 interface PostStatusBadgeProps {
@@ -69,7 +71,23 @@ export function PostCard({
   likes = 0,
   comments = 0,
   isOwner = false,
+  removePost,
 }: PostCardProps): JSX.Element {
+  const [isOpenConfirmationModal, setIsOpenConfirmationModal] = useState(false);
+  const [confirmationError, setConfirmationError] = useState<
+    string | undefined
+  >(undefined);
+
+  const [deletePost] = useDeletePostMutation();
+
+  function openConfirmationModal(): void {
+    setIsOpenConfirmationModal(true);
+  }
+
+  function closeConfirmationModal(): void {
+    setIsOpenConfirmationModal(false);
+  }
+
   const optionsMenuList = useMemo(() => {
     const array: MenuItemProps[] = [
       {
@@ -83,6 +101,12 @@ export function PostCard({
         href: `/${communitySlug}/draft?id=${id}`,
         selected: false,
         textSize: 'small',
+      },
+      {
+        text: 'Deletar',
+        selected: false,
+        textSize: 'small',
+        onClick: () => openConfirmationModal(),
       },
     ];
 
@@ -102,8 +126,26 @@ export function PostCard({
     }
   }, [status]);
 
-  const postCardContainer = useMemo(
-    () => (
+  const postCardContainer = useMemo(() => {
+    async function handlePostExclusion(): Promise<void> {
+      const { data } = await deletePost({
+        variables: {
+          communitySlug,
+          postId: id,
+        },
+      });
+
+      if (data?.deletePost.success === false) {
+        setConfirmationError('Houve um erro na sua requisição');
+      }
+
+      if (data?.deletePost.success === true) {
+        setIsOpenConfirmationModal(false);
+        removePost && removePost(id);
+      }
+    }
+
+    return (
       <PostCardContainer isOwner={isOwner}>
         <PostCardImageContainer>
           {image && <NextImage src={image} height={530} width={940} />}
@@ -132,21 +174,35 @@ export function PostCard({
             {isOwner && postStatus}
           </LikeCommentStatusContainer>
         </PostCardContent>
+
+        <ConfirmationModal
+          confirmationText={{
+            title: 'Tem certeza que quer excluir este post?',
+            subtitle: `Você está prestes a excluir o post "${title}". Clique em cancelar, caso tenha sido um engano.`,
+          }}
+          isOpen={isOpenConfirmationModal}
+          setIsOpen={closeConfirmationModal}
+          confirmationAction={handlePostExclusion}
+        />
       </PostCardContainer>
-    ),
-    [
-      comments,
-      description,
-      exclusive,
-      image,
-      isOwner,
-      liked,
-      likes,
-      optionsMenuList,
-      title,
-      postStatus,
-    ],
-  );
+    );
+  }, [
+    isOwner,
+    image,
+    exclusive,
+    title,
+    description,
+    optionsMenuList,
+    liked,
+    likes,
+    comments,
+    postStatus,
+    isOpenConfirmationModal,
+    deletePost,
+    communitySlug,
+    id,
+    removePost,
+  ]);
 
   return (
     <>

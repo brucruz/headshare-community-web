@@ -1,9 +1,12 @@
 /* eslint-disable no-underscore-dangle */
 import { useRouter } from 'next/router';
-import { useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { PostCard } from '../../../components/PostCard';
 import { AdminPageTemplate } from '../../../components/templates/AdminPageTemplate';
 import {
+  Maybe,
+  Media,
+  Post,
   useCommunityAdminPostsQuery,
   useCreatePostMutation,
 } from '../../../generated/graphql';
@@ -11,8 +14,17 @@ import { useAuth } from '../../../hooks/useAuth';
 import { AdminPost, AdminPostList } from '../../../styles/pages/AdminPosts';
 import { withApollo } from '../../../utils/withApollo';
 
+type Posts = ({ __typename?: 'Post' } & Pick<
+  Post,
+  '_id' | 'title' | 'description' | 'slug' | 'status' | 'exclusive'
+> & {
+    mainMedia?: Maybe<{ __typename?: 'Media' } & Pick<Media, 'thumbnailUrl'>>;
+  })[];
+
 function AdminPosts(): JSX.Element {
   const router = useRouter();
+
+  const [posts, setPosts] = useState<Posts>([] as Posts);
 
   const { communitySlug } = router.query as { communitySlug: string };
 
@@ -43,17 +55,25 @@ function AdminPosts(): JSX.Element {
     }
   }, [createPost, router, communitySlug]);
 
-  if (!data && loading) {
-    return <div />;
+  function removePost(id: string): void {
+    setPosts(oldPosts => oldPosts.filter(post => post._id !== id));
   }
 
   const community = data && data.community && data.community.community;
 
+  useEffect(() => {
+    community && setPosts(community.posts);
+  }, [community]);
+
+  if (!data && loading) {
+    return <div />;
+  }
+
   if ((!loading && error) || !community) {
     return (
       <div>
-        <div>you got query failed for some reason</div>
-        <div>{error?.message}</div>
+        {/* <div>you got query failed for some reason</div>
+        <div>{error?.message}</div> */}
       </div>
     );
   }
@@ -91,7 +111,7 @@ function AdminPosts(): JSX.Element {
       ]}
     >
       <AdminPostList>
-        {community.posts.map(post => (
+        {posts.map(post => (
           <AdminPost key={post._id}>
             <PostCard
               id={post._id}
@@ -106,6 +126,7 @@ function AdminPosts(): JSX.Element {
               comments={10}
               likes={100}
               exclusive={post.exclusive}
+              removePost={removePost}
             />
           </AdminPost>
         ))}

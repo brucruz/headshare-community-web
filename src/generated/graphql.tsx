@@ -471,6 +471,8 @@ export type Mutation = {
   updatePostMainMedia: PostResponse;
   /** Users can remove main media from a post */
   deletePostMainMedia: PostResponse;
+  /** Owners may  */
+  deletePost: SuccessResponse;
   /** Users can upload a image directly as a post main media */
   updatePostMainImage: PostResponse;
   register: LoggedUserResponse;
@@ -479,6 +481,8 @@ export type Mutation = {
   logout: Scalars['Boolean'];
   createTag: TagResponse;
   updateTag?: Maybe<TagResponse>;
+  /** Owners may  */
+  deleteTag: SuccessResponse;
   createRole: RoleResponse;
   updateRole?: Maybe<RoleResponse>;
   /** Users can import a media */
@@ -525,6 +529,12 @@ export type MutationDeletePostMainMediaArgs = {
 };
 
 
+export type MutationDeletePostArgs = {
+  postId: Scalars['String'];
+  communitySlug: Scalars['String'];
+};
+
+
 export type MutationUpdatePostMainImageArgs = {
   imageData: UploadImageInput;
   postId: Scalars['String'];
@@ -557,6 +567,12 @@ export type MutationCreateTagArgs = {
 export type MutationUpdateTagArgs = {
   updateData: UpdateTagInput;
   id: Scalars['String'];
+  communitySlug: Scalars['String'];
+};
+
+
+export type MutationDeleteTagArgs = {
+  tagId: Scalars['String'];
   communitySlug: Scalars['String'];
 };
 
@@ -677,6 +693,12 @@ export type FileInput = {
   type?: Maybe<Scalars['String']>;
   /** Media file extension */
   extension?: Maybe<Scalars['String']>;
+};
+
+export type SuccessResponse = {
+  __typename?: 'SuccessResponse';
+  errors?: Maybe<Array<ErrorResponse>>;
+  success: Scalars['Boolean'];
 };
 
 export type UploadImageInput = {
@@ -835,6 +857,24 @@ export type CreatePostMutation = (
   ) }
 );
 
+export type DeletePostMutationVariables = Exact<{
+  communitySlug: Scalars['String'];
+  postId: Scalars['String'];
+}>;
+
+
+export type DeletePostMutation = (
+  { __typename?: 'Mutation' }
+  & { deletePost: (
+    { __typename?: 'SuccessResponse' }
+    & Pick<SuccessResponse, 'success'>
+    & { errors?: Maybe<Array<(
+      { __typename?: 'ErrorResponse' }
+      & Pick<ErrorResponse, 'field' | 'message'>
+    )>> }
+  ) }
+);
+
 export type DeletePostMainMediaMutationVariables = Exact<{
   communitySlug: Scalars['String'];
   postId: Scalars['String'];
@@ -855,6 +895,24 @@ export type DeletePostMainMediaMutation = (
         & Pick<Media, 'url'>
       )> }
     )> }
+  ) }
+);
+
+export type DeleteTagMutationVariables = Exact<{
+  communitySlug: Scalars['String'];
+  tagId: Scalars['String'];
+}>;
+
+
+export type DeleteTagMutation = (
+  { __typename?: 'Mutation' }
+  & { deleteTag: (
+    { __typename?: 'SuccessResponse' }
+    & Pick<SuccessResponse, 'success'>
+    & { errors?: Maybe<Array<(
+      { __typename?: 'ErrorResponse' }
+      & Pick<ErrorResponse, 'field' | 'message'>
+    )>> }
   ) }
 );
 
@@ -1573,6 +1631,43 @@ export function useCreatePostMutation(baseOptions?: Apollo.MutationHookOptions<C
 export type CreatePostMutationHookResult = ReturnType<typeof useCreatePostMutation>;
 export type CreatePostMutationResult = Apollo.MutationResult<CreatePostMutation>;
 export type CreatePostMutationOptions = Apollo.BaseMutationOptions<CreatePostMutation, CreatePostMutationVariables>;
+export const DeletePostDocument = gql`
+    mutation DeletePost($communitySlug: String!, $postId: String!) {
+  deletePost(communitySlug: $communitySlug, postId: $postId) {
+    errors {
+      field
+      message
+    }
+    success
+  }
+}
+    `;
+export type DeletePostMutationFn = Apollo.MutationFunction<DeletePostMutation, DeletePostMutationVariables>;
+
+/**
+ * __useDeletePostMutation__
+ *
+ * To run a mutation, you first call `useDeletePostMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeletePostMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deletePostMutation, { data, loading, error }] = useDeletePostMutation({
+ *   variables: {
+ *      communitySlug: // value for 'communitySlug'
+ *      postId: // value for 'postId'
+ *   },
+ * });
+ */
+export function useDeletePostMutation(baseOptions?: Apollo.MutationHookOptions<DeletePostMutation, DeletePostMutationVariables>) {
+        return Apollo.useMutation<DeletePostMutation, DeletePostMutationVariables>(DeletePostDocument, baseOptions);
+      }
+export type DeletePostMutationHookResult = ReturnType<typeof useDeletePostMutation>;
+export type DeletePostMutationResult = Apollo.MutationResult<DeletePostMutation>;
+export type DeletePostMutationOptions = Apollo.BaseMutationOptions<DeletePostMutation, DeletePostMutationVariables>;
 export const DeletePostMainMediaDocument = gql`
     mutation DeletePostMainMedia($communitySlug: String!, $postId: String!) {
   deletePostMainMedia(communitySlug: $communitySlug, postId: $postId) {
@@ -1614,6 +1709,43 @@ export function useDeletePostMainMediaMutation(baseOptions?: Apollo.MutationHook
 export type DeletePostMainMediaMutationHookResult = ReturnType<typeof useDeletePostMainMediaMutation>;
 export type DeletePostMainMediaMutationResult = Apollo.MutationResult<DeletePostMainMediaMutation>;
 export type DeletePostMainMediaMutationOptions = Apollo.BaseMutationOptions<DeletePostMainMediaMutation, DeletePostMainMediaMutationVariables>;
+export const DeleteTagDocument = gql`
+    mutation DeleteTag($communitySlug: String!, $tagId: String!) {
+  deleteTag(communitySlug: $communitySlug, tagId: $tagId) {
+    errors {
+      field
+      message
+    }
+    success
+  }
+}
+    `;
+export type DeleteTagMutationFn = Apollo.MutationFunction<DeleteTagMutation, DeleteTagMutationVariables>;
+
+/**
+ * __useDeleteTagMutation__
+ *
+ * To run a mutation, you first call `useDeleteTagMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteTagMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteTagMutation, { data, loading, error }] = useDeleteTagMutation({
+ *   variables: {
+ *      communitySlug: // value for 'communitySlug'
+ *      tagId: // value for 'tagId'
+ *   },
+ * });
+ */
+export function useDeleteTagMutation(baseOptions?: Apollo.MutationHookOptions<DeleteTagMutation, DeleteTagMutationVariables>) {
+        return Apollo.useMutation<DeleteTagMutation, DeleteTagMutationVariables>(DeleteTagDocument, baseOptions);
+      }
+export type DeleteTagMutationHookResult = ReturnType<typeof useDeleteTagMutation>;
+export type DeleteTagMutationResult = Apollo.MutationResult<DeleteTagMutation>;
+export type DeleteTagMutationOptions = Apollo.BaseMutationOptions<DeleteTagMutation, DeleteTagMutationVariables>;
 export const LoginDocument = gql`
     mutation Login($loginData: LoginUserInput!) {
   login(loginData: $loginData) {
