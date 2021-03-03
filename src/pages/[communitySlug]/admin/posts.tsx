@@ -44,7 +44,7 @@ function AdminPosts(): JSX.Element {
   }, [createPost, router, communitySlug]);
 
   if (!data && loading) {
-    return <h1>Carregando...</h1>;
+    return <div />;
   }
 
   const community = data && data.community && data.community.community;

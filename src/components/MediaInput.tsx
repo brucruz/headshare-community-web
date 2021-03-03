@@ -29,14 +29,23 @@ const MediaInput: React.FC<MediaInputProps> = ({
 }) => {
   const [file, setFile] = useState<File | undefined>(undefined);
 
-  const acceptedTypes = useMemo((): string | undefined => {
+  const acceptedTypes = useMemo(():
+    | { mime: string; types: string }
+    | undefined => {
     if (fileType) {
       switch (fileType) {
         case 'image':
-          return 'image/png, image/jpeg';
+          return {
+            mime: 'image/png, image/jpeg',
+            types: '.png e .jpeg',
+          };
 
         case 'video':
-          return 'video/mp4, video/quicktime, video/x-ms-wmv, video/x-msvideo, video/x-flv, video/mpeg';
+          return {
+            mime:
+              'video/mp4, video/quicktime, video/x-ms-wmv, video/x-msvideo, video/x-flv, video/mpeg',
+            types: '.mp4, .mov, .wmv, .avi, .flv e .mpeg',
+          };
 
         default:
           return undefined;
@@ -83,7 +92,7 @@ const MediaInput: React.FC<MediaInputProps> = ({
           type="file"
           id={name}
           onChange={handleMediaSelect}
-          accept={acceptedTypes}
+          accept={acceptedTypes?.mime}
         />
 
         <p>{label}</p>
@@ -94,7 +103,10 @@ const MediaInput: React.FC<MediaInputProps> = ({
           {children}
         </UploadContent>
 
-        <h5>{(file && file.name) || 'Fazer upload de novo arquivo'}</h5>
+        <h5>
+          {(file && file.name) ||
+            `Formatos aceitos: ${acceptedTypes?.types || 'todos'}`}
+        </h5>
       </UploadArea>
     </MediaInputContainer>
   );

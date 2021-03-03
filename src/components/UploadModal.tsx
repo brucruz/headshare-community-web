@@ -1,3 +1,4 @@
+import NextImage from 'next/image';
 import { useRouter } from 'next/router';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { MdClose } from 'react-icons/md';
@@ -16,8 +17,10 @@ import {
   UploadModalContainer,
   UploadHeaderContainer,
   VideoUploadOptions,
+  StateHeader,
 } from '../styles/components/UploadModal';
 import Button from './Button';
+import ButtonBack from './ButtonBack';
 import MediaInput, { ImageDimensions } from './MediaInput';
 import Modal from './Modal';
 import RadioButton from './RadioButton';
@@ -287,7 +290,19 @@ const UploadModal: React.FC<UploadModalProps> = ({
             <MdClose />
           </button>
 
-          <h2>{state.title}</h2>
+          <StateHeader>
+            {selectedMedia !== 'none' && (
+              <div className="button-wrapper">
+                <NextImage
+                  src="https://headshare.s3.amazonaws.com/assets/arrow_left.png"
+                  width={30}
+                  height={30}
+                  onClick={() => setSelectedMedia('none')}
+                />
+              </div>
+            )}
+            <h2>{state.title}</h2>
+          </StateHeader>
         </UploadHeaderContainer>
 
         {selectedMedia === 'none' && (

@@ -7,7 +7,7 @@ const ButtonBack = ({
 }: ButtonHTMLAttributes<HTMLButtonElement>): ReactElement => (
   <ButtonBackContainer data-testid="button-back-atom" {...rest}>
     <Image
-      src="https://headshare.s3.amazonaws.com/assets/components/arrow_left.png"
+      src="https://headshare.s3.amazonaws.com/assets/arrow_left.png"
       width={35}
       height={35}
     />

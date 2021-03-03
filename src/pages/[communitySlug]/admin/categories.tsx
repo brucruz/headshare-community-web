@@ -287,6 +287,10 @@ function AdminCategories(): JSX.Element {
 
   const community = data && data.community && data.community.community;
 
+  if (!data && loading) {
+    return <div />;
+  }
+
   if ((!loading && error) || !community) {
     return (
       <div>

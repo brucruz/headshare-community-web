@@ -40,3 +40,12 @@ export const VideoUploadOptions = styled.div`
   padding-top: 15px;
   padding-bottom: 15px;
 `;
+
+export const StateHeader = styled.div`
+  display: flex;
+  align-items: center;
+
+  .button-wrapper {
+    padding-right: 5px;
+  }
+`;
