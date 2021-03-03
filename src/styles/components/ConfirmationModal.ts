@@ -3,6 +3,11 @@ import styled from 'styled-components';
 export const InnerContainer = styled.section`
   margin: 15px;
   text-align: center;
+
+  h5 {
+    /* margin-top: 5px; */
+    color: var(--error-color);
+  }
 `;
 
 export const ConfirmationModalText = styled.div`

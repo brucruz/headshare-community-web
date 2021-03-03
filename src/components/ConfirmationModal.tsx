@@ -14,6 +14,7 @@ interface ConfirmationModalProps {
     subtitle?: string;
   };
   confirmationAction: () => void;
+  error?: string;
 }
 
 export function ConfirmationModal({
@@ -21,6 +22,7 @@ export function ConfirmationModal({
   setIsOpen,
   confirmationText,
   confirmationAction,
+  error,
 }: ConfirmationModalProps): JSX.Element {
   return (
     <Modal isOpen={isOpen} setIsOpen={setIsOpen}>
@@ -40,6 +42,8 @@ export function ConfirmationModal({
             onClick={setIsOpen}
           />
         </ButtonsContainer>
+
+        {error && <h5>{error}</h5>}
       </InnerContainer>
     </Modal>
   );

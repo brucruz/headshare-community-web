@@ -183,6 +183,7 @@ export function PostCard({
           isOpen={isOpenConfirmationModal}
           setIsOpen={closeConfirmationModal}
           confirmationAction={handlePostExclusion}
+          error={confirmationError}
         />
       </PostCardContainer>
     );
@@ -202,6 +203,7 @@ export function PostCard({
     communitySlug,
     id,
     removePost,
+    confirmationError,
   ]);
 
   return (
