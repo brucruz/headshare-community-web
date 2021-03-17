@@ -11,6 +11,7 @@ query FindCommunityTagsByUserInput($communitySlug: String!, $input: String!) {
     tags {
       _id
       title
+      postCount(postOptions: { status: PUBLISHED })
     }
   }
 }

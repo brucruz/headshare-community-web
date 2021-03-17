@@ -1,0 +1,23 @@
+mutation UpdateCommunityHighlightTags(
+  $id: String!
+  $highlightedTags: [HighlightedTagInput!]
+) {
+  updateCommunity(id: $id, updateData: { highlightedTags: $highlightedTags }) {
+    errors {
+      field
+      message
+    }
+    community {
+      _id
+      title
+      highlightedTags {
+        tag {
+          _id
+          title
+          postCount(postOptions: { status: PUBLISHED })
+        }
+        order
+      }
+    }
+  }
+}

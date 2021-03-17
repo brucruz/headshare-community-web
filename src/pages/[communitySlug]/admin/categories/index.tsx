@@ -4,17 +4,17 @@ import { useRouter } from 'next/router';
 import { useCallback, useEffect, useState } from 'react';
 import * as Yup from 'yup';
 import { MdClose } from 'react-icons/md';
-import Modal from '../../../components/Modal';
-import { OptionsMenu } from '../../../components/OptionsMenu';
-import { AdminPageTemplate } from '../../../components/templates/AdminPageTemplate';
+import Modal from '../../../../components/Modal';
+import { OptionsMenu } from '../../../../components/OptionsMenu';
+import { AdminPageTemplate } from '../../../../components/templates/AdminPageTemplate';
 import {
   useCommunityAdminCategoriesQuery,
   useUpdateCategoryMutation,
   useCreateCommunityTagMutation,
   Tag,
   useDeleteTagMutation,
-} from '../../../generated/graphql';
-import { useAuth } from '../../../hooks/useAuth';
+} from '../../../../generated/graphql';
+import { useAuth } from '../../../../hooks/useAuth';
 import {
   AdminCategory,
   AdminCategoryList,
@@ -26,12 +26,12 @@ import {
   EditCategoryHeaderContainer,
   EditCategoryModalContainer,
   EditCategoryForm,
-} from '../../../styles/pages/AdminCategories';
-import { withApollo } from '../../../utils/withApollo';
-import Input from '../../../components/Input';
-import Button from '../../../components/Button';
-import { toErrorMap } from '../../../utils/toErrorMap';
-import { ConfirmationModal } from '../../../components/ConfirmationModal';
+} from '../../../../styles/pages/AdminCategories';
+import { withApollo } from '../../../../utils/withApollo';
+import Input from '../../../../components/Input';
+import Button from '../../../../components/Button';
+import { toErrorMap } from '../../../../utils/toErrorMap';
+import { ConfirmationModal } from '../../../../components/ConfirmationModal';
 
 interface CategoryVariables {
   title: string;
@@ -398,6 +398,17 @@ function AdminCategories(): JSX.Element {
         {
           title: 'Configurações',
           path: `/${communitySlug}/admin/configuration`,
+        },
+      ]}
+      tabs={[
+        {
+          text: 'Geral',
+          active: true,
+        },
+        {
+          text: 'Destaques',
+          active: false,
+          url: `/${communitySlug}/admin/categories/highlights`,
         },
       ]}
     >

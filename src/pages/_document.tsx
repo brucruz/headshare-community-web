@@ -6,10 +6,13 @@ import Document, {
   Main,
   NextScript,
 } from 'next/document';
+import { resetServerContext } from 'react-beautiful-dnd';
 import { ServerStyleSheet } from 'styled-components';
 
 export default class MyDocument extends Document {
   static async getInitialProps(ctx: DocumentContext) {
+    resetServerContext();
+
     const sheet = new ServerStyleSheet();
     const originalRenderPage = ctx.renderPage;
 

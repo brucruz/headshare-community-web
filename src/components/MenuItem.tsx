@@ -5,6 +5,7 @@ import { MenuItemContainer } from '../styles/components/MenuItem';
 export interface MenuItemProps extends LiHTMLAttributes<HTMLLIElement> {
   text: string;
   selected?: boolean;
+  disabled?: boolean;
   href?: string;
   textSize?: 'small' | 'medium';
 }
@@ -12,6 +13,7 @@ export interface MenuItemProps extends LiHTMLAttributes<HTMLLIElement> {
 export function MenuItem({
   text,
   selected = false,
+  disabled = false,
   href,
   textSize = 'small',
   onClick,
@@ -27,10 +29,14 @@ export function MenuItem({
   }, [text, textSize]);
 
   return (
-    <MenuItemContainer selected={selected} onClick={onClick}>
-      {href && <NextLink href={href}>{itemText}</NextLink>}
+    <MenuItemContainer
+      selected={selected}
+      disabled={disabled}
+      onClick={onClick}
+    >
+      {href && !disabled && <NextLink href={href}>{itemText}</NextLink>}
 
-      {!href && itemText}
+      {(!href || disabled) && itemText}
     </MenuItemContainer>
   );
 }

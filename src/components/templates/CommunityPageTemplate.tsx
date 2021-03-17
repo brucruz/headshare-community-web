@@ -10,6 +10,7 @@ import {
   Avatar,
   MemberCount,
   ChildrenContainer,
+  CommunityPageTemplateContainer,
 } from '../../styles/components/templates/CommunityPageTemplate';
 import TitleSubtitle from '../TitleSubtitle';
 import {
@@ -22,6 +23,7 @@ import {
 } from '../../generated/graphql';
 import { isServer } from '../../utils/isServer';
 import { formatS3Filename, uploadToS3 } from '../../lib/s3';
+import { SideMenuSection } from '../SideMenuSection';
 
 interface CommunityPageTemplateProps {
   childrenMaxWidth?: number;
@@ -188,88 +190,96 @@ const CommunityPageTemplate: React.FC<CommunityPageTemplateProps> = ({
         communityTitle={community ? community.title : 'Headshare'}
         communitySlug={community && community.slug}
       />
-      <BannerContainer>
-        {((community && community.banner?.url) || bannerUrl) && (
-          <img
-            src={(community && community.banner?.url) || bannerUrl}
-            alt="banner"
-          />
-        )}
 
-        {isCreator && community && !community.banner?.url && !bannerUrl && (
-          <label htmlFor="banner-input">
-            <MdAddAPhoto />
-
-            <input
-              id="banner-input"
-              type="file"
-              onChange={handleBannerSelect}
-            />
-          </label>
-        )}
-
-        {!isCreator && community && !community.banner?.url && (
-          <label>
-            <MdPhoto />
-          </label>
-        )}
-
-        <AvatarHeader>
-          <Avatar>
-            {((community && community.avatar?.url) || avatarUrl) && (
+      <SideMenuSection communitySlug={community.slug}>
+        <CommunityPageTemplateContainer>
+          <BannerContainer>
+            {((community && community.banner?.url) || bannerUrl) && (
               <img
-                src={(community && community.avatar?.url) || avatarUrl}
-                alt="avatar"
+                src={(community && community.banner?.url) || bannerUrl}
+                alt="banner"
               />
             )}
 
-            {isCreator && community && !community.avatar?.url && !avatarUrl && (
-              <label htmlFor="avatar-input">
+            {isCreator && community && !community.banner?.url && !bannerUrl && (
+              <label htmlFor="banner-input">
                 <MdAddAPhoto />
 
                 <input
-                  id="avatar-input"
+                  id="banner-input"
                   type="file"
-                  onChange={handleAvatarSelect}
+                  onChange={handleBannerSelect}
                 />
               </label>
             )}
 
-            {!isCreator && community && !community.avatar?.url && (
+            {!isCreator && community && !community.banner?.url && (
               <label>
                 <MdPhoto />
               </label>
             )}
-          </Avatar>
 
-          {!isCreator && !isMember && (
-            <Button text="Seguindo" priority="secondary" />
-          )}
+            <AvatarHeader>
+              <Avatar>
+                {((community && community.avatar?.url) || avatarUrl) && (
+                  <img
+                    src={(community && community.avatar?.url) || avatarUrl}
+                    alt="avatar"
+                  />
+                )}
 
-          {isMember && <Button text="Seguir" priority="secondary" />}
-        </AvatarHeader>
+                {isCreator &&
+                  community &&
+                  !community.avatar?.url &&
+                  !avatarUrl && (
+                    <label htmlFor="avatar-input">
+                      <MdAddAPhoto />
 
-        {community && community.memberCount && (
-          <MemberCount>
-            <h5>{community.memberCount} membros</h5>
-          </MemberCount>
-        )}
+                      <input
+                        id="avatar-input"
+                        type="file"
+                        onChange={handleAvatarSelect}
+                      />
+                    </label>
+                  )}
 
-        <TitleSubtitle title={title} subtitle={subtitle} />
-      </BannerContainer>
+                {!isCreator && community && !community.avatar?.url && (
+                  <label>
+                    <MdPhoto />
+                  </label>
+                )}
+              </Avatar>
 
-      <ChildrenContainer maxWidth={childrenMaxWidth}>
-        {children}
-      </ChildrenContainer>
+              {!isCreator && !isMember && (
+                <Button text="Seguindo" priority="secondary" />
+              )}
 
-      <Footer
-        author={`${community ? community.creator.name : 'Headshare'} ${
-          community && community.creator.surname
-            ? community.creator.surname
-            : ''
-        }`}
-        communityTitle={community ? community.title : 'Headshare'}
-      />
+              {isMember && <Button text="Seguir" priority="secondary" />}
+            </AvatarHeader>
+
+            {community && community.memberCount && (
+              <MemberCount>
+                <h5>{community.memberCount} membros</h5>
+              </MemberCount>
+            )}
+
+            <TitleSubtitle title={title} subtitle={subtitle} />
+          </BannerContainer>
+
+          <ChildrenContainer maxWidth={childrenMaxWidth}>
+            {children}
+          </ChildrenContainer>
+
+          <Footer
+            author={`${community ? community.creator.name : 'Headshare'} ${
+              community && community.creator.surname
+                ? community.creator.surname
+                : ''
+            }`}
+            communityTitle={community ? community.title : 'Headshare'}
+          />
+        </CommunityPageTemplateContainer>
+      </SideMenuSection>
     </>
   );
 };

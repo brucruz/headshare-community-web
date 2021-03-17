@@ -42,13 +42,14 @@ import readableBytes from '../../utils/readableBytes';
 import PublishOption from '../../components/PublishOption';
 import Input from '../../components/Input';
 import Button from '../../components/Button';
-import InputWithTagSuggestion from '../../components/InputWithTagSuggestion';
+import { InputWithTagSuggestion } from '../../components/InputWithTagSuggestion';
 import Modal from '../../components/Modal';
 import Switch from '../../components/Switch';
 import MediaInput from '../../components/MediaInput';
 import { formatS3Filename, uploadToS3 } from '../../lib/s3';
 import { withApollo } from '../../utils/withApollo';
 import MainMedia from '../../components/MainMedia';
+import { Tags, CommunityTag } from '../../components/Tags';
 
 const PostBuilder = dynamic(() => import('../../components/PostBuilder'), {
   ssr: false,
@@ -109,6 +110,7 @@ function NewPost(): JSX.Element {
   const [exclusive, setExclusive] = useState<boolean>(true);
   const [isOpenConfirmation, setIsOpenConfirmation] = useState(false);
   const [thumbnailUrl, setThumbnailUrl] = useState<string | undefined>();
+  const [tags, setTags] = useState<CommunityTag[]>([]);
 
   const [uploadImage] = useUploadImageMutation();
   const [removeMainMedia] = useDeletePostMainMediaMutation();
@@ -217,6 +219,8 @@ function NewPost(): JSX.Element {
       setDescription(postData.findPostById.post.description);
 
       setSlug(postData.findPostById.post.slug);
+
+      setTags(postData.findPostById.post.tags);
 
       postData.findPostById.post.exclusive &&
         setExclusive(postData.findPostById.post.exclusive);
@@ -354,6 +358,48 @@ function NewPost(): JSX.Element {
       setMainMediaState('empty');
     }
   }, [communitySlug, post?._id, postData?.findPostById?.post, removeMainMedia]);
+
+  const handleRemoveTagFromPost = useCallback(
+    async (tagId: string) => {
+      const newTags = tags.filter(stateTag => stateTag._id !== tagId);
+
+      setTags(newTags);
+
+      const newTagsIds = newTags.map(tag => tag._id);
+
+      await updatePost({
+        variables: {
+          communitySlug,
+          postId: post?._id,
+          post: {
+            tags: newTagsIds,
+          },
+        },
+      });
+    },
+    [communitySlug, post?._id, tags, updatePost],
+  );
+
+  const handleSelectTag = useCallback(
+    async (tag: CommunityTag) => {
+      const newTags = [...tags, tag];
+
+      setTags(newTags);
+
+      const newTagsIds = newTags.map(t => t._id);
+
+      await updatePost({
+        variables: {
+          communitySlug,
+          postId: post?._id,
+          post: {
+            tags: newTagsIds,
+          },
+        },
+      });
+    },
+    [communitySlug, post?._id, tags, updatePost],
+  );
 
   return (
     <>
@@ -498,6 +544,7 @@ function NewPost(): JSX.Element {
                           communitySlug,
                         )
                       }
+                      fileType="image"
                     />
                   </VideoThumbnailContainer>
                 )}
@@ -529,13 +576,17 @@ function NewPost(): JSX.Element {
               <PublishOptionInput>
                 <p>Selecione uma ou mais tags para classificar seu post:</p>
 
+                <Tags
+                  tags={tags}
+                  handleTagExclusion={handleRemoveTagFromPost}
+                />
+
                 <InputWithTagSuggestion
                   inputName="post-description"
                   inputLabel="Descrição"
                   communitySlug={communitySlug}
-                  postId={id}
-                  initialTags={post?.tags || []}
-                  receivedInfo={!!post?.tags || false}
+                  selectedTags={tags}
+                  selectTag={handleSelectTag}
                 />
               </PublishOptionInput>
             </PublishOption>

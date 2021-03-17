@@ -1,7 +1,8 @@
 import styled from 'styled-components';
 
+export const CommunityPageTemplateContainer = styled.section``;
+
 export const BannerContainer = styled.div`
-  padding-top: 56px;
   max-width: 940px;
   margin: 0 auto;
 

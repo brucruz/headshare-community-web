@@ -1,21 +1,28 @@
+/* eslint-disable no-underscore-dangle */
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import NextLink from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { useApolloClient } from '@apollo/client';
+import { MdAddCircle, MdMenu, MdPerson } from 'react-icons/md';
+import { config, useTransition } from 'react-spring';
 import {
   HeaderContainer,
   HeaderContent,
   LogoContainer,
   HamburguerContainer,
   CommunityTitle,
-  MenuContainer,
-  MenuItem as MenuItemOld,
-  MeItem,
-  Menu,
+  MenuIcons,
+  HoverSideMenu,
   PostSaveStatus,
+  UserMenuHeader,
+  UserMenuHeaderAvatar,
+  UserMenuHeaderInfo,
+  UserMenuIcon,
+  AddMenuIcon,
+  UserMenuHeaderAvatarContent,
+  HoverSideMenuContainer,
 } from '../styles/components/Header';
-import Button from './Button';
 import {
   useHeaderMeQuery,
   useLogoutMutation,
@@ -25,7 +32,7 @@ import {
 import { isServer } from '../utils/isServer';
 import AuthModal from './AuthModal';
 import { useAuth, AuthType } from '../hooks/useAuth';
-import { MenuItem } from './MenuItem';
+import { MenuContainer, MenuContainerProps, MenuGroup } from './MenuContainer';
 
 interface HeaderProps {
   communityTitle: string;
@@ -38,15 +45,10 @@ const Header: React.FC<HeaderProps> = ({
   communitySlug,
   editorMode,
 }) => {
-  const [menuIsOpen, setMenuIsOpen] = useState(false);
-  const {
-    isCreator,
-    isMember,
-    setIsCreator,
-    setIsMember,
-    me,
-    setMe,
-  } = useAuth();
+  const [sideMenuIsOpen, setSideMenuIsOpen] = useState(false);
+  const [userMenuIsOpen, setUserMenuIsOpen] = useState(false);
+  const [addMenuIsOpen, setAddMenuIsOpen] = useState(false);
+  const { isCreator, setIsCreator, setIsMember, me, setMe } = useAuth();
 
   const { openAuth } = useAuth();
   const router = useRouter();
@@ -105,26 +107,12 @@ const Header: React.FC<HeaderProps> = ({
 
     if (result.data) {
       if (result.data.createPost.post) {
-        // eslint-disable-next-line no-underscore-dangle
         const id = result.data?.createPost.post?._id;
 
         router.push(`/${communitySlug}/draft?id=${id.toString()}`);
       }
     }
   }, [createPost, router, communitySlug]);
-
-  const ctaButton = useMemo((): JSX.Element | undefined => {
-    if (!isCreator && !isMember) {
-      return <Button text="Assinar" />;
-    }
-    if (isCreator) {
-      if (!editorMode) {
-        return <Button text="Publicar" onClick={handleNewPost} />;
-      }
-      return undefined;
-    }
-    return undefined;
-  }, [isCreator, isMember, editorMode, handleNewPost]);
 
   const editorSaveState = useMemo((): JSX.Element | undefined => {
     if (editorMode === 'saved') {
@@ -146,52 +134,204 @@ const Header: React.FC<HeaderProps> = ({
     return undefined;
   }, [editorMode]);
 
-  const handleMenuToggle = useCallback(() => {
-    setMenuIsOpen(!menuIsOpen);
-  }, [menuIsOpen]);
+  const handleToggleSideMenu = useCallback(() => {
+    setSideMenuIsOpen(!sideMenuIsOpen);
+  }, [sideMenuIsOpen]);
+
+  const handleToggleUserMenu = useCallback(() => {
+    setUserMenuIsOpen(!userMenuIsOpen);
+  }, [userMenuIsOpen]);
+
+  const handleToggleAddMenu = useCallback(() => {
+    setAddMenuIsOpen(!addMenuIsOpen);
+  }, [addMenuIsOpen]);
 
   const openAuthModal = useCallback(
     (state?: AuthType) => {
-      setMenuIsOpen(false);
+      setUserMenuIsOpen(false);
 
       openAuth(state);
     },
     [openAuth],
   );
 
-  const menuContent = useMemo(() => {
-    if (!me) {
-      return (
-        <MenuContainer>
-          <MenuItem text="Entrar" onClick={() => openAuthModal('login')} />
-          <MenuItem
-            text="Cadastrar"
-            onClick={() => openAuthModal('register')}
-          />
-        </MenuContainer>
-      );
-    }
-    return (
-      <MenuContainer>
-        <MeItem>
-          <p>
-            <strong>
-              {me.name} {me.surname}
-            </strong>
-          </p>
-          <p>{me.email}</p>
-        </MeItem>
-        <MenuItem text="Meu Perfil" href="/me" />
-        {/* <MenuItem text="Minhas comunidades" /> */}
-        <MenuItem text="Posts" href={`/${communitySlug}/admin/posts`} />
-        <MenuItem
-          text="Categorias"
-          href={`/${communitySlug}/admin/categories`}
-        />
-        <MenuItem text="Logout" onClick={handleLogout} />
-      </MenuContainer>
+  const userMenuHeader = useMemo(
+    () => (
+      <UserMenuHeader>
+        <UserMenuHeaderAvatar>
+          {me?.avatar ? (
+            <UserMenuHeaderAvatarContent>
+              <img
+                src={me.avatar}
+                alt={`${me?.name} ${me?.surname && me.surname}`}
+              />
+            </UserMenuHeaderAvatarContent>
+          ) : (
+            <MdPerson />
+          )}
+        </UserMenuHeaderAvatar>
+
+        <UserMenuHeaderInfo>
+          <h4>
+            {me?.name} {me?.surname && me.surname}
+          </h4>
+          <h5>{me?.email}</h5>
+        </UserMenuHeaderInfo>
+      </UserMenuHeader>
+    ),
+    [me],
+  );
+
+  const userMenuContent = useMemo((): MenuContainerProps => {
+    const menuIcon = (
+      <UserMenuIcon>
+        <MdPerson />
+      </UserMenuIcon>
     );
-  }, [me, communitySlug, handleLogout, openAuthModal]);
+
+    if (!me) {
+      return {
+        isOpen: userMenuIsOpen,
+        toggleMenu: handleToggleUserMenu,
+        menuIcon,
+        menuItems: [
+          {
+            items: [
+              {
+                text: 'Entrar',
+                onClick: () => openAuthModal('login'),
+              },
+              {
+                text: 'Cadastrar',
+                onClick: () => openAuthModal('register'),
+              },
+            ],
+          },
+        ],
+      };
+    }
+
+    if (isCreator) {
+      return {
+        isOpen: userMenuIsOpen,
+        toggleMenu: handleToggleUserMenu,
+        menuIcon,
+        header: {
+          type: 'component',
+          component: userMenuHeader,
+        },
+        menuItems: [
+          {
+            title: 'Gerenciar Comunidade',
+            items: [
+              {
+                text: 'Dashboard',
+                href: '/',
+                disabled: true,
+              },
+              {
+                text: 'Posts',
+                href: `/${communitySlug}/admin/posts`,
+              },
+              {
+                text: 'Categorias',
+                href: `/${communitySlug}/admin/categories`,
+              },
+              {
+                text: 'Configurações',
+                href: `/${communitySlug}/admin/config`,
+                disabled: true,
+              },
+            ],
+          },
+          {
+            title: 'Conta Pessoal',
+            items: [
+              {
+                text: 'Meu Perfil',
+                href: '/',
+                disabled: true,
+              },
+              {
+                text: 'Minhas Comunidades',
+                href: '/',
+                disabled: true,
+              },
+            ],
+          },
+          {
+            items: [
+              {
+                text: 'Logout',
+                onClick: handleLogout,
+              },
+            ],
+          },
+        ],
+      };
+    }
+
+    return {
+      isOpen: userMenuIsOpen,
+      toggleMenu: handleToggleUserMenu,
+      menuIcon,
+      header: {
+        type: 'component',
+        component: userMenuHeader,
+      },
+      menuItems: [
+        {
+          items: [
+            {
+              text: 'Meu Perfil',
+              href: '/',
+              disabled: true,
+            },
+            {
+              text: 'Minhas Comunidades',
+              href: '/',
+              disabled: true,
+            },
+          ],
+        },
+        {
+          items: [
+            {
+              text: 'Logout',
+              onClick: handleLogout,
+            },
+          ],
+        },
+      ],
+    };
+  }, [
+    communitySlug,
+    handleLogout,
+    handleToggleUserMenu,
+    me,
+    openAuthModal,
+    userMenuHeader,
+    userMenuIsOpen,
+    isCreator,
+  ]);
+
+  const addMenuIcon = useMemo(
+    () =>
+      isCreator && (
+        <AddMenuIcon>
+          <MdAddCircle />
+        </AddMenuIcon>
+      ),
+    [isCreator],
+  );
+
+  const sideMenuTransitions = useTransition(sideMenuIsOpen, null, {
+    initial: { transform: 'translateX(350px)' },
+    from: { transform: 'translateX(350px)' },
+    enter: { transform: 'translateX(0)' },
+    leave: { transform: 'translateX(350px)' },
+    config: config.default,
+  });
 
   return (
     <HeaderContainer>
@@ -216,19 +356,83 @@ const Header: React.FC<HeaderProps> = ({
 
         {editorSaveState}
 
-        {ctaButton}
-
-        <Menu>
-          <HamburguerContainer onClick={handleMenuToggle}>
-            <Image
-              src="https://headshare.s3.amazonaws.com/assets/hamburguer_icon.png"
-              alt="Menu"
-              width={40}
-              height={40}
+        <MenuIcons>
+          {addMenuIcon && (
+            <MenuContainer
+              isOpen={addMenuIsOpen}
+              toggleMenu={handleToggleAddMenu}
+              menuIcon={addMenuIcon}
+              header={{
+                type: 'default',
+                title: 'Criar',
+              }}
+              menuItems={[
+                {
+                  items: [
+                    {
+                      text: 'Post',
+                      onClick: handleNewPost,
+                    },
+                    {
+                      text: 'Categoria',
+                      disabled: true,
+                    },
+                  ],
+                },
+              ]}
             />
-          </HamburguerContainer>
-          {menuIsOpen && menuContent}
-        </Menu>
+          )}
+
+          <MenuContainer {...userMenuContent} />
+
+          <HoverSideMenu>
+            <HamburguerContainer onClick={handleToggleSideMenu}>
+              <MdMenu />
+            </HamburguerContainer>
+
+            {sideMenuTransitions.map(
+              ({ item, props, key }) =>
+                item && (
+                  <HoverSideMenuContainer key={key} style={props}>
+                    <MenuGroup
+                      items={[
+                        {
+                          text: 'Home',
+                          href: `/${communitySlug}`,
+                          selected: router.asPath === `/${communitySlug}`,
+                        },
+                        {
+                          text: 'Posts',
+                          href: `/${communitySlug}/posts`,
+                          selected: router.asPath === `/${communitySlug}/posts`,
+                          disabled: true,
+                        },
+                        {
+                          text: 'Categorias',
+                          href: `/${communitySlug}/categories`,
+                          selected:
+                            router.asPath === `/${communitySlug}/categories`,
+                        },
+                        {
+                          text: 'Membros',
+                          href: `/${communitySlug}/members`,
+                          selected:
+                            router.asPath === `/${communitySlug}/members`,
+                          disabled: true,
+                        },
+                        {
+                          text: 'Sobre',
+                          href: `/${communitySlug}/about`,
+                          selected: router.asPath === `/${communitySlug}/about`,
+                          disabled: true,
+                        },
+                      ]}
+                    />
+                  </HoverSideMenuContainer>
+                ),
+            )}
+          </HoverSideMenu>
+        </MenuIcons>
       </HeaderContent>
 
       <AuthModal />

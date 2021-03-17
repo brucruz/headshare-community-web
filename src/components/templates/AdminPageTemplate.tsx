@@ -10,6 +10,7 @@ import Button from '../Button';
 import Footer from '../Footer';
 import Header from '../Header';
 import { MenuItem } from '../MenuItem';
+import Tabs, { TabProps } from '../Tabs';
 
 interface AdminPageTemplateProps {
   communitySlug: string;
@@ -25,6 +26,7 @@ interface AdminPageTemplateProps {
     path: string;
     selected?: boolean;
   }[];
+  tabs?: TabProps[];
   children: ReactNode;
 }
 
@@ -35,6 +37,7 @@ export function AdminPageTemplate({
   pageTitle,
   topButton,
   sideMenu,
+  tabs,
   children,
 }: AdminPageTemplateProps): JSX.Element {
   return (
@@ -48,12 +51,13 @@ export function AdminPageTemplate({
             {sideMenu.map(item =>
               item.selected ? (
                 <MenuItem
+                  key={item.title}
                   selected={item.selected || false}
                   text={item.title}
                   textSize="medium"
                 />
               ) : (
-                <NextLink href={item.path}>
+                <NextLink key={item.title} href={item.path}>
                   <MenuItem
                     selected={item.selected || false}
                     text={item.title}
@@ -67,6 +71,8 @@ export function AdminPageTemplate({
 
         <AdminMain>
           <h1>{pageTitle}</h1>
+
+          {tabs && <Tabs tabs={tabs} />}
 
           {topButton && (
             <AdminTopButton>

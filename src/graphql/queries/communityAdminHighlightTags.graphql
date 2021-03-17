@@ -1,0 +1,25 @@
+query CommunityAdminHighlightedTags($slug: String!) {
+  community(slug: $slug) {
+    errors {
+      field
+      message
+    }
+    community {
+      _id
+      title
+      slug
+      highlightedTags {
+        tag {
+          _id
+          title
+          postCount
+        }
+        order
+      }
+      creator {
+        name
+        surname
+      }
+    }
+  }
+}

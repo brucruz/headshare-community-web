@@ -2,6 +2,7 @@ import styled, { css } from 'styled-components';
 
 interface MenuItemContainerProps {
   selected: boolean;
+  disabled: boolean;
 }
 
 export const MenuItemContainer = styled.li<MenuItemContainerProps>`
@@ -10,8 +11,10 @@ export const MenuItemContainer = styled.li<MenuItemContainerProps>`
   padding-top: 10px;
   padding-bottom: 10px;
   padding-left: 15px;
+  padding-right: 15px;
 
   color: var(--gray-text);
+  white-space: nowrap;
 
   cursor: pointer;
 
@@ -26,8 +29,23 @@ export const MenuItemContainer = styled.li<MenuItemContainerProps>`
       background-color: var(--headshare-coral-10);
       cursor: auto;
 
+      border-left: 3px solid var(--headshare-coral);
+      padding-left: 12px;
+
       &:hover {
         background-color: var(--headshare-coral-10);
+      }
+    `}
+
+  ${props =>
+    props.disabled &&
+    css`
+      color: var(--input-placeholder);
+      cursor: auto;
+
+      &:hover {
+        color: var(--input-placeholder);
+        background-color: transparent;
       }
     `}
 `;

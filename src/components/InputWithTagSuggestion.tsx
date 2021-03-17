@@ -1,44 +1,37 @@
 /* eslint-disable no-underscore-dangle */
 import { useCallback, useEffect, useState } from 'react';
-import { MdClose } from 'react-icons/md';
 import Input from './Input';
 import {
   useFindCommunityTagsByUserInputLazyQuery,
   Tag,
   useCreateCommunityTagMutation,
-  useUpdatePostMutation,
 } from '../generated/graphql';
 import {
   InputTagSuggestionContainer,
-  TagsSelection,
   TagsSuggestions,
 } from '../styles/InputWithTagSuggestion';
 
 export type CommunityTag = {
   __typename?: 'Tag' | undefined;
-} & Pick<Tag, '_id' | 'title'>;
+} & Pick<Tag, '_id' | 'title' | 'postCount'>;
 
 interface InputWithTagSuggestionProps {
   inputName: string;
   inputLabel: string;
   communitySlug: string;
-  postId: string;
-  initialTags: CommunityTag[];
-  receivedInfo: boolean;
+  selectedTags: CommunityTag[];
+  selectTag: (tag: CommunityTag, index: number) => void;
 }
 
-const InputWithTagSuggestion: React.FC<InputWithTagSuggestionProps> = ({
+export function InputWithTagSuggestion({
   inputLabel,
   inputName,
   communitySlug,
-  initialTags,
-  postId,
-  receivedInfo = false,
-}) => {
+  selectedTags,
+  selectTag,
+}: InputWithTagSuggestionProps): JSX.Element {
   const [tagSuggestions, setTagSuggestions] = useState<CommunityTag[]>([]);
-  const [selectedTags, setSelectedTags] = useState<CommunityTag[]>([]);
   const [userInput, setUserInput] = useState('');
-  const [initialTagsLoaded, setInitialTagsLoaded] = useState(false);
 
   const [
     findTags,
@@ -46,7 +39,6 @@ const InputWithTagSuggestion: React.FC<InputWithTagSuggestionProps> = ({
   ] = useFindCommunityTagsByUserInputLazyQuery();
 
   const [createTag] = useCreateCommunityTagMutation();
-  const [updatePost] = useUpdatePostMutation();
 
   useEffect(() => {
     if (userInput.length <= 2) {
@@ -91,46 +83,14 @@ const InputWithTagSuggestion: React.FC<InputWithTagSuggestionProps> = ({
     }
   }, [userInput, findTags, communitySlug, foundTags, selectedTags]);
 
-  useEffect(() => {
-    if (receivedInfo && !initialTagsLoaded) {
-      setSelectedTags(initialTags);
-      setInitialTagsLoaded(true);
-    }
-
-    if (communitySlug && postId && receivedInfo && initialTagsLoaded) {
-      const tagsIds = selectedTags.map(selectedTag => selectedTag._id);
-
-      updatePost({
-        variables: {
-          communitySlug,
-          postId,
-          post: {
-            tags: tagsIds,
-          },
-        },
-      });
-    }
-  }, [
-    selectedTags,
-    updatePost,
-    communitySlug,
-    postId,
-    receivedInfo,
-    initialTagsLoaded,
-    initialTags,
-  ]);
-
-  const handleTagSelection = useCallback((tag: CommunityTag) => {
-    setSelectedTags(state => [...state, tag]);
-    setTagSuggestions([]);
-    setUserInput('');
-  }, []);
-
-  const handleTagExclusion = useCallback((tag: CommunityTag) => {
-    setSelectedTags(stateTags =>
-      stateTags.filter(stateTag => stateTag !== tag),
-    );
-  }, []);
+  const handleTagSelection = useCallback(
+    (tag: CommunityTag, index: number) => {
+      selectTag(tag, index);
+      setTagSuggestions([]);
+      setUserInput('');
+    },
+    [selectTag],
+  );
 
   const handleCreateTag = useCallback(
     async (input: string) => {
@@ -146,31 +106,15 @@ const InputWithTagSuggestion: React.FC<InputWithTagSuggestionProps> = ({
       if (result.data && result.data.createTag && result.data.createTag.tag) {
         const newTag = result.data.createTag.tag;
 
-        setSelectedTags(state => [...state, newTag]);
+        selectTag(newTag);
         setUserInput('');
       }
     },
-    [communitySlug, createTag],
+    [communitySlug, createTag, selectTag],
   );
 
   return (
     <InputTagSuggestionContainer>
-      {selectedTags.length > 0 && (
-        <TagsSelection>
-          {selectedTags.map(tag => (
-            <article key={tag._id}>
-              <header>
-                <h5>{tag.title}</h5>
-              </header>
-
-              <button type="button" onClick={() => handleTagExclusion(tag)}>
-                <MdClose />
-              </button>
-            </article>
-          ))}
-        </TagsSelection>
-      )}
-
       <Input
         name={inputName}
         label={inputLabel}
@@ -188,8 +132,8 @@ const InputWithTagSuggestion: React.FC<InputWithTagSuggestionProps> = ({
               </p>
             </li>
           )}
-          {tagSuggestions.map(tag => (
-            <li key={tag._id} onClick={() => handleTagSelection(tag)}>
+          {tagSuggestions.map((tag, index) => (
+            <li key={tag._id} onClick={() => handleTagSelection(tag, index)}>
               <p>{tag.title}</p>
             </li>
           ))}
@@ -197,6 +141,4 @@ const InputWithTagSuggestion: React.FC<InputWithTagSuggestionProps> = ({
       )}
     </InputTagSuggestionContainer>
   );
-};
-
-export default InputWithTagSuggestion;
+}

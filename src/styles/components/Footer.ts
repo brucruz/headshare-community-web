@@ -8,9 +8,11 @@ export const FooterContainer = styled.footer`
 
   text-align: center;
 
-  display: flex;
+  /* display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: center; */
+  margin: 0 auto;
+  max-width: 800px;
 `;
 
 export const LegalContainer = styled.div`
@@ -49,6 +51,8 @@ export const PublishButton = styled.button`
   align-items: center;
   justify-content: center;
   border-radius: 19px;
+
+  margin: 0 auto;
 
   p {
     margin: 3px 10px;
