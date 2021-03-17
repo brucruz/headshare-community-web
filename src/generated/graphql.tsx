@@ -851,6 +851,26 @@ export type CreateCommunityTagMutation = (
   ) }
 );
 
+export type CreateCommunityTagFromAdminTagHighlightMutationVariables = Exact<{
+  communitySlug: Scalars['String'];
+  tagData: CreateTagInput;
+}>;
+
+
+export type CreateCommunityTagFromAdminTagHighlightMutation = (
+  { __typename?: 'Mutation' }
+  & { createTag: (
+    { __typename?: 'TagResponse' }
+    & { errors?: Maybe<Array<(
+      { __typename?: 'ErrorResponse' }
+      & Pick<ErrorResponse, 'field' | 'message'>
+    )>>, tag?: Maybe<(
+      { __typename?: 'Tag' }
+      & Pick<Tag, '_id' | 'title' | 'postCount'>
+    )> }
+  ) }
+);
+
 export type CreatePostMutationVariables = Exact<{
   communitySlug: Scalars['String'];
   post: CreatePostInput;
@@ -1500,7 +1520,7 @@ export type GetPostByIdQuery = (
         & Pick<Media, '_id' | 'url' | 'thumbnailUrl' | 'format' | 'width' | 'height'>
       )>, tags: Array<(
         { __typename?: 'Tag' }
-        & Pick<Tag, '_id' | 'title'>
+        & Pick<Tag, '_id' | 'title' | 'postCount'>
       )> }
     )> }
   )> }
@@ -1659,6 +1679,47 @@ export function useCreateCommunityTagMutation(baseOptions?: Apollo.MutationHookO
 export type CreateCommunityTagMutationHookResult = ReturnType<typeof useCreateCommunityTagMutation>;
 export type CreateCommunityTagMutationResult = Apollo.MutationResult<CreateCommunityTagMutation>;
 export type CreateCommunityTagMutationOptions = Apollo.BaseMutationOptions<CreateCommunityTagMutation, CreateCommunityTagMutationVariables>;
+export const CreateCommunityTagFromAdminTagHighlightDocument = gql`
+    mutation CreateCommunityTagFromAdminTagHighlight($communitySlug: String!, $tagData: CreateTagInput!) {
+  createTag(communitySlug: $communitySlug, data: $tagData) {
+    errors {
+      field
+      message
+    }
+    tag {
+      _id
+      title
+      postCount
+    }
+  }
+}
+    `;
+export type CreateCommunityTagFromAdminTagHighlightMutationFn = Apollo.MutationFunction<CreateCommunityTagFromAdminTagHighlightMutation, CreateCommunityTagFromAdminTagHighlightMutationVariables>;
+
+/**
+ * __useCreateCommunityTagFromAdminTagHighlightMutation__
+ *
+ * To run a mutation, you first call `useCreateCommunityTagFromAdminTagHighlightMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateCommunityTagFromAdminTagHighlightMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createCommunityTagFromAdminTagHighlightMutation, { data, loading, error }] = useCreateCommunityTagFromAdminTagHighlightMutation({
+ *   variables: {
+ *      communitySlug: // value for 'communitySlug'
+ *      tagData: // value for 'tagData'
+ *   },
+ * });
+ */
+export function useCreateCommunityTagFromAdminTagHighlightMutation(baseOptions?: Apollo.MutationHookOptions<CreateCommunityTagFromAdminTagHighlightMutation, CreateCommunityTagFromAdminTagHighlightMutationVariables>) {
+        return Apollo.useMutation<CreateCommunityTagFromAdminTagHighlightMutation, CreateCommunityTagFromAdminTagHighlightMutationVariables>(CreateCommunityTagFromAdminTagHighlightDocument, baseOptions);
+      }
+export type CreateCommunityTagFromAdminTagHighlightMutationHookResult = ReturnType<typeof useCreateCommunityTagFromAdminTagHighlightMutation>;
+export type CreateCommunityTagFromAdminTagHighlightMutationResult = Apollo.MutationResult<CreateCommunityTagFromAdminTagHighlightMutation>;
+export type CreateCommunityTagFromAdminTagHighlightMutationOptions = Apollo.BaseMutationOptions<CreateCommunityTagFromAdminTagHighlightMutation, CreateCommunityTagFromAdminTagHighlightMutationVariables>;
 export const CreatePostDocument = gql`
     mutation CreatePost($communitySlug: String!, $post: CreatePostInput!) {
   createPost(communitySlug: $communitySlug, data: $post) {
@@ -2896,6 +2957,7 @@ export const GetPostByIdDocument = gql`
       tags {
         _id
         title
+        postCount
       }
     }
   }

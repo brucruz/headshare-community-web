@@ -4,7 +4,7 @@ import Input from './Input';
 import {
   useFindCommunityTagsByUserInputLazyQuery,
   Tag,
-  useCreateCommunityTagMutation,
+  useCreateCommunityTagFromAdminTagHighlightMutation,
 } from '../generated/graphql';
 import {
   InputTagSuggestionContainer,
@@ -38,7 +38,7 @@ export function InputWithTagSuggestion({
     { data: foundTags },
   ] = useFindCommunityTagsByUserInputLazyQuery();
 
-  const [createTag] = useCreateCommunityTagMutation();
+  const [createTag] = useCreateCommunityTagFromAdminTagHighlightMutation();
 
   useEffect(() => {
     if (userInput.length <= 2) {
@@ -106,7 +106,7 @@ export function InputWithTagSuggestion({
       if (result.data && result.data.createTag && result.data.createTag.tag) {
         const newTag = result.data.createTag.tag;
 
-        selectTag(newTag);
+        selectTag(newTag, 0);
         setUserInput('');
       }
     },

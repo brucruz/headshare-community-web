@@ -24,6 +24,7 @@ query GetPostById($id: String!) {
       tags {
         _id
         title
+        postCount
       }
     }
   }

@@ -5,7 +5,7 @@ import { TagsContainer } from '../styles/components/Tags';
 
 export type CommunityTag = {
   __typename?: 'Tag' | undefined;
-} & Pick<Tag, '_id' | 'title'>;
+} & Pick<Tag, '_id' | 'title' | 'postCount'>;
 
 interface TagsProps {
   tags: CommunityTag[];
