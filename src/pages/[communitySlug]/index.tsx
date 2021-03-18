@@ -1,8 +1,12 @@
 /* eslint-disable no-underscore-dangle */
-import { FiAlertCircle } from 'react-icons/fi';
 import NextLink from 'next/link';
 import { useRouter } from 'next/router';
-import { MdAddCircle, MdKeyboardArrowRight, MdPhoto } from 'react-icons/md';
+import {
+  MdAddCircle,
+  MdEdit,
+  MdKeyboardArrowRight,
+  MdPhoto,
+} from 'react-icons/md';
 import { UrlObject } from 'url';
 import Button from '../../components/Button';
 import LikeCommentCount from '../../components/LikeCommentCount';
@@ -19,9 +23,10 @@ import {
   CategoryPost,
   CategoryPostImagePlaceholder,
   CategoryPosts,
-  EmptyCategory,
+  EmptyHighlights,
   EmptyPost,
   HomeContent,
+  HomeTitle,
   PostContent,
   SeeMoreButton,
 } from '../../styles/pages/CommunityHome';
@@ -120,29 +125,60 @@ function CommunityHome(): JSX.Element {
       subtitle={community && community.description}
     >
       <HomeContent>
+        <HomeTitle>
+          <div>
+            <h2>Destaques</h2>
+            {community &&
+              community.highlightedTags.length === 0 &&
+              isCreator && (
+                <p>
+                  Defina as categorias que aparecerão em destaque na página
+                  inicial
+                </p>
+              )}
+          </div>
+          {isCreator && (
+            <Button
+              text="Editar"
+              priority="secondary"
+              onClick={() =>
+                router.push(`/${communitySlug}/admin/categories/highlights`)
+              }
+            />
+          )}
+        </HomeTitle>
+
         <CategoriesPosts>
+          {community && community.highlightedTags.length === 0 && isCreator && (
+            <EmptyHighlights>
+              <MdEdit />
+
+              <p>Editar Destaques</p>
+            </EmptyHighlights>
+          )}
+
           {community &&
-            community.tags.map(tag => {
-              if (tag.postCount > 0) {
+            community.highlightedTags.map(highlightedTag => {
+              if (highlightedTag.tag.postCount > 0) {
                 return (
-                  <CategoryContent key={tag.slug}>
+                  <CategoryContent key={highlightedTag.tag.slug}>
                     <h4>
                       <NextLink
-                        href={`/${community.slug}/category/${tag.slug}`}
+                        href={`/${community.slug}/category/${highlightedTag.tag.slug}`}
                         passHref
                       >
-                        <a>{tag.title}</a>
+                        <a>{highlightedTag.tag.title}</a>
                       </NextLink>
                     </h4>
                     <h5>
-                      {tag.postCount === 1
-                        ? `${tag.postCount} post`
-                        : `${tag.postCount} posts`}
+                      {highlightedTag.tag.postCount === 1
+                        ? `${highlightedTag.tag.postCount} post`
+                        : `${highlightedTag.tag.postCount} posts`}
                     </h5>
 
                     <CategoryPosts>
-                      {tag.postCount <= 10 ? (
-                        tag.posts.map(post => (
+                      {highlightedTag.tag.postCount <= 10 ? (
+                        highlightedTag.tag.posts.map(post => (
                           <PostCard
                             key={post.slug}
                             title={post.title || 'Draft'}
@@ -168,19 +204,19 @@ function CommunityHome(): JSX.Element {
               return (
                 <>
                   {isCreator && (
-                    <CategoryContent key={tag.slug}>
+                    <CategoryContent key={highlightedTag.tag.slug}>
                       <h4>
                         <NextLink
-                          href={`/${community.slug}/category/${tag.slug}`}
+                          href={`/${community.slug}/category/${highlightedTag.tag.slug}`}
                           passHref
                         >
-                          <a>{tag.title}</a>
+                          <a>{highlightedTag.tag.title}</a>
                         </NextLink>
                       </h4>
                       <h5>
-                        {tag.postCount === 1
-                          ? `${tag.postCount} post`
-                          : `${tag.postCount} posts`}
+                        {highlightedTag.tag.postCount === 1
+                          ? `${highlightedTag.tag.postCount} post`
+                          : `${highlightedTag.tag.postCount} posts`}
                       </h5>
 
                       <CategoryPosts>
@@ -197,7 +233,7 @@ function CommunityHome(): JSX.Element {
             })}
         </CategoriesPosts>
 
-        <NextLink href={`/${community && community.slug}/categories`}>
+        {/* <NextLink href={`/${community && community.slug}/categories`}>
           <CategoriesDetailContainer>
             <Button
               priority="tertiary"
@@ -205,7 +241,7 @@ function CommunityHome(): JSX.Element {
               stretch
             />
           </CategoriesDetailContainer>
-        </NextLink>
+        </NextLink> */}
       </HomeContent>
     </CommunityPageTemplate>
   );

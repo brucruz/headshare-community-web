@@ -1,0 +1,13 @@
+mutation CreateCommunityTagFromAdminTagHighlight($communitySlug: String!, $tagData: CreateTagInput!) {
+  createTag (communitySlug: $communitySlug, data: $tagData) {
+    errors {
+      field
+      message
+    }
+    tag {
+      _id
+      title
+      postCount
+    }
+  }
+}

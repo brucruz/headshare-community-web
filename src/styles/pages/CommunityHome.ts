@@ -6,14 +6,45 @@ export const HomeContent = styled.main`
   margin: 0 auto;
 `;
 
-export const CategoriesPosts = styled.main`
-  margin-top: 15px;
+export const HomeTitle = styled.section`
+  margin-top: 30px;
+  margin-bottom: 24px;
+  margin-left: 12px;
+  margin-right: 12px;
 
+  width: calc(100% - 24px);
+
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+
+  div {
+    flex: 0 1 auto;
+
+    h2 {
+      color: var(--main-titles);
+    }
+
+    p {
+      margin-top: 5px;
+
+      color: var(--subtitles);
+    }
+
+    & + button {
+      margin-left: 20px;
+    }
+  }
+`;
+
+export const CategoriesPosts = styled.main`
   padding-bottom: 10px;
   padding-left: 12px;
 `;
 
 export const CategoryContent = styled.section`
+  margin-bottom: 40px;
+
   h4 {
     color: var(--main-titles);
 
@@ -28,33 +59,42 @@ export const CategoryContent = styled.section`
 
 export const CategoryPosts = styled.section`
   width: calc(100% - 12px);
-  margin-top: 10px;
-  margin-bottom: 15px;
+  margin-top: 20px;
 
   display: flex;
   overflow-x: auto;
 `;
 
-export const EmptyCategory = styled.div`
-  height: 173px;
-  width: 100%;
-
+export const EmptyHighlights = styled.section`
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
 
-  div {
-    color: var(--subtitles);
-    text-align: center;
+  height: calc(70vw / 16 * 9 + 85px);
+  width: 100%;
+  max-height: calc(198px + 85px);
 
-    svg {
-      height: 45px;
-      width: 45px;
-    }
+  margin-right: 12px;
 
-    p {
-      width: 250px;
-      margin-top: 10px;
+  background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' rx='8' ry='8' stroke='black' stroke-width='1' stroke-dasharray='11%2c 11%2c 11%2c 11' stroke-dashoffset='9' stroke-linecap='square'/%3e%3c/svg%3e");
+  border-radius: 8px;
+
+  color: var(--gray-text);
+
+  cursor: pointer;
+
+  svg {
+    height: 50px;
+    width: 50px;
+  }
+
+  p {
+    margin-top: 15px;
+
+    @media ${device.laptop} {
+      font-size: 16px;
+      line-height: 24px;
     }
   }
 `;

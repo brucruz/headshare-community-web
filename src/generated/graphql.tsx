@@ -1452,17 +1452,20 @@ export type GetCommunityHomeDataQuery = (
       )>, avatar?: Maybe<(
         { __typename?: 'Media' }
         & Pick<Media, 'url'>
-      )>, tags: Array<(
-        { __typename?: 'Tag' }
-        & Pick<Tag, 'title' | 'slug' | 'postCount'>
-        & { posts: Array<(
-          { __typename?: 'Post' }
-          & Pick<Post, 'title' | 'slug' | 'likes' | 'exclusive'>
-          & { mainMedia?: Maybe<(
-            { __typename?: 'Media' }
-            & Pick<Media, 'thumbnailUrl'>
+      )>, highlightedTags: Array<(
+        { __typename?: 'HighlightedTag' }
+        & { tag: (
+          { __typename?: 'Tag' }
+          & Pick<Tag, 'title' | 'slug' | 'postCount'>
+          & { posts: Array<(
+            { __typename?: 'Post' }
+            & Pick<Post, 'title' | 'slug' | 'likes' | 'exclusive'>
+            & { mainMedia?: Maybe<(
+              { __typename?: 'Media' }
+              & Pick<Media, 'thumbnailUrl'>
+            )> }
           )> }
-        )> }
+        ) }
       )>, creator: (
         { __typename?: 'User' }
         & Pick<User, 'name' | 'surname'>
@@ -2830,17 +2833,19 @@ export const GetCommunityHomeDataDocument = gql`
       avatar {
         url
       }
-      tags(limit: 3) {
-        title
-        slug
-        postCount(postOptions: {status: $postsStatus})
-        posts(limit: 10, postOptions: {status: $postsStatus}) {
+      highlightedTags {
+        tag {
           title
           slug
-          likes
-          exclusive
-          mainMedia {
-            thumbnailUrl
+          postCount(postOptions: {status: $postsStatus})
+          posts(limit: 10, postOptions: {status: $postsStatus}) {
+            title
+            slug
+            likes
+            exclusive
+            mainMedia {
+              thumbnailUrl
+            }
           }
         }
       }

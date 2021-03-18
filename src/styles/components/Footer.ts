@@ -2,6 +2,8 @@ import styled from 'styled-components';
 import device from '../../utils/devices';
 
 export const FooterContainer = styled.footer`
+  padding-top: 40px;
+
   margin-right: 12px;
   margin-left: 12px;
   margin-bottom: 40px;
