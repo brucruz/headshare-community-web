@@ -96,6 +96,10 @@ export const HoverSideMenuContainer = styled(animated.aside)`
   top: 56px;
 
   padding: 30px 0 10px 0;
+
+  @media ${device.laptop} {
+    top: 76px;
+  }
 `;
 
 interface MenuItemProps {

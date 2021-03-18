@@ -2,7 +2,7 @@ import styled from 'styled-components';
 import device from '../../utils/devices';
 
 export const ContentSection = styled.section`
-  width: 100vw;
+  width: 100%;
   padding-top: 56px;
 
   @media ${device.laptop} {

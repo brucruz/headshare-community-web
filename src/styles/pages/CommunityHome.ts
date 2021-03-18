@@ -27,7 +27,7 @@ export const CategoryContent = styled.section`
 `;
 
 export const CategoryPosts = styled.section`
-  width: 100%;
+  width: calc(100% - 12px);
   margin-top: 10px;
   margin-bottom: 15px;
 
@@ -69,8 +69,8 @@ export const CategoryPost = styled.a`
 
   img {
     border-radius: 8px 8px 0 0;
-    height: calc(80vw / 16 * 9);
-    width: 80vw;
+    height: calc(70vw / 16 * 9);
+    width: 70vw;
     max-height: 198px;
     max-width: 352px;
     object-fit: cover;
@@ -79,9 +79,34 @@ export const CategoryPost = styled.a`
   & + a {
     margin-left: 10px;
   }
+`;
 
-  &:last-child {
-    padding-right: 12px;
+export const EmptyPost = styled.button`
+  height: calc(70vw / 16 * 9 + 85px);
+  width: 70vw;
+  max-width: 352px;
+  max-height: calc(198px + 85px);
+
+  /* border: 1px dashed var(--gray-text); */
+  background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' rx='8' ry='8' stroke='black' stroke-width='1' stroke-dasharray='11%2c 11%2c 11%2c 11' stroke-dashoffset='9' stroke-linecap='square'/%3e%3c/svg%3e");
+  border-radius: 8px;
+
+  color: var(--gray-text);
+
+  cursor: pointer;
+
+  svg {
+    height: 50px;
+    width: 50px;
+  }
+
+  p {
+    margin-top: 15px;
+
+    @media ${device.laptop} {
+      font-size: 16px;
+      line-height: 24px;
+    }
   }
 `;
 
@@ -93,8 +118,8 @@ export const CategoryPostImagePlaceholder = styled.div`
   background-color: var(--gray-background);
 
   border-radius: 8px 8px 0 0;
-  height: calc(80vw / 16 * 9);
-  width: 80vw;
+  height: calc(70vw / 16 * 9);
+  width: 70vw;
   max-height: 198px;
   max-width: 352px;
 

@@ -1,21 +1,7 @@
-import { GetStaticPaths, GetStaticProps } from 'next';
 import Image from 'next/image';
 import NextLink from 'next/link';
 import { useRouter } from 'next/router';
-import { initializeApollo } from '../../lib/apolloClient';
-import {
-  Tag,
-  GetCommunitiesSlugsDocument,
-  GetCommunitiesSlugsQuery,
-  GetCommunitiesSlugsQueryVariables,
-  GetCommunityTagsDataDocument,
-  GetCommunityTagsDataQuery,
-  GetCommunityTagsDataQueryVariables,
-  CommonCommunityFragment,
-  Maybe,
-  Media,
-  useGetCommunityTagsDataQuery,
-} from '../../generated/graphql';
+import { useGetCommunityTagsDataQuery } from '../../generated/graphql';
 import { HomeContent } from '../../styles/pages/CommunityHome';
 import {
   CategoriesButtons,
@@ -24,20 +10,6 @@ import {
 } from '../../styles/pages/Categories';
 import CommunityPageTemplate from '../../components/templates/CommunityPageTemplate';
 import { withApollo } from '../../utils/withApollo';
-
-interface CategoriesProps {
-  community: {
-    __typename?: 'Community';
-  } & {
-    tags: Array<
-      {
-        __typename?: 'Tag';
-      } & Pick<Tag, 'title' | 'slug'>
-    >;
-    banner?: Maybe<{ __typename?: 'Media' } & Pick<Media, 'url'>>;
-    avatar?: Maybe<{ __typename?: 'Media' } & Pick<Media, 'url'>>;
-  } & CommonCommunityFragment;
-}
 
 function Categories(): JSX.Element {
   const router = useRouter();
@@ -49,17 +21,17 @@ function Categories(): JSX.Element {
 
   const community = data && data.community && data.community.community;
 
-  if ((!loading && !data) || !community) {
-    return (
-      <div>
-        <div>you got query failed for some reason</div>
-        <div>{error?.message}</div>
-      </div>
-    );
-  }
+  // if ((!loading && !data) || !community) {
+  //   return (
+  //     <div>
+  //       <div>you got query failed for some reason</div>
+  //       <div>{error?.message}</div>
+  //     </div>
+  //   );
+  // }
 
-  if (!data && loading) {
-    return <h1>Carregando...</h1>;
+  if ((!data && loading) || !community) {
+    return <div />;
   }
 
   return (

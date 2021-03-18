@@ -1,13 +1,15 @@
+/* eslint-disable no-underscore-dangle */
 import { FiAlertCircle } from 'react-icons/fi';
 import NextLink from 'next/link';
 import { useRouter } from 'next/router';
-import { MdKeyboardArrowRight, MdPhoto } from 'react-icons/md';
+import { MdAddCircle, MdKeyboardArrowRight, MdPhoto } from 'react-icons/md';
 import { UrlObject } from 'url';
 import Button from '../../components/Button';
 import LikeCommentCount from '../../components/LikeCommentCount';
 import CommunityPageTemplate from '../../components/templates/CommunityPageTemplate';
 import {
   PostStatus,
+  useCreatePostMutation,
   useGetCommunityHomeDataQuery,
 } from '../../generated/graphql';
 import {
@@ -18,11 +20,13 @@ import {
   CategoryPostImagePlaceholder,
   CategoryPosts,
   EmptyCategory,
+  EmptyPost,
   HomeContent,
   PostContent,
   SeeMoreButton,
 } from '../../styles/pages/CommunityHome';
 import { withApollo } from '../../utils/withApollo';
+import { useAuth } from '../../hooks/useAuth';
 
 interface PostCardProps {
   title: string;
@@ -69,9 +73,13 @@ function CommunityHome(): JSX.Element {
   const router = useRouter();
   const { communitySlug } = router.query as { communitySlug: string };
 
-  const { data, error, loading } = useGetCommunityHomeDataQuery({
+  const { isCreator } = useAuth();
+
+  const { data, loading } = useGetCommunityHomeDataQuery({
     variables: { slug: communitySlug, postsStatus: PostStatus.Published },
   });
+
+  const [createPost] = useCreatePostMutation();
 
   const community = data && data.community && data.community.community;
 
@@ -88,6 +96,23 @@ function CommunityHome(): JSX.Element {
     return <div />;
   }
 
+  async function handleCreatePost(): Promise<void> {
+    const result = await createPost({
+      variables: {
+        communitySlug,
+        post: {},
+      },
+    });
+
+    if (result.data) {
+      if (result.data.createPost.post) {
+        const id = result.data?.createPost.post?._id;
+
+        router.push(`/${communitySlug}/draft?id=${id.toString()}`);
+      }
+    }
+  }
+
   return (
     <CommunityPageTemplate
       community={community}
@@ -97,56 +122,79 @@ function CommunityHome(): JSX.Element {
       <HomeContent>
         <CategoriesPosts>
           {community &&
-            community.tags.map(tag => (
-              <CategoryContent key={tag.slug}>
-                <h4>
-                  <NextLink
-                    href={`/${community.slug}/category/${tag.slug}`}
-                    passHref
-                  >
-                    <a>{tag.title}</a>
-                  </NextLink>
-                </h4>
-                <h5>
-                  {tag.postCount === 1
-                    ? `${tag.postCount} post`
-                    : `${tag.postCount} posts`}
-                </h5>
+            community.tags.map(tag => {
+              if (tag.postCount > 0) {
+                return (
+                  <CategoryContent key={tag.slug}>
+                    <h4>
+                      <NextLink
+                        href={`/${community.slug}/category/${tag.slug}`}
+                        passHref
+                      >
+                        <a>{tag.title}</a>
+                      </NextLink>
+                    </h4>
+                    <h5>
+                      {tag.postCount === 1
+                        ? `${tag.postCount} post`
+                        : `${tag.postCount} posts`}
+                    </h5>
 
-                <CategoryPosts>
-                  {tag.postCount === 0 && (
-                    <EmptyCategory>
-                      <div>
-                        <FiAlertCircle />
+                    <CategoryPosts>
+                      {tag.postCount <= 10 ? (
+                        tag.posts.map(post => (
+                          <PostCard
+                            key={post.slug}
+                            title={post.title || 'Draft'}
+                            liked
+                            comments={2}
+                            exclusive={post.exclusive}
+                            thumbnail={post.mainMedia?.thumbnailUrl}
+                            likes={post.likes || 0}
+                            href={`/${community.slug}/post/${post.slug}`}
+                          />
+                        ))
+                      ) : (
+                        <SeeMoreButton>
+                          <MdKeyboardArrowRight />
+                          <h4>ver mais</h4>
+                        </SeeMoreButton>
+                      )}
+                    </CategoryPosts>
+                  </CategoryContent>
+                );
+              }
 
-                        <p>
-                          Esta categoria ainda não tem nenhum post publicado
-                        </p>
-                      </div>
-                    </EmptyCategory>
+              return (
+                <>
+                  {isCreator && (
+                    <CategoryContent key={tag.slug}>
+                      <h4>
+                        <NextLink
+                          href={`/${community.slug}/category/${tag.slug}`}
+                          passHref
+                        >
+                          <a>{tag.title}</a>
+                        </NextLink>
+                      </h4>
+                      <h5>
+                        {tag.postCount === 1
+                          ? `${tag.postCount} post`
+                          : `${tag.postCount} posts`}
+                      </h5>
+
+                      <CategoryPosts>
+                        <EmptyPost onClick={handleCreatePost}>
+                          <MdAddCircle />
+
+                          <p>Criar Post</p>
+                        </EmptyPost>
+                      </CategoryPosts>
+                    </CategoryContent>
                   )}
-                  {tag.postCount <= 10 ? (
-                    tag.posts.map(post => (
-                      <PostCard
-                        key={post.slug}
-                        title={post.title || 'Draft'}
-                        liked
-                        comments={2}
-                        exclusive={post.exclusive}
-                        thumbnail={post.mainMedia?.thumbnailUrl}
-                        likes={post.likes || 0}
-                        href={`/${community.slug}/post/${post.slug}`}
-                      />
-                    ))
-                  ) : (
-                    <SeeMoreButton>
-                      <MdKeyboardArrowRight />
-                      <h4>ver mais</h4>
-                    </SeeMoreButton>
-                  )}
-                </CategoryPosts>
-              </CategoryContent>
-            ))}
+                </>
+              );
+            })}
         </CategoriesPosts>
 
         <NextLink href={`/${community && community.slug}/categories`}>
