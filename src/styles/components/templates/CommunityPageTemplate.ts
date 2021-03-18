@@ -1,6 +1,9 @@
 import styled from 'styled-components';
 
-export const CommunityPageTemplateContainer = styled.section``;
+export const CommunityPageTemplateContainer = styled.section`
+  max-width: 800px;
+  margin: 0 auto;
+`;
 
 export const BannerContainer = styled.div`
   max-width: 940px;

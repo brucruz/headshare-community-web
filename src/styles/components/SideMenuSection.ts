@@ -13,7 +13,7 @@ export const ContentSection = styled.section`
 export const SideMenuContainer = styled.aside`
   display: none;
 
-  @media ${device.laptop} {
+  @media ${device.laptopL} {
     display: block;
 
     width: 300px;

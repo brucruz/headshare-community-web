@@ -49,7 +49,7 @@ export const CommunityTitle = styled.div`
 export const HoverSideMenu = styled.div`
   flex: 0 0 auto;
 
-  @media ${device.laptop} {
+  @media ${device.laptopL} {
     display: none;
   }
 `;
@@ -69,6 +69,18 @@ export const HamburguerContainer = styled.button`
     height: 30px;
 
     color: var(--subtitles);
+  }
+
+  @media ${device.laptop} {
+    height: 40px;
+    width: 40px;
+
+    svg {
+      width: 40px;
+      height: 40px;
+
+      color: var(--subtitles);
+    }
   }
 `;
 
