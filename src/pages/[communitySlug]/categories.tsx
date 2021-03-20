@@ -38,7 +38,7 @@ function Categories(): JSX.Element {
     <CommunityPageTemplate
       community={community}
       title={community && community.title}
-      subtitle={community && community.description}
+      subtitle={community && community.tagline}
       backButton
     >
       <HomeContent>
@@ -69,98 +69,3 @@ function Categories(): JSX.Element {
 }
 
 export default withApollo({ ssr: true })(Categories);
-
-// export const getStaticPaths: GetStaticPaths = async () => {
-//   const apolloClient = initializeApollo();
-
-//   const { data } = await apolloClient.query<
-//     GetCommunitiesSlugsQuery,
-//     GetCommunitiesSlugsQueryVariables
-//   >({
-//     query: GetCommunitiesSlugsDocument,
-//   });
-
-//   const { errors, communities } = data.communities;
-
-//   if (errors) {
-//     return {
-//       paths: [],
-//       fallback: true,
-//     };
-//   }
-
-//   if (!communities) {
-//     return {
-//       paths: [],
-//       fallback: true,
-//     };
-//   }
-
-//   const paths = communities.map(community => ({
-//     params: {
-//       communitySlug: community.slug,
-//     },
-//   }));
-
-//   return {
-//     paths,
-//     fallback: true,
-//   };
-// };
-
-// export const getStaticProps: GetStaticProps<
-//   CategoriesProps,
-//   { communitySlug: string }
-// > = async context => {
-//   const apolloClient = initializeApollo();
-
-//   if (context.params) {
-//     const { communitySlug } = context.params;
-
-//     try {
-//       const { data } = await apolloClient.query<
-//         GetCommunityTagsDataQuery,
-//         GetCommunityTagsDataQueryVariables
-//       >({
-//         query: GetCommunityTagsDataDocument,
-//         variables: { slug: communitySlug },
-//       });
-
-//       const { errors, community } = data.community;
-
-//       if (errors) {
-//         const { message } = errors[0];
-
-//         if (message === 'No community found with this slug') {
-//           return {
-//             redirect: {
-//               destination: '/',
-//               statusCode: 301,
-//             },
-//           };
-//         }
-//       }
-
-//       if (!community) {
-//         return {
-//           redirect: {
-//             destination: '/',
-//             statusCode: 301,
-//           },
-//         };
-//       }
-
-//       return {
-//         props: {
-//           community,
-//         },
-//       };
-//     } catch (err) {
-//       console.log(err);
-//     }
-//   }
-
-//   return {
-//     notFound: true,
-//   };
-// };

@@ -1,37 +1,36 @@
-import { InputHTMLAttributes, useEffect, useRef, useState } from 'react';
+import { TextareaHTMLAttributes, useEffect, useRef, useState } from 'react';
 
 import {
-  InputContainer,
-  InputError,
-  InputMaxLength,
-  InputTextArea,
-  UserInput,
-} from '../styles/components/Input';
+  TextAreaContainer,
+  TextAreaError,
+  TextAreaMaxLength,
+  TextAreaArea,
+  UserTextArea,
+} from '../styles/components/TextArea';
 
-export interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
+export interface TextAreaProps
+  extends TextareaHTMLAttributes<HTMLTextAreaElement> {
   name: string;
   label?: string;
   placeholder?: string;
   disabled?: boolean;
-  type?: string;
   value: string;
   error?: any;
 }
 
-function Input({
+export function TextArea({
   id,
   name,
   label,
   disabled = false,
-  type = 'text',
   placeholder = 'Digite aqui...',
   value,
   maxLength,
   error,
   ...rest
-}: InputProps): JSX.Element {
+}: TextAreaProps): JSX.Element {
   const inputRef = useRef(null);
-  const userInputRef = useRef(null);
+  const userTextAreaRef = useRef(null);
 
   const [characterLimit, setCharacterLimit] = useState(maxLength);
 
@@ -40,35 +39,32 @@ function Input({
   }, [value, maxLength]);
 
   return (
-    <InputContainer>
-      <UserInput ref={userInputRef} hasError={!!error} {...rest}>
-        <InputTextArea>
+    <TextAreaContainer>
+      <UserTextArea ref={userTextAreaRef} hasError={!!error} {...rest}>
+        <TextAreaArea>
           {label && <label htmlFor={name}>{label}</label>}
 
-          <input
+          <textarea
             id={id}
             name={name}
             ref={inputRef}
             value={value}
-            type={type}
             placeholder={placeholder}
             disabled={disabled}
             maxLength={maxLength}
           />
-        </InputTextArea>
-      </UserInput>
+        </TextAreaArea>
+      </UserTextArea>
       {maxLength && (
-        <InputMaxLength>
+        <TextAreaMaxLength>
           <h5>{characterLimit}</h5>
-        </InputMaxLength>
+        </TextAreaMaxLength>
       )}
       {error && (
-        <InputError>
+        <TextAreaError>
           <h5>{error}</h5>
-        </InputError>
+        </TextAreaError>
       )}
-    </InputContainer>
+    </TextAreaContainer>
   );
 }
-
-export default Input;

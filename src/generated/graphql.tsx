@@ -141,6 +141,8 @@ export type Community = {
   title: Scalars['String'];
   /** Community slug to use on url */
   slug: Scalars['String'];
+  /** Community tagline */
+  tagline?: Maybe<Scalars['String']>;
   /** Community description */
   description?: Maybe<Scalars['String']>;
   /** Community avatar used to visually identify community info */
@@ -618,6 +620,8 @@ export type CreateCommunityInput = {
   title: Scalars['String'];
   /** Community slug to use on url */
   slug: Scalars['String'];
+  /** Community tagline */
+  tagline?: Maybe<Scalars['String']>;
   /** Community description */
   description?: Maybe<Scalars['String']>;
 };
@@ -629,6 +633,8 @@ export type UpdateCommunityInput = {
   title?: Maybe<Scalars['String']>;
   /** Community slug to use on url */
   slug?: Maybe<Scalars['String']>;
+  /** Community tagline */
+  tagline?: Maybe<Scalars['String']>;
   /** Community description */
   description?: Maybe<Scalars['String']>;
   /** Community avatar used to visually identify community info */
@@ -814,7 +820,7 @@ export type UploadMediaInput = {
 
 export type CommonCommunityFragment = (
   { __typename?: 'Community' }
-  & Pick<Community, '_id' | 'logo' | 'title' | 'description' | 'slug' | 'followersCount' | 'membersCount'>
+  & Pick<Community, '_id' | 'logo' | 'title' | 'tagline' | 'description' | 'slug' | 'followersCount' | 'membersCount'>
   & { creator: (
     { __typename?: 'User' }
     & CreatorNameFragment
@@ -1070,6 +1076,26 @@ export type UpdateCommunityBannerMutation = (
   ) }
 );
 
+export type UpdateCommunityConfigMainMutationVariables = Exact<{
+  id: Scalars['String'];
+  updateData: UpdateCommunityInput;
+}>;
+
+
+export type UpdateCommunityConfigMainMutation = (
+  { __typename?: 'Mutation' }
+  & { updateCommunity: (
+    { __typename?: 'CommunityResponse' }
+    & { errors?: Maybe<Array<(
+      { __typename?: 'ErrorResponse' }
+      & Pick<ErrorResponse, 'field' | 'message'>
+    )>>, community?: Maybe<(
+      { __typename?: 'Community' }
+      & Pick<Community, '_id' | 'title' | 'slug' | 'tagline' | 'description'>
+    )> }
+  ) }
+);
+
 export type UpdateCommunityHighlightTagsMutationVariables = Exact<{
   id: Scalars['String'];
   highlightedTags?: Maybe<Array<HighlightedTagInput>>;
@@ -1248,6 +1274,29 @@ export type CommunityAdminCategoriesQuery = (
         { __typename?: 'Tag' }
         & Pick<Tag, '_id' | 'title' | 'slug' | 'description' | 'postCount'>
       )> }
+    )> }
+  ) }
+);
+
+export type CommunityAdminConfigMainQueryVariables = Exact<{
+  slug: Scalars['String'];
+}>;
+
+
+export type CommunityAdminConfigMainQuery = (
+  { __typename?: 'Query' }
+  & { community: (
+    { __typename?: 'CommunityResponse' }
+    & { errors?: Maybe<Array<(
+      { __typename?: 'ErrorResponse' }
+      & Pick<ErrorResponse, 'field' | 'message'>
+    )>>, community?: Maybe<(
+      { __typename?: 'Community' }
+      & Pick<Community, '_id' | 'title' | 'tagline' | 'description'>
+      & { creator: (
+        { __typename?: 'User' }
+        & Pick<User, 'name' | 'surname'>
+      ) }
     )> }
   ) }
 );
@@ -1445,7 +1494,7 @@ export type GetCommunityHomeDataQuery = (
       & Pick<ErrorResponse, 'field' | 'message'>
     )>>, community?: Maybe<(
       { __typename?: 'Community' }
-      & Pick<Community, '_id' | 'logo' | 'title' | 'description' | 'slug' | 'followersCount' | 'membersCount'>
+      & Pick<Community, '_id' | 'logo' | 'title' | 'tagline' | 'slug' | 'followersCount' | 'membersCount'>
       & { banner?: Maybe<(
         { __typename?: 'Media' }
         & Pick<Media, 'url'>
@@ -1622,6 +1671,7 @@ export const CommonCommunityFragmentDoc = gql`
   _id
   logo
   title
+  tagline
   description
   slug
   creator {
@@ -2119,6 +2169,49 @@ export function useUpdateCommunityBannerMutation(baseOptions?: Apollo.MutationHo
 export type UpdateCommunityBannerMutationHookResult = ReturnType<typeof useUpdateCommunityBannerMutation>;
 export type UpdateCommunityBannerMutationResult = Apollo.MutationResult<UpdateCommunityBannerMutation>;
 export type UpdateCommunityBannerMutationOptions = Apollo.BaseMutationOptions<UpdateCommunityBannerMutation, UpdateCommunityBannerMutationVariables>;
+export const UpdateCommunityConfigMainDocument = gql`
+    mutation UpdateCommunityConfigMain($id: String!, $updateData: UpdateCommunityInput!) {
+  updateCommunity(id: $id, updateData: $updateData) {
+    errors {
+      field
+      message
+    }
+    community {
+      _id
+      title
+      slug
+      tagline
+      description
+    }
+  }
+}
+    `;
+export type UpdateCommunityConfigMainMutationFn = Apollo.MutationFunction<UpdateCommunityConfigMainMutation, UpdateCommunityConfigMainMutationVariables>;
+
+/**
+ * __useUpdateCommunityConfigMainMutation__
+ *
+ * To run a mutation, you first call `useUpdateCommunityConfigMainMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateCommunityConfigMainMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateCommunityConfigMainMutation, { data, loading, error }] = useUpdateCommunityConfigMainMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      updateData: // value for 'updateData'
+ *   },
+ * });
+ */
+export function useUpdateCommunityConfigMainMutation(baseOptions?: Apollo.MutationHookOptions<UpdateCommunityConfigMainMutation, UpdateCommunityConfigMainMutationVariables>) {
+        return Apollo.useMutation<UpdateCommunityConfigMainMutation, UpdateCommunityConfigMainMutationVariables>(UpdateCommunityConfigMainDocument, baseOptions);
+      }
+export type UpdateCommunityConfigMainMutationHookResult = ReturnType<typeof useUpdateCommunityConfigMainMutation>;
+export type UpdateCommunityConfigMainMutationResult = Apollo.MutationResult<UpdateCommunityConfigMainMutation>;
+export type UpdateCommunityConfigMainMutationOptions = Apollo.BaseMutationOptions<UpdateCommunityConfigMainMutation, UpdateCommunityConfigMainMutationVariables>;
 export const UpdateCommunityHighlightTagsDocument = gql`
     mutation UpdateCommunityHighlightTags($id: String!, $highlightedTags: [HighlightedTagInput!]) {
   updateCommunity(id: $id, updateData: {highlightedTags: $highlightedTags}) {
@@ -2481,6 +2574,52 @@ export function useCommunityAdminCategoriesLazyQuery(baseOptions?: Apollo.LazyQu
 export type CommunityAdminCategoriesQueryHookResult = ReturnType<typeof useCommunityAdminCategoriesQuery>;
 export type CommunityAdminCategoriesLazyQueryHookResult = ReturnType<typeof useCommunityAdminCategoriesLazyQuery>;
 export type CommunityAdminCategoriesQueryResult = Apollo.QueryResult<CommunityAdminCategoriesQuery, CommunityAdminCategoriesQueryVariables>;
+export const CommunityAdminConfigMainDocument = gql`
+    query communityAdminConfigMain($slug: String!) {
+  community(slug: $slug) {
+    errors {
+      field
+      message
+    }
+    community {
+      _id
+      title
+      tagline
+      description
+      creator {
+        name
+        surname
+      }
+    }
+  }
+}
+    `;
+
+/**
+ * __useCommunityAdminConfigMainQuery__
+ *
+ * To run a query within a React component, call `useCommunityAdminConfigMainQuery` and pass it any options that fit your needs.
+ * When your component renders, `useCommunityAdminConfigMainQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useCommunityAdminConfigMainQuery({
+ *   variables: {
+ *      slug: // value for 'slug'
+ *   },
+ * });
+ */
+export function useCommunityAdminConfigMainQuery(baseOptions: Apollo.QueryHookOptions<CommunityAdminConfigMainQuery, CommunityAdminConfigMainQueryVariables>) {
+        return Apollo.useQuery<CommunityAdminConfigMainQuery, CommunityAdminConfigMainQueryVariables>(CommunityAdminConfigMainDocument, baseOptions);
+      }
+export function useCommunityAdminConfigMainLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<CommunityAdminConfigMainQuery, CommunityAdminConfigMainQueryVariables>) {
+          return Apollo.useLazyQuery<CommunityAdminConfigMainQuery, CommunityAdminConfigMainQueryVariables>(CommunityAdminConfigMainDocument, baseOptions);
+        }
+export type CommunityAdminConfigMainQueryHookResult = ReturnType<typeof useCommunityAdminConfigMainQuery>;
+export type CommunityAdminConfigMainLazyQueryHookResult = ReturnType<typeof useCommunityAdminConfigMainLazyQuery>;
+export type CommunityAdminConfigMainQueryResult = Apollo.QueryResult<CommunityAdminConfigMainQuery, CommunityAdminConfigMainQueryVariables>;
 export const CommunityAdminHighlightedTagsDocument = gql`
     query CommunityAdminHighlightedTags($slug: String!) {
   community(slug: $slug) {
@@ -2683,7 +2822,7 @@ export const CommunityTagPostsDocument = gql`
       description
       postCount(postOptions: {status: PUBLISHED})
       slug
-      posts(limit: 5, postOptions: {status: PUBLISHED}) {
+      posts(limit: 10, postOptions: {status: PUBLISHED}) {
         title
         description
         exclusive
@@ -2825,7 +2964,7 @@ export const GetCommunityHomeDataDocument = gql`
       _id
       logo
       title
-      description
+      tagline
       slug
       banner {
         url

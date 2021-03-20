@@ -1,0 +1,18 @@
+query communityAdminConfigMain ($slug: String!){
+  community (slug: $slug) {
+    errors {
+      field
+      message
+    }
+    community {
+      _id
+      title
+      tagline
+      description
+      creator {
+        name
+        surname
+      }
+    }
+  }
+}

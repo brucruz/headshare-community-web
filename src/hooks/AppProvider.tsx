@@ -1,7 +1,10 @@
 import { AuthProvider } from './useAuth';
+import { SnackbarProvider } from './useSnackbar';
 
 const AppProvider: React.FC = ({ children }) => (
-  <AuthProvider>{children}</AuthProvider>
+  <AuthProvider>
+    <SnackbarProvider>{children}</SnackbarProvider>
+  </AuthProvider>
 );
 
 export default AppProvider;

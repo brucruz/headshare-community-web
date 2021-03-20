@@ -9,7 +9,7 @@ query CommunityTagPosts ($data: FindByTagsInput!) {
       description
       postCount(postOptions: { status: PUBLISHED })
       slug
-      posts(limit: 5, postOptions: { status: PUBLISHED }) {
+      posts(limit: 10, postOptions: { status: PUBLISHED }) {
         title
         description
         exclusive

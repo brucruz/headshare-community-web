@@ -1,0 +1,18 @@
+mutation UpdateCommunityConfigMain(
+  $id: String!
+  $updateData: UpdateCommunityInput!
+) {
+  updateCommunity(id: $id, updateData: $updateData) {
+    errors {
+      field
+      message
+    }
+    community {
+      _id
+      title
+      slug
+      tagline
+      description
+    }
+  }
+}

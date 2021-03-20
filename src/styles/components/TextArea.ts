@@ -1,17 +1,17 @@
 import styled from 'styled-components';
 
-interface InputProps {
+interface TextAreaProps {
   hasError: boolean;
 }
 
-export const InputContainer = styled.section`
+export const TextAreaContainer = styled.section`
   position: relative;
 `;
 
-export const UserInput = styled.header<InputProps>`
+export const UserTextArea = styled.header<TextAreaProps>`
   background: var(--page-background);
   width: 100%;
-  height: 48px;
+  height: 140px;
 
   display: flex;
 
@@ -39,9 +39,11 @@ export const UserInput = styled.header<InputProps>`
     padding: 0px 4px;
   }
 
-  input {
+  textarea {
     border: 0;
     margin: auto 0;
+
+    height: 120px;
 
     ::placeholder {
       color: var(placeholder-color);
@@ -49,13 +51,13 @@ export const UserInput = styled.header<InputProps>`
   }
 `;
 
-export const InputTextArea = styled.div`
+export const TextAreaArea = styled.div`
   flex: 1 0 auto;
   display: flex;
   flex-direction: column;
 `;
 
-export const InputError = styled.div`
+export const TextAreaError = styled.div`
   position: absolute;
 
   bottom: -17px;
@@ -66,7 +68,7 @@ export const InputError = styled.div`
   }
 `;
 
-export const InputMaxLength = styled.div`
+export const TextAreaMaxLength = styled.div`
   position: absolute;
 
   bottom: -20px;

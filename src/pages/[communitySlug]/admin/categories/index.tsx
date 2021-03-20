@@ -382,7 +382,7 @@ function AdminCategories(): JSX.Element {
       }`}
       pageTitle="Categorias"
       topButton={{
-        text: 'Criar uma categoria',
+        text: 'Criar categoria',
         onClick: () => setIsOpenCreateModal(true),
       }}
       sideMenu={[

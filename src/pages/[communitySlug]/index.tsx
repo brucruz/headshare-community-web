@@ -122,7 +122,7 @@ function CommunityHome(): JSX.Element {
     <CommunityPageTemplate
       community={community}
       title={community && community.title}
-      subtitle={community && community.description}
+      subtitle={community && community.tagline}
     >
       <HomeContent>
         <HomeTitle>

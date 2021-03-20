@@ -5,22 +5,22 @@ import {
   AdminSideMenu,
   AdminTopButton,
   ContentContainer,
+  AdminMainHeader,
+  AdminMainHeaderTitle,
 } from '../../styles/components/templates/AdminPageTemplate';
-import Button from '../Button';
+import Button, { ButtonProps } from '../Button';
 import Footer from '../Footer';
 import Header from '../Header';
 import { MenuItem } from '../MenuItem';
 import Tabs, { TabProps } from '../Tabs';
+import { SideMenuSection } from '../SideMenuSection';
 
 interface AdminPageTemplateProps {
   communitySlug: string;
   communityTitle: string;
   communityAuthor: string;
   pageTitle: string;
-  topButton?: {
-    text: string;
-    onClick?: (event: MouseEvent<HTMLButtonElement, Event>) => void;
-  };
+  topButton?: ButtonProps;
   sideMenu: {
     title: string;
     path: string;
@@ -43,56 +43,67 @@ export function AdminPageTemplate({
   return (
     <>
       <Header communitySlug={communitySlug} communityTitle={communityTitle} />
-      <div style={{ height: '56px' }} />
-
-      <ContentContainer>
-        <AdminSideMenu>
-          <ul>
-            {sideMenu.map(item =>
-              item.selected ? (
-                <MenuItem
-                  key={item.title}
-                  selected={item.selected || false}
-                  text={item.title}
-                  textSize="medium"
-                />
-              ) : (
-                <NextLink key={item.title} href={item.path}>
+      <SideMenuSection communitySlug={communitySlug}>
+        <ContentContainer>
+          {/* <AdminSideMenu>
+            <ul>
+              {sideMenu.map(item =>
+                item.selected ? (
                   <MenuItem
+                    key={item.title}
                     selected={item.selected || false}
                     text={item.title}
                     textSize="medium"
                   />
-                </NextLink>
-              ),
-            )}
-          </ul>
-        </AdminSideMenu>
+                ) : (
+                  <NextLink key={item.title} href={item.path}>
+                    <MenuItem
+                      selected={item.selected || false}
+                      text={item.title}
+                      textSize="medium"
+                    />
+                  </NextLink>´
+                ),
+              )}
+            </ul>
+          </AdminSideMenu> */}
 
-        <AdminMain>
-          <h1>{pageTitle}</h1>
+          <AdminMain>
+            <AdminMainHeader>
+              <AdminMainHeaderTitle>
+                <h5>Gerenciar Comunidade</h5>
+                <h1>{pageTitle}</h1>
+              </AdminMainHeaderTitle>
 
-          {tabs && <Tabs tabs={tabs} />}
+              {topButton && (
+                <AdminTopButton>
+                  <Button {...topButton} size="small" />
+                </AdminTopButton>
+              )}
+            </AdminMainHeader>
 
-          {topButton && (
-            <AdminTopButton>
-              <Button
-                text={topButton.text}
-                priority="secondary"
-                onClick={topButton.onClick}
-              />
-            </AdminTopButton>
-          )}
+            {tabs && <Tabs tabs={tabs} />}
 
-          {children}
-        </AdminMain>
-      </ContentContainer>
+            {/* {topButton && (
+              <AdminTopButton>
+                <Button
+                  text={topButton.text}
+                  priority="secondary"
+                  onClick={topButton.onClick}
+                />
+              </AdminTopButton>
+            )} */}
 
-      <Footer
-        author={communityAuthor}
-        communityTitle={communityTitle}
-        shareable
-      />
+            {children}
+          </AdminMain>
+        </ContentContainer>
+
+        <Footer
+          author={communityAuthor}
+          communityTitle={communityTitle}
+          shareable
+        />
+      </SideMenuSection>
     </>
   );
 }

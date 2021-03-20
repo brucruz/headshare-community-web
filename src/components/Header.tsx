@@ -240,7 +240,6 @@ const Header: React.FC<HeaderProps> = ({
               {
                 text: 'Configurações',
                 href: `/${communitySlug}/admin/config`,
-                disabled: true,
               },
             ],
           },

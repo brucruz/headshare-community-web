@@ -59,6 +59,13 @@ export const ButtonContainer = styled.button<ButtonProps>`
     `}
 
   ${props =>
+    props.size === 'small' &&
+    css`
+      height: 35px;
+      border-radius: 17.5px;
+    `}
+
+  ${props =>
     !props.disabled &&
     css`
       &:hover {

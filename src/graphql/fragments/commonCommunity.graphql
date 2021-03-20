@@ -2,6 +2,7 @@ fragment CommonCommunity on Community {
   _id
   logo
   title
+  tagline
   description
   slug
   creator {

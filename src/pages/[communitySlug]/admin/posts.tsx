@@ -91,7 +91,7 @@ function AdminPosts(): JSX.Element {
       }`}
       pageTitle="Posts"
       topButton={{
-        text: 'Criar um post',
+        text: 'Criar post',
         onClick: handleNewPost,
       }}
       sideMenu={[

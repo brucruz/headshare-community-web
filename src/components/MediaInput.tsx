@@ -9,9 +9,10 @@ import {
 
 export type ImageDimensions = { width: number; height: number };
 
-interface MediaInputProps {
+export interface MediaInputProps {
+  id?: string;
   name: string;
-  label: string;
+  label?: string;
   getFile: (file: File) => void;
   currentFileUrl?: string;
   fileType?: 'image' | 'video';
@@ -20,6 +21,7 @@ interface MediaInputProps {
 
 const MediaInput: React.FC<MediaInputProps> = ({
   name,
+  id = name,
   label,
   getFile,
   currentFileUrl,
@@ -95,7 +97,7 @@ const MediaInput: React.FC<MediaInputProps> = ({
           accept={acceptedTypes?.mime}
         />
 
-        <p>{label}</p>
+        {label && <p>{label}</p>}
 
         <UploadContent>
           {!currentFileUrl && <BsUpload />}

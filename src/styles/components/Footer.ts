@@ -3,6 +3,7 @@ import device from '../../utils/devices';
 
 export const FooterContainer = styled.footer`
   padding-top: 40px;
+  padding-bottom: 40px;
 
   margin-right: 12px;
   margin-left: 12px;

@@ -8,7 +8,7 @@ query getCommunityHomeData($slug: String!, $postsStatus: PostStatus!) {
       _id
       logo
       title
-      description
+      tagline
       slug
       banner {
         url

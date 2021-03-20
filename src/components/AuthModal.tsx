@@ -34,9 +34,7 @@ interface ForgotPasswordVariables {
   email: string;
 }
 
-interface AuthModalProps {}
-
-const AuthModal: React.FC<AuthModalProps> = ({}) => {
+export default function AuthModal(): JSX.Element {
   const { isAuthOpen, closeAuth, authType, changeAuthType } = useAuth();
 
   const router = useRouter();
@@ -391,6 +389,4 @@ const AuthModal: React.FC<AuthModalProps> = ({}) => {
       </AuthModalContainer>
     </Modal>
   );
-};
-
-export default AuthModal;
+}
