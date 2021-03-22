@@ -7,6 +7,7 @@ import {
   ContentContainer,
   AdminMainHeader,
   AdminMainHeaderTitle,
+  AdminMainUpperHeader,
 } from '../../styles/components/templates/AdminPageTemplate';
 import Button, { ButtonProps } from '../Button';
 import Footer from '../Footer';
@@ -70,19 +71,21 @@ export function AdminPageTemplate({
 
           <AdminMain>
             <AdminMainHeader>
-              <AdminMainHeaderTitle>
-                <h5>Gerenciar Comunidade</h5>
-                <h1>{pageTitle}</h1>
-              </AdminMainHeaderTitle>
+              <AdminMainUpperHeader>
+                <AdminMainHeaderTitle>
+                  <h5>Gerenciar Comunidade</h5>
+                  <h1>{pageTitle}</h1>
+                </AdminMainHeaderTitle>
 
-              {topButton && (
-                <AdminTopButton>
-                  <Button {...topButton} size="small" />
-                </AdminTopButton>
-              )}
+                {topButton && (
+                  <AdminTopButton>
+                    <Button {...topButton} size="small" />
+                  </AdminTopButton>
+                )}
+              </AdminMainUpperHeader>
+
+              {tabs && <Tabs tabs={tabs} />}
             </AdminMainHeader>
-
-            {tabs && <Tabs tabs={tabs} />}
 
             {/* {topButton && (
               <AdminTopButton>

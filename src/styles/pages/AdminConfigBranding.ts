@@ -1,6 +1,8 @@
 import styled from 'styled-components';
 
-export const ConfigMainFormTitle = styled.section`
+export const AdminConfigBrandingContainer = styled.main``;
+
+export const ConfigBrandingTitle = styled.section`
   padding-bottom: 35px;
 
   h2 {
@@ -13,9 +15,7 @@ export const ConfigMainFormTitle = styled.section`
   }
 `;
 
-export const ConfigMainForm = styled.form``;
-
-export const ConfigMainInputWrapper = styled.div`
+export const ConfigBrandingInputWrapper = styled.div`
   & + div {
     margin-top: 40px;
   }

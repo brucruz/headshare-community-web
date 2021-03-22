@@ -105,6 +105,16 @@ function AdminConfigMain(): JSX.Element {
       }`}
       pageTitle="Configurações"
       sideMenu={[]}
+      tabs={[
+        {
+          text: 'Principais',
+          active: true,
+        },
+        {
+          text: 'Branding',
+          url: `/${communitySlug}/admin/config/branding`,
+        },
+      ]}
       topButton={{
         text: 'Salvar',
         type: 'submit',

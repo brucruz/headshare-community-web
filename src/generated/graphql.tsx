@@ -1278,6 +1278,35 @@ export type CommunityAdminCategoriesQuery = (
   ) }
 );
 
+export type CommunityAdminConfigBrandingQueryVariables = Exact<{
+  slug: Scalars['String'];
+}>;
+
+
+export type CommunityAdminConfigBrandingQuery = (
+  { __typename?: 'Query' }
+  & { community: (
+    { __typename?: 'CommunityResponse' }
+    & { errors?: Maybe<Array<(
+      { __typename?: 'ErrorResponse' }
+      & Pick<ErrorResponse, 'field' | 'message'>
+    )>>, community?: Maybe<(
+      { __typename?: 'Community' }
+      & Pick<Community, '_id' | 'slug' | 'title'>
+      & { banner?: Maybe<(
+        { __typename?: 'Media' }
+        & Pick<Media, 'url'>
+      )>, avatar?: Maybe<(
+        { __typename?: 'Media' }
+        & Pick<Media, 'url'>
+      )>, creator: (
+        { __typename?: 'User' }
+        & Pick<User, 'name' | 'surname'>
+      ) }
+    )> }
+  ) }
+);
+
 export type CommunityAdminConfigMainQueryVariables = Exact<{
   slug: Scalars['String'];
 }>;
@@ -2574,6 +2603,57 @@ export function useCommunityAdminCategoriesLazyQuery(baseOptions?: Apollo.LazyQu
 export type CommunityAdminCategoriesQueryHookResult = ReturnType<typeof useCommunityAdminCategoriesQuery>;
 export type CommunityAdminCategoriesLazyQueryHookResult = ReturnType<typeof useCommunityAdminCategoriesLazyQuery>;
 export type CommunityAdminCategoriesQueryResult = Apollo.QueryResult<CommunityAdminCategoriesQuery, CommunityAdminCategoriesQueryVariables>;
+export const CommunityAdminConfigBrandingDocument = gql`
+    query communityAdminConfigBranding($slug: String!) {
+  community(slug: $slug) {
+    errors {
+      field
+      message
+    }
+    community {
+      _id
+      slug
+      title
+      banner {
+        url
+      }
+      avatar {
+        url
+      }
+      creator {
+        name
+        surname
+      }
+    }
+  }
+}
+    `;
+
+/**
+ * __useCommunityAdminConfigBrandingQuery__
+ *
+ * To run a query within a React component, call `useCommunityAdminConfigBrandingQuery` and pass it any options that fit your needs.
+ * When your component renders, `useCommunityAdminConfigBrandingQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useCommunityAdminConfigBrandingQuery({
+ *   variables: {
+ *      slug: // value for 'slug'
+ *   },
+ * });
+ */
+export function useCommunityAdminConfigBrandingQuery(baseOptions: Apollo.QueryHookOptions<CommunityAdminConfigBrandingQuery, CommunityAdminConfigBrandingQueryVariables>) {
+        return Apollo.useQuery<CommunityAdminConfigBrandingQuery, CommunityAdminConfigBrandingQueryVariables>(CommunityAdminConfigBrandingDocument, baseOptions);
+      }
+export function useCommunityAdminConfigBrandingLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<CommunityAdminConfigBrandingQuery, CommunityAdminConfigBrandingQueryVariables>) {
+          return Apollo.useLazyQuery<CommunityAdminConfigBrandingQuery, CommunityAdminConfigBrandingQueryVariables>(CommunityAdminConfigBrandingDocument, baseOptions);
+        }
+export type CommunityAdminConfigBrandingQueryHookResult = ReturnType<typeof useCommunityAdminConfigBrandingQuery>;
+export type CommunityAdminConfigBrandingLazyQueryHookResult = ReturnType<typeof useCommunityAdminConfigBrandingLazyQuery>;
+export type CommunityAdminConfigBrandingQueryResult = Apollo.QueryResult<CommunityAdminConfigBrandingQuery, CommunityAdminConfigBrandingQueryVariables>;
 export const CommunityAdminConfigMainDocument = gql`
     query communityAdminConfigMain($slug: String!) {
   community(slug: $slug) {

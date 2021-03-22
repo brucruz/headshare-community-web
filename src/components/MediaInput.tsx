@@ -6,6 +6,7 @@ import {
   UploadArea,
   UploadContent,
 } from '../styles/components/MediaInput';
+import Button from './Button';
 
 export type ImageDimensions = { width: number; height: number };
 
@@ -101,6 +102,14 @@ const MediaInput: React.FC<MediaInputProps> = ({
 
         <UploadContent>
           {!currentFileUrl && <BsUpload />}
+
+          {currentFileUrl && (
+            <>
+              <img src={currentFileUrl} alt="name" />
+
+              <span>Alterar</span>
+            </>
+          )}
 
           {children}
         </UploadContent>

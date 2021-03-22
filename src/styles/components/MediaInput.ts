@@ -35,9 +35,12 @@ export const UploadArea = styled.label`
 
 export const UploadContent = styled.div`
   display: flex;
+  flex-direction: column;
   padding: 10px 0;
   align-items: center;
   justify-content: center;
+
+  cursor: pointer;
 
   svg {
     height: 24px;
@@ -46,5 +49,15 @@ export const UploadContent = styled.div`
     margin-top: 25px;
     margin-bottom: 15px;
     color: var(--input-placeholder);
+  }
+
+  img {
+    max-width: 30%;
+  }
+
+  span {
+    text-decoration: underline;
+    color: var(--headshare-coral);
+    margin-top: 15px;
   }
 `;
