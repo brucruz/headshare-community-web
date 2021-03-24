@@ -25,9 +25,7 @@ import {
   FooterSection,
 } from '../styles/pages/Home';
 
-interface HomeProps {}
-
-const Home: React.FC<HomeProps> = ({}) => {
+function Home(): JSX.Element {
   const [fee, setFee] = useState(25);
   const [members, setMembers] = useState(100);
 
@@ -228,6 +226,6 @@ const Home: React.FC<HomeProps> = ({}) => {
       </ColoredSection>
     </>
   );
-};
+}
 
 export default Home;

@@ -16,12 +16,18 @@ mutation UpdatePost($communitySlug: String!, $postId: String!, $post: UpdatePost
         url
         thumbnailUrl
         format
+        width
+        height
       }
       content
       exclusive
-      tags {
-        _id
-        title
+      tags(limit: 10) {
+        tags {
+          _id
+          title
+          postCount
+        }
+        hasMore
       }
     }
   }

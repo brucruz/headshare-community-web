@@ -36,9 +36,12 @@ mutation UpdatePostMainImage(
       }
       content
       exclusive
-      tags {
-        _id
-        title
+      tags(limit: 10) {
+        tags {
+          _id
+          title
+        }
+        hasMore
       }
     }
   }

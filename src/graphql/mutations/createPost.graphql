@@ -15,8 +15,11 @@ mutation CreatePost($communitySlug: String!, $post: CreatePostInput!) {
         url
       }
       exclusive
-      tags {
-        title
+      tags(limit: 10) {
+        tags {
+          title
+        }
+        hasMore
       }
     }
   }

@@ -85,6 +85,13 @@ export type QueryFindUserByEmailArgs = {
 };
 
 
+export type QueryTagsArgs = {
+  tagOptions?: Maybe<TagOptionsInput>;
+  cursor?: Maybe<Scalars['String']>;
+  limit: Scalars['Int'];
+};
+
+
 export type QueryTagArgs = {
   id: Scalars['String'];
 };
@@ -150,7 +157,7 @@ export type Community = {
   avatar?: Maybe<Media>;
   /** Community image banner to be displayed in its homepage */
   banner?: Maybe<Media>;
-  posts: Array<Post>;
+  posts: PaginatedPosts;
   /** All the tags associated with this community */
   tags: Array<Tag>;
   /** Owner selected tags to appear on community home, given a specific order */
@@ -168,19 +175,18 @@ export type Community = {
   createdAt: Scalars['DateTime'];
   /** Community last update date */
   updatedAt?: Maybe<Scalars['DateTime']>;
-  paginatedPosts: PaginatedPosts;
 };
 
 
 /** The Communities model */
-export type CommunityTagsArgs = {
+export type CommunityPostsArgs = {
   cursor?: Maybe<Scalars['String']>;
   limit: Scalars['Int'];
 };
 
 
 /** The Communities model */
-export type CommunityPaginatedPostsArgs = {
+export type CommunityTagsArgs = {
   cursor?: Maybe<Scalars['String']>;
   limit: Scalars['Int'];
 };
@@ -241,6 +247,12 @@ export type File = {
 };
 
 
+export type PaginatedPosts = {
+  __typename?: 'PaginatedPosts';
+  posts: Array<Post>;
+  hasMore: Scalars['Boolean'];
+};
+
 /** The Posts model */
 export type Post = {
   __typename?: 'Post';
@@ -267,13 +279,21 @@ export type Post = {
   likes?: Maybe<Scalars['Float']>;
   creator: User;
   community: Community;
-  tags: Array<Tag>;
+  tags: PaginatedTags;
   isActive: Scalars['Boolean'];
   removedAt?: Maybe<Scalars['DateTime']>;
   /** Post creation date */
   createdAt: Scalars['DateTime'];
   /** Post last update date */
   updatedAt?: Maybe<Scalars['DateTime']>;
+};
+
+
+/** The Posts model */
+export type PostTagsArgs = {
+  tagOptions?: Maybe<TagOptionsInput>;
+  cursor?: Maybe<Scalars['String']>;
+  limit: Scalars['Int'];
 };
 
 /** The possible status a post might have */
@@ -336,6 +356,12 @@ export enum RoleOptions {
   Follower = 'FOLLOWER'
 }
 
+export type PaginatedTags = {
+  __typename?: 'PaginatedTags';
+  tags: Array<Tag>;
+  hasMore: Scalars['Boolean'];
+};
+
 /** The Tags model */
 export type Tag = {
   __typename?: 'Tag';
@@ -349,7 +375,7 @@ export type Tag = {
   /** Tag description */
   description?: Maybe<Scalars['String']>;
   community: Community;
-  posts: Array<Post>;
+  posts: PaginatedPosts;
   /** The number of posts with this tag */
   postCount: Scalars['Int'];
   isActive: Scalars['Boolean'];
@@ -383,6 +409,11 @@ export type PostOptionsInput = {
   tagIds?: Maybe<Array<Scalars['String']>>;
 };
 
+export type TagOptionsInput = {
+  /** Specifies the community id */
+  communityId?: Maybe<Scalars['String']>;
+};
+
 /** Community highlighted tag model */
 export type HighlightedTag = {
   __typename?: 'HighlightedTag';
@@ -390,12 +421,6 @@ export type HighlightedTag = {
   tag: Tag;
   /** The order of the community highlighted tag */
   order: Scalars['Int'];
-};
-
-export type PaginatedPosts = {
-  __typename?: 'PaginatedPosts';
-  posts: Array<Post>;
-  hasMore: Scalars['Boolean'];
 };
 
 export type CommunityResponse = {
@@ -438,7 +463,7 @@ export type UsersResponse = {
 export type TagsResponse = {
   __typename?: 'TagsResponse';
   errors?: Maybe<Array<ErrorResponse>>;
-  tags?: Maybe<Array<Tag>>;
+  paginatedTags?: Maybe<PaginatedTags>;
 };
 
 export type TagResponse = {
@@ -915,10 +940,14 @@ export type CreatePostMutation = (
       & { mainMedia?: Maybe<(
         { __typename?: 'Media' }
         & Pick<Media, 'url'>
-      )>, tags: Array<(
-        { __typename?: 'Tag' }
-        & Pick<Tag, 'title'>
-      )> }
+      )>, tags: (
+        { __typename?: 'PaginatedTags' }
+        & Pick<PaginatedTags, 'hasMore'>
+        & { tags: Array<(
+          { __typename?: 'Tag' }
+          & Pick<Tag, 'title'>
+        )> }
+      ) }
     )> }
   ) }
 );
@@ -1162,11 +1191,15 @@ export type UpdatePostMutation = (
       & Pick<Post, '_id' | 'title' | 'formattedTitle' | 'slug' | 'description' | 'status' | 'content' | 'exclusive'>
       & { mainMedia?: Maybe<(
         { __typename?: 'Media' }
-        & Pick<Media, '_id' | 'url' | 'thumbnailUrl' | 'format'>
-      )>, tags: Array<(
-        { __typename?: 'Tag' }
-        & Pick<Tag, '_id' | 'title'>
-      )> }
+        & Pick<Media, '_id' | 'url' | 'thumbnailUrl' | 'format' | 'width' | 'height'>
+      )>, tags: (
+        { __typename?: 'PaginatedTags' }
+        & Pick<PaginatedTags, 'hasMore'>
+        & { tags: Array<(
+          { __typename?: 'Tag' }
+          & Pick<Tag, '_id' | 'title' | 'postCount'>
+        )> }
+      ) }
     )> }
   )> }
 );
@@ -1195,10 +1228,14 @@ export type UpdatePostMainImageMutation = (
           { __typename?: 'File' }
           & Pick<File, 'name' | 'size' | 'extension' | 'type'>
         ) }
-      )>, tags: Array<(
-        { __typename?: 'Tag' }
-        & Pick<Tag, '_id' | 'title'>
-      )> }
+      )>, tags: (
+        { __typename?: 'PaginatedTags' }
+        & Pick<PaginatedTags, 'hasMore'>
+        & { tags: Array<(
+          { __typename?: 'Tag' }
+          & Pick<Tag, '_id' | 'title'>
+        )> }
+      ) }
     )> }
   ) }
 );
@@ -1297,27 +1334,23 @@ export type AdminPostsQuery = (
   ) }
 );
 
-export type CommunityAdminCategoriesQueryVariables = Exact<{
-  slug: Scalars['String'];
+export type AdminTagsQueryVariables = Exact<{
+  limit: Scalars['Int'];
+  cursor?: Maybe<Scalars['String']>;
+  tagOptions?: Maybe<TagOptionsInput>;
 }>;
 
 
-export type CommunityAdminCategoriesQuery = (
+export type AdminTagsQuery = (
   { __typename?: 'Query' }
-  & { community: (
-    { __typename?: 'CommunityResponse' }
-    & { errors?: Maybe<Array<(
-      { __typename?: 'ErrorResponse' }
-      & Pick<ErrorResponse, 'field' | 'message'>
-    )>>, community?: Maybe<(
-      { __typename?: 'Community' }
-      & Pick<Community, 'title'>
-      & { creator: (
-        { __typename?: 'User' }
-        & Pick<User, 'name' | 'surname'>
-      ), tags: Array<(
+  & { tags: (
+    { __typename?: 'TagsResponse' }
+    & { paginatedTags?: Maybe<(
+      { __typename?: 'PaginatedTags' }
+      & Pick<PaginatedTags, 'hasMore'>
+      & { tags: Array<(
         { __typename?: 'Tag' }
-        & Pick<Tag, '_id' | 'title' | 'slug' | 'description' | 'postCount'>
+        & Pick<Tag, '_id' | 'title' | 'slug' | 'description' | 'postCount' | 'createdAt'>
       )> }
     )> }
   ) }
@@ -1464,14 +1497,18 @@ export type CommunityTagPostsQuery = (
     )>>, tag?: Maybe<(
       { __typename?: 'Tag' }
       & Pick<Tag, 'title' | 'description' | 'postCount' | 'slug'>
-      & { posts: Array<(
-        { __typename?: 'Post' }
-        & Pick<Post, 'title' | 'description' | 'exclusive' | 'likes' | 'slug'>
-        & { mainMedia?: Maybe<(
-          { __typename?: 'Media' }
-          & Pick<Media, 'url' | 'thumbnailUrl' | 'format'>
+      & { posts: (
+        { __typename?: 'PaginatedPosts' }
+        & Pick<PaginatedPosts, 'hasMore'>
+        & { posts: Array<(
+          { __typename?: 'Post' }
+          & Pick<Post, 'title' | 'description' | 'exclusive' | 'likes' | 'slug'>
+          & { mainMedia?: Maybe<(
+            { __typename?: 'Media' }
+            & Pick<Media, 'url' | 'thumbnailUrl' | 'format'>
+          )> }
         )> }
-      )>, community: (
+      ), community: (
         { __typename?: 'Community' }
         & { banner?: Maybe<(
           { __typename?: 'Media' }
@@ -1499,10 +1536,14 @@ export type FindCommunityTagsByUserInputQuery = (
     & { errors?: Maybe<Array<(
       { __typename?: 'ErrorResponse' }
       & Pick<ErrorResponse, 'field' | 'message'>
-    )>>, tags?: Maybe<Array<(
-      { __typename?: 'Tag' }
-      & Pick<Tag, '_id' | 'title' | 'postCount'>
-    )>> }
+    )>>, paginatedTags?: Maybe<(
+      { __typename?: 'PaginatedTags' }
+      & Pick<PaginatedTags, 'hasMore'>
+      & { tags: Array<(
+        { __typename?: 'Tag' }
+        & Pick<Tag, '_id' | 'title' | 'postCount'>
+      )> }
+    )> }
   ) }
 );
 
@@ -1526,6 +1567,7 @@ export type GetCommunitiesSlugsQuery = (
 export type GetCommunityHomeDataQueryVariables = Exact<{
   slug: Scalars['String'];
   postsStatus: PostStatus;
+  postsPerTag: Scalars['Int'];
 }>;
 
 
@@ -1550,14 +1592,18 @@ export type GetCommunityHomeDataQuery = (
         & { tag: (
           { __typename?: 'Tag' }
           & Pick<Tag, 'title' | 'slug' | 'postCount'>
-          & { posts: Array<(
-            { __typename?: 'Post' }
-            & Pick<Post, 'title' | 'slug' | 'likes' | 'exclusive'>
-            & { mainMedia?: Maybe<(
-              { __typename?: 'Media' }
-              & Pick<Media, 'thumbnailUrl'>
+          & { posts: (
+            { __typename?: 'PaginatedPosts' }
+            & Pick<PaginatedPosts, 'hasMore'>
+            & { posts: Array<(
+              { __typename?: 'Post' }
+              & Pick<Post, 'title' | 'slug' | 'likes' | 'exclusive'>
+              & { mainMedia?: Maybe<(
+                { __typename?: 'Media' }
+                & Pick<Media, 'thumbnailUrl'>
+              )> }
             )> }
-          )> }
+          ) }
         ) }
       )>, creator: (
         { __typename?: 'User' }
@@ -1614,10 +1660,14 @@ export type GetPostByIdQuery = (
       & { mainMedia?: Maybe<(
         { __typename?: 'Media' }
         & Pick<Media, '_id' | 'url' | 'thumbnailUrl' | 'format' | 'width' | 'height'>
-      )>, tags: Array<(
-        { __typename?: 'Tag' }
-        & Pick<Tag, '_id' | 'title' | 'postCount'>
-      )> }
+      )>, tags: (
+        { __typename?: 'PaginatedTags' }
+        & Pick<PaginatedTags, 'hasMore'>
+        & { tags: Array<(
+          { __typename?: 'Tag' }
+          & Pick<Tag, '_id' | 'title' | 'postCount'>
+        )> }
+      ) }
     )> }
   )> }
 );
@@ -1692,10 +1742,14 @@ export type PostBySlugsQuery = (
       )>, creator: (
         { __typename?: 'User' }
         & CreatorNameFragment
-      ), tags: Array<(
-        { __typename?: 'Tag' }
-        & Pick<Tag, 'title'>
-      )>, community: (
+      ), tags: (
+        { __typename?: 'PaginatedTags' }
+        & Pick<PaginatedTags, 'hasMore'>
+        & { tags: Array<(
+          { __typename?: 'Tag' }
+          & Pick<Tag, 'title'>
+        )> }
+      ), community: (
         { __typename?: 'Community' }
         & Pick<Community, 'title' | 'slug'>
         & { creator: (
@@ -1838,8 +1892,11 @@ export const CreatePostDocument = gql`
         url
       }
       exclusive
-      tags {
-        title
+      tags(limit: 10) {
+        tags {
+          title
+        }
+        hasMore
       }
     }
   }
@@ -2326,12 +2383,18 @@ export const UpdatePostDocument = gql`
         url
         thumbnailUrl
         format
+        width
+        height
       }
       content
       exclusive
-      tags {
-        _id
-        title
+      tags(limit: 10) {
+        tags {
+          _id
+          title
+          postCount
+        }
+        hasMore
       }
     }
   }
@@ -2399,9 +2462,12 @@ export const UpdatePostMainImageDocument = gql`
       }
       content
       exclusive
-      tags {
-        _id
-        title
+      tags(limit: 10) {
+        tags {
+          _id
+          title
+        }
+        hasMore
       }
     }
   }
@@ -2620,56 +2686,51 @@ export function useAdminPostsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions
 export type AdminPostsQueryHookResult = ReturnType<typeof useAdminPostsQuery>;
 export type AdminPostsLazyQueryHookResult = ReturnType<typeof useAdminPostsLazyQuery>;
 export type AdminPostsQueryResult = Apollo.QueryResult<AdminPostsQuery, AdminPostsQueryVariables>;
-export const CommunityAdminCategoriesDocument = gql`
-    query communityAdminCategories($slug: String!) {
-  community(slug: $slug) {
-    errors {
-      field
-      message
-    }
-    community {
-      title
-      creator {
-        name
-        surname
-      }
-      tags(limit: 10) {
+export const AdminTagsDocument = gql`
+    query adminTags($limit: Int!, $cursor: String, $tagOptions: TagOptionsInput) {
+  tags(limit: $limit, cursor: $cursor, tagOptions: $tagOptions) {
+    paginatedTags {
+      tags {
         _id
         title
         slug
         description
         postCount
+        createdAt
       }
+      hasMore
     }
   }
 }
     `;
 
 /**
- * __useCommunityAdminCategoriesQuery__
+ * __useAdminTagsQuery__
  *
- * To run a query within a React component, call `useCommunityAdminCategoriesQuery` and pass it any options that fit your needs.
- * When your component renders, `useCommunityAdminCategoriesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useAdminTagsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useAdminTagsQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useCommunityAdminCategoriesQuery({
+ * const { data, loading, error } = useAdminTagsQuery({
  *   variables: {
- *      slug: // value for 'slug'
+ *      limit: // value for 'limit'
+ *      cursor: // value for 'cursor'
+ *      tagOptions: // value for 'tagOptions'
  *   },
  * });
  */
-export function useCommunityAdminCategoriesQuery(baseOptions: Apollo.QueryHookOptions<CommunityAdminCategoriesQuery, CommunityAdminCategoriesQueryVariables>) {
-        return Apollo.useQuery<CommunityAdminCategoriesQuery, CommunityAdminCategoriesQueryVariables>(CommunityAdminCategoriesDocument, baseOptions);
+export function useAdminTagsQuery(baseOptions: Apollo.QueryHookOptions<AdminTagsQuery, AdminTagsQueryVariables>) {
+        return Apollo.useQuery<AdminTagsQuery, AdminTagsQueryVariables>(AdminTagsDocument, baseOptions);
       }
-export function useCommunityAdminCategoriesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<CommunityAdminCategoriesQuery, CommunityAdminCategoriesQueryVariables>) {
-          return Apollo.useLazyQuery<CommunityAdminCategoriesQuery, CommunityAdminCategoriesQueryVariables>(CommunityAdminCategoriesDocument, baseOptions);
+export function useAdminTagsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<AdminTagsQuery, AdminTagsQueryVariables>) {
+          return Apollo.useLazyQuery<AdminTagsQuery, AdminTagsQueryVariables>(AdminTagsDocument, baseOptions);
         }
-export type CommunityAdminCategoriesQueryHookResult = ReturnType<typeof useCommunityAdminCategoriesQuery>;
-export type CommunityAdminCategoriesLazyQueryHookResult = ReturnType<typeof useCommunityAdminCategoriesLazyQuery>;
-export type CommunityAdminCategoriesQueryResult = Apollo.QueryResult<CommunityAdminCategoriesQuery, CommunityAdminCategoriesQueryVariables>;
+export type AdminTagsQueryHookResult = ReturnType<typeof useAdminTagsQuery>;
+export type AdminTagsLazyQueryHookResult = ReturnType<typeof useAdminTagsLazyQuery>;
+export type AdminTagsQueryResult = Apollo.QueryResult<AdminTagsQuery, AdminTagsQueryVariables>;
 export const CommunityAdminConfigBrandingDocument = gql`
     query communityAdminConfigBranding($slug: String!) {
   community(slug: $slug) {
@@ -2916,16 +2977,19 @@ export const CommunityTagPostsDocument = gql`
       postCount(postOptions: {status: PUBLISHED})
       slug
       posts(limit: 10, postOptions: {status: PUBLISHED}) {
-        title
-        description
-        exclusive
-        likes
-        slug
-        mainMedia {
-          url
-          thumbnailUrl
-          format
+        posts {
+          title
+          description
+          exclusive
+          likes
+          slug
+          mainMedia {
+            url
+            thumbnailUrl
+            format
+          }
         }
+        hasMore
       }
       community {
         ...CommonCommunity
@@ -2973,10 +3037,13 @@ export const FindCommunityTagsByUserInputDocument = gql`
       field
       message
     }
-    tags {
-      _id
-      title
-      postCount(postOptions: {status: PUBLISHED})
+    paginatedTags {
+      tags {
+        _id
+        title
+        postCount(postOptions: {status: PUBLISHED})
+      }
+      hasMore
     }
   }
 }
@@ -3047,7 +3114,7 @@ export type GetCommunitiesSlugsQueryHookResult = ReturnType<typeof useGetCommuni
 export type GetCommunitiesSlugsLazyQueryHookResult = ReturnType<typeof useGetCommunitiesSlugsLazyQuery>;
 export type GetCommunitiesSlugsQueryResult = Apollo.QueryResult<GetCommunitiesSlugsQuery, GetCommunitiesSlugsQueryVariables>;
 export const GetCommunityHomeDataDocument = gql`
-    query getCommunityHomeData($slug: String!, $postsStatus: PostStatus!) {
+    query getCommunityHomeData($slug: String!, $postsStatus: PostStatus!, $postsPerTag: Int!) {
   community(slug: $slug) {
     errors {
       field
@@ -3070,14 +3137,17 @@ export const GetCommunityHomeDataDocument = gql`
           title
           slug
           postCount(postOptions: {status: $postsStatus})
-          posts(limit: 10, postOptions: {status: $postsStatus}) {
-            title
-            slug
-            likes
-            exclusive
-            mainMedia {
-              thumbnailUrl
+          posts(limit: $postsPerTag, postOptions: {status: $postsStatus}) {
+            posts {
+              title
+              slug
+              likes
+              exclusive
+              mainMedia {
+                thumbnailUrl
+              }
             }
+            hasMore
           }
         }
       }
@@ -3106,6 +3176,7 @@ export const GetCommunityHomeDataDocument = gql`
  *   variables: {
  *      slug: // value for 'slug'
  *      postsStatus: // value for 'postsStatus'
+ *      postsPerTag: // value for 'postsPerTag'
  *   },
  * });
  */
@@ -3191,10 +3262,13 @@ export const GetPostByIdDocument = gql`
       }
       content
       exclusive
-      tags {
-        _id
-        title
-        postCount
+      tags(limit: 10) {
+        tags {
+          _id
+          title
+          postCount
+        }
+        hasMore
       }
     }
   }
@@ -3336,8 +3410,11 @@ export const PostBySlugsDocument = gql`
       creator {
         ...CreatorName
       }
-      tags {
-        title
+      tags(limit: 10) {
+        tags {
+          title
+        }
+        hasMore
       }
       community {
         title

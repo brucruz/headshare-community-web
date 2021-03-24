@@ -1,4 +1,4 @@
-query CommunityTagPosts ($data: FindByTagsInput!) {
+query CommunityTagPosts($data: FindByTagsInput!) {
   findTagBySlugs(data: $data) {
     errors {
       field
@@ -10,16 +10,19 @@ query CommunityTagPosts ($data: FindByTagsInput!) {
       postCount(postOptions: { status: PUBLISHED })
       slug
       posts(limit: 10, postOptions: { status: PUBLISHED }) {
-        title
-        description
-        exclusive
-        likes
-        slug
-        mainMedia {
-          url
-          thumbnailUrl
-          format
+        posts {
+          title
+          description
+          exclusive
+          likes
+          slug
+          mainMedia {
+            url
+            thumbnailUrl
+            format
+          }
         }
+        hasMore
       }
       community {
         ...CommonCommunity

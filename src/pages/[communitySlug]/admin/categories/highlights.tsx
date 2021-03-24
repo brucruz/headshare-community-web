@@ -14,6 +14,7 @@ import {
   useCommunityAdminHighlightedTagsQuery,
   useUpdateCommunityHighlightTagsMutation,
 } from '../../../../generated/graphql';
+import { useSnackbar } from '../../../../hooks/useSnackbar';
 import {
   HighlightCategoriesSection,
   HighlightCategoriesSelection,
@@ -30,6 +31,7 @@ function HighlightCategories(): JSX.Element {
   const [orderedTags, setOrderedTags] = useState<OrderedTag[]>([]);
 
   const router = useRouter();
+  const { addSnackbar } = useSnackbar();
 
   const { communitySlug } = router.query as { communitySlug: string };
 
@@ -83,6 +85,10 @@ function HighlightCategories(): JSX.Element {
         highlightedTags: newOrderedTagsIds,
       },
     });
+
+    addSnackbar({
+      message: 'Categoria adicionada com sucesso',
+    });
   }
 
   async function handleUpdateHighlightedTags(
@@ -110,6 +116,10 @@ function HighlightCategories(): JSX.Element {
           id: community?.community.community?._id,
           highlightedTags: newTagsIds,
         },
+      });
+
+      addSnackbar({
+        message: 'Categorias em destaque atualizadas com sucesso',
       });
     }
   }

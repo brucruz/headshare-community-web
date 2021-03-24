@@ -8,11 +8,12 @@ import Modal from '../../../../components/Modal';
 import { OptionsMenu } from '../../../../components/OptionsMenu';
 import { AdminPageTemplate } from '../../../../components/templates/AdminPageTemplate';
 import {
-  useCommunityAdminCategoriesQuery,
   useUpdateCategoryMutation,
   useCreateCommunityTagMutation,
   Tag,
   useDeleteTagMutation,
+  useGetCommunityBasicDataQuery,
+  useAdminTagsLazyQuery,
 } from '../../../../generated/graphql';
 import { useAuth } from '../../../../hooks/useAuth';
 import {
@@ -302,11 +303,35 @@ function AdminCategories(): JSX.Element {
 
   const { communitySlug } = router.query as { communitySlug: string };
 
-  const { loading, data, error } = useCommunityAdminCategoriesQuery({
+  // const { loading, data, error } = useCommunityAdminCategoriesQuery({
+  //   variables: {
+  //     slug: communitySlug,
+  //   },
+  // });
+
+  const { data: communityData } = useGetCommunityBasicDataQuery({
     variables: {
       slug: communitySlug,
     },
   });
+
+  const [
+    loadTags,
+    { data: tagsData, loading, error, fetchMore, variables },
+  ] = useAdminTagsLazyQuery({
+    variables: {
+      limit: 5,
+      cursor: null,
+      tagOptions: {
+        communityId: communityData?.community.community?._id,
+      },
+    },
+    notifyOnNetworkStatusChange: true,
+  });
+
+  useEffect(() => {
+    communityData && loadTags();
+  }, [communityData, loadTags]);
 
   const { isCreator } = useAuth();
   const [createCategory] = useCreateCommunityTagMutation();
@@ -350,15 +375,14 @@ function AdminCategories(): JSX.Element {
     );
   }
 
-  const community = data && data.community && data.community.community;
+  const community =
+    communityData &&
+    communityData.community &&
+    communityData.community.community;
 
   useEffect(() => {
-    community && setCategories(community.tags);
-  }, [community]);
-
-  if (!data && loading) {
-    return <div />;
-  }
+    tagsData && setCategories(tagsData.tags.paginatedTags?.tags || []);
+  }, [tagsData]);
 
   if ((!loading && error) || !community) {
     return (
@@ -413,6 +437,12 @@ function AdminCategories(): JSX.Element {
       ]}
     >
       <AdminCategoryList>
+        {!tagsData && loading && <div>Carregando...</div>}
+
+        {!tagsData && !loading && (
+          <div>Você ainda não tem categorias criadas</div>
+        )}
+
         {categories.map(tag => (
           <AdminCategory key={tag._id}>
             <CategoryCard
@@ -426,6 +456,26 @@ function AdminCategories(): JSX.Element {
             />
           </AdminCategory>
         ))}
+
+        {tagsData && tagsData.tags.paginatedTags?.hasMore && (
+          <Button
+            isLoading={loading}
+            text="Carregar mais"
+            style={{ margin: '15px auto' }}
+            onClick={() => {
+              fetchMore &&
+                fetchMore({
+                  variables: {
+                    limit: variables?.limit,
+                    cursor:
+                      tagsData.tags.paginatedTags?.tags[
+                        tagsData.tags.paginatedTags?.tags.length - 1
+                      ].createdAt,
+                  },
+                });
+            }}
+          />
+        )}
       </AdminCategoryList>
 
       <Modal

@@ -81,7 +81,11 @@ function CommunityHome(): JSX.Element {
   const { isCreator } = useAuth();
 
   const { data, loading } = useGetCommunityHomeDataQuery({
-    variables: { slug: communitySlug, postsStatus: PostStatus.Published },
+    variables: {
+      slug: communitySlug,
+      postsStatus: PostStatus.Published,
+      postsPerTag: 10,
+    },
   });
 
   const [createPost] = useCreatePostMutation();
@@ -178,7 +182,7 @@ function CommunityHome(): JSX.Element {
 
                     <CategoryPosts>
                       {highlightedTag.tag.postCount <= 10 ? (
-                        highlightedTag.tag.posts.map(post => (
+                        highlightedTag.tag.posts.posts.map(post => (
                           <PostCard
                             key={post.slug}
                             title={post.title || 'Draft'}

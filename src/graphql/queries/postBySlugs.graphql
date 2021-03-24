@@ -1,4 +1,4 @@
-query PostBySlugs ($data: FindBySlugsInput!) {
+query PostBySlugs($data: FindBySlugsInput!) {
   findPostBySlugs(data: $data) {
     errors {
       field
@@ -20,8 +20,11 @@ query PostBySlugs ($data: FindBySlugsInput!) {
       creator {
         ...CreatorName
       }
-      tags {
-        title
+      tags(limit: 10) {
+        tags {
+          title
+        }
+        hasMore
       }
       community {
         title

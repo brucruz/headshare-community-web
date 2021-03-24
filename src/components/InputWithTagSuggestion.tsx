@@ -56,11 +56,11 @@ export function InputWithTagSuggestion({
       if (
         foundTags &&
         foundTags.findTagsByInput &&
-        foundTags.findTagsByInput.tags
+        foundTags.findTagsByInput.paginatedTags?.tags
       ) {
         const selectedTagIds = selectedTags.map(tag => tag._id);
 
-        const filteredResults = foundTags.findTagsByInput.tags.filter(
+        const filteredResults = foundTags.findTagsByInput.paginatedTags.tags.filter(
           tag => !selectedTagIds.includes(tag._id),
         );
 

@@ -21,10 +21,13 @@ query GetPostById($id: String!) {
       }
       content
       exclusive
-      tags {
-        _id
-        title
-        postCount
+      tags(limit: 10) {
+        tags {
+          _id
+          title
+          postCount
+        }
+        hasMore
       }
     }
   }

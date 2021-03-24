@@ -98,7 +98,7 @@ const contentEditorConfig: RawEditorSettings & {
     'link',
     'lists',
     'media',
-    'powerpaste',
+    // 'powerpaste',
     'table',
     'image',
     'quickbars',
@@ -111,8 +111,8 @@ const contentEditorConfig: RawEditorSettings & {
   quickbars_selection_toolbar:
     'bold italic underline | formatselect | blockquote quicklink',
   contextmenu: 'undo redo | inserttable | cell row column deletetable | help',
-  powerpaste_word_import: 'clean',
-  powerpaste_html_import: 'clean',
+  // powerpaste_word_import: 'clean',
+  // powerpaste_html_import: 'clean',
   block_formats:
     'Paragraph=p;Heading 2=h2;Heading 3=h3;Heading 4=h4;Heading 5=h5;',
 };

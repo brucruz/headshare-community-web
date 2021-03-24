@@ -16,6 +16,7 @@ import { OptionsMenu } from './OptionsMenu';
 import { MenuItemProps } from './MenuItem';
 import { PostStatus, useDeletePostMutation } from '../generated/graphql';
 import { ConfirmationModal } from './ConfirmationModal';
+import { useSnackbar } from '../hooks/useSnackbar';
 
 interface PostCardProps {
   id: string;
@@ -78,6 +79,8 @@ export function PostCard({
     string | undefined
   >(undefined);
 
+  const { addSnackbar } = useSnackbar();
+
   const [deletePost] = useDeletePostMutation();
 
   function openConfirmationModal(): void {
@@ -137,11 +140,19 @@ export function PostCard({
 
       if (data?.deletePost.success === false) {
         setConfirmationError('Houve um erro na sua requisição');
+
+        addSnackbar({
+          message: 'Erro ao tentar excluir seu post',
+        });
       }
 
       if (data?.deletePost.success === true) {
         setIsOpenConfirmationModal(false);
         removePost && removePost(id);
+
+        addSnackbar({
+          message: 'Post excluído com sucesso',
+        });
       }
     }
 

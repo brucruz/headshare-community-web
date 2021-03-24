@@ -17,6 +17,7 @@ import {
   useUploadImageMutation,
   useUpdatePostMainMediaThumbnailMutation,
   useDeletePostMainMediaMutation,
+  PaginatedTags,
 } from '../../generated/graphql';
 import {
   ImageVideoIcon,
@@ -91,7 +92,17 @@ function NewPost(): JSX.Element {
               >)
             | null
             | undefined;
-          tags: Array<{ __typename?: 'Tag' } & Pick<Tag, '_id' | 'title'>>;
+          tags: { __typename?: 'PaginatedTags' } & Pick<
+            PaginatedTags,
+            'hasMore'
+          > & {
+              tags: Array<
+                { __typename?: 'Tag' } & Pick<
+                  Tag,
+                  '_id' | 'title' | 'postCount'
+                >
+              >;
+            };
         })
     | undefined
     | null
@@ -220,7 +231,7 @@ function NewPost(): JSX.Element {
 
       setSlug(postData.findPostById.post.slug);
 
-      setTags(postData.findPostById.post.tags);
+      setTags(postData.findPostById.post.tags.tags);
 
       postData.findPostById.post.exclusive &&
         setExclusive(postData.findPostById.post.exclusive);

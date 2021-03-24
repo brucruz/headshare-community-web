@@ -1,17 +1,16 @@
 query FindCommunityTagsByUserInput($communitySlug: String!, $input: String!) {
-  findTagsByInput(data: {
-    communitySlug: $communitySlug
-    userInput: $input
-  })
-  {
+  findTagsByInput(data: { communitySlug: $communitySlug, userInput: $input }) {
     errors {
       field
       message
     }
-    tags {
-      _id
-      title
-      postCount(postOptions: { status: PUBLISHED })
+    paginatedTags {
+      tags {
+        _id
+        title
+        postCount(postOptions: { status: PUBLISHED })
+      }
+      hasMore
     }
   }
 }

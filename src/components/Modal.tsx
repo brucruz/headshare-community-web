@@ -31,6 +31,7 @@ const Modal = ({ children, isOpen, setIsOpen }: ModalProps): ReactElement => (
       },
       overlay: {
         backgroundColor: 'rgba(0,0,0, 0.25)',
+        zIndex: 999,
       },
     }}
   >

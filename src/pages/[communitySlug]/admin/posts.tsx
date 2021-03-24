@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-non-null-asserted-optional-chain */
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable no-underscore-dangle */
 import { useRouter } from 'next/router';
 import { useCallback, useEffect, useState } from 'react';
@@ -7,13 +5,10 @@ import Button from '../../../components/Button';
 import { PostCard } from '../../../components/PostCard';
 import { AdminPageTemplate } from '../../../components/templates/AdminPageTemplate';
 import {
-  CommunityAdminPostsQuery,
   Maybe,
   Media,
   Post,
-  PostStatus,
-  useAdminPostsQuery,
-  useCommunityAdminPostsQuery,
+  useAdminPostsLazyQuery,
   useCreatePostMutation,
   useGetCommunityBasicDataQuery,
 } from '../../../generated/graphql';
@@ -41,13 +36,10 @@ function AdminPosts(): JSX.Element {
     },
   });
 
-  const {
-    data: postsData,
-    loading,
-    error,
-    fetchMore,
-    variables,
-  } = useAdminPostsQuery({
+  const [
+    loadPosts,
+    { data: postsData, loading, error, fetchMore, variables },
+  ] = useAdminPostsLazyQuery({
     variables: {
       limit: 5,
       cursor: null,
@@ -58,20 +50,9 @@ function AdminPosts(): JSX.Element {
     notifyOnNetworkStatusChange: true,
   });
 
-  // const {
-  //   loading,
-  //   data,
-  //   error,
-  //   fetchMore,
-  //   variables,
-  // } = useCommunityAdminPostsQuery({
-  //   variables: {
-  //     slug: communitySlug,
-  //     limit: 5,
-  //     cursor: null,
-  //   },
-  //   notifyOnNetworkStatusChange: true,
-  // });
+  useEffect(() => {
+    communityData && loadPosts();
+  }, [communityData, loadPosts]);
 
   const { isCreator } = useAuth();
   const [createPost] = useCreatePostMutation();
@@ -153,7 +134,6 @@ function AdminPosts(): JSX.Element {
 
         {!postsData && !loading && <div>Você ainda não tem posts criados</div>}
 
-        {/* {data?.community.community?.paginatedPosts.posts.map(post => ( */}
         {posts.map(post => (
           <AdminPost key={post._id}>
             <PostCard
@@ -180,15 +160,16 @@ function AdminPosts(): JSX.Element {
             text="Carregar mais"
             style={{ margin: '15px auto' }}
             onClick={() => {
-              fetchMore({
-                variables: {
-                  limit: variables?.limit,
-                  cursor:
-                    postsData.posts.paginatedPosts?.posts[
-                      postsData.posts.paginatedPosts?.posts.length - 1
-                    ].createdAt,
-                },
-              });
+              fetchMore &&
+                fetchMore({
+                  variables: {
+                    limit: variables?.limit,
+                    cursor:
+                      postsData.posts.paginatedPosts?.posts[
+                        postsData.posts.paginatedPosts?.posts.length - 1
+                      ].createdAt,
+                  },
+                });
             }}
           />
         )}

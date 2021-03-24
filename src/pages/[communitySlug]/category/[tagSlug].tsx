@@ -104,7 +104,7 @@ function TagPosts(): JSX.Element {
       </PostCountContainer>
 
       <TagPostsContainer>
-        {tag.posts.map(post => (
+        {tag.posts.posts.map(post => (
           <TagPost
             key={post.slug}
             title={post.title || 'Título'}

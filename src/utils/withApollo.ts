@@ -7,7 +7,7 @@ import {
   NormalizedCacheObject,
 } from '@apollo/client';
 import { NextPageContext } from 'next';
-import { PostsResponse } from '../generated/graphql';
+import { PostsResponse, TagsResponse } from '../generated/graphql';
 
 const cache: ApolloCache<NormalizedCacheObject> = new InMemoryCache({
   typePolicies: {
@@ -19,7 +19,6 @@ const cache: ApolloCache<NormalizedCacheObject> = new InMemoryCache({
             existing: PostsResponse | undefined,
             incoming: PostsResponse,
           ): PostsResponse {
-            // ): void {
             const paginatedPosts: PostsResponse = {
               ...incoming,
               paginatedPosts: {
@@ -33,6 +32,27 @@ const cache: ApolloCache<NormalizedCacheObject> = new InMemoryCache({
             };
 
             return paginatedPosts;
+          },
+        },
+        tags: {
+          keyArgs: false,
+          merge(
+            existing: TagsResponse | undefined,
+            incoming: TagsResponse,
+          ): TagsResponse {
+            const paginatedTags: TagsResponse = {
+              ...incoming,
+              paginatedTags: {
+                __typename: 'PaginatedTags',
+                hasMore: incoming.paginatedTags?.hasMore || false,
+                tags: [
+                  ...(existing?.paginatedTags?.tags || []),
+                  ...(incoming.paginatedTags?.tags || []),
+                ],
+              },
+            };
+
+            return paginatedTags;
           },
         },
       },

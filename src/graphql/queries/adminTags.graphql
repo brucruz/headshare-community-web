@@ -1,0 +1,19 @@
+query adminTags(
+  $limit: Int!
+  $cursor: String
+  $tagOptions: TagOptionsInput
+) {
+  tags(limit: $limit, cursor: $cursor, tagOptions: $tagOptions) {
+    paginatedTags {
+      tags {
+        _id
+        title
+        slug
+        description
+        postCount
+        createdAt
+      }
+      hasMore
+    }
+  }
+}
