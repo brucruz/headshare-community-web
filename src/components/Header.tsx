@@ -85,9 +85,9 @@ const Header: React.FC<HeaderProps> = ({
     }
   }, [userData, communitySlug, setMe, setIsCreator, setIsMember]);
 
-  const handleLogout = useCallback(() => {
+  const handleLogout = useCallback(async () => {
     logout();
-    apolloClient.resetStore();
+    await apolloClient.resetStore();
     setMe(undefined);
 
     if (router.pathname === '/[communitySlug]') {

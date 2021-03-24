@@ -59,6 +59,7 @@ export type QueryCommunityArgs = {
 
 
 export type QueryPostsArgs = {
+  postOptions?: Maybe<PostOptionsInput>;
   cursor?: Maybe<Scalars['String']>;
   limit: Scalars['Int'];
 };
@@ -167,11 +168,19 @@ export type Community = {
   createdAt: Scalars['DateTime'];
   /** Community last update date */
   updatedAt?: Maybe<Scalars['DateTime']>;
+  paginatedPosts: PaginatedPosts;
 };
 
 
 /** The Communities model */
 export type CommunityTagsArgs = {
+  cursor?: Maybe<Scalars['String']>;
+  limit: Scalars['Int'];
+};
+
+
+/** The Communities model */
+export type CommunityPaginatedPostsArgs = {
   cursor?: Maybe<Scalars['String']>;
   limit: Scalars['Int'];
 };
@@ -368,6 +377,10 @@ export type TagPostCountArgs = {
 export type PostOptionsInput = {
   /** Specifies which post status should be retrieved */
   status?: Maybe<PostStatus>;
+  /** Specifies the community id */
+  communityId?: Maybe<Scalars['String']>;
+  /** Specifies the tag ids */
+  tagIds?: Maybe<Array<Scalars['String']>>;
 };
 
 /** Community highlighted tag model */
@@ -379,6 +392,12 @@ export type HighlightedTag = {
   order: Scalars['Int'];
 };
 
+export type PaginatedPosts = {
+  __typename?: 'PaginatedPosts';
+  posts: Array<Post>;
+  hasMore: Scalars['Boolean'];
+};
+
 export type CommunityResponse = {
   __typename?: 'CommunityResponse';
   errors?: Maybe<Array<ErrorResponse>>;
@@ -388,7 +407,7 @@ export type CommunityResponse = {
 export type PostsResponse = {
   __typename?: 'PostsResponse';
   errors?: Maybe<Array<ErrorResponse>>;
-  posts?: Maybe<Array<Post>>;
+  paginatedPosts?: Maybe<PaginatedPosts>;
 };
 
 export type PostResponse = {
@@ -1252,6 +1271,32 @@ export type UploadVideoMutation = (
   ) }
 );
 
+export type AdminPostsQueryVariables = Exact<{
+  limit: Scalars['Int'];
+  cursor?: Maybe<Scalars['String']>;
+  postOptions?: Maybe<PostOptionsInput>;
+}>;
+
+
+export type AdminPostsQuery = (
+  { __typename?: 'Query' }
+  & { posts: (
+    { __typename?: 'PostsResponse' }
+    & { paginatedPosts?: Maybe<(
+      { __typename?: 'PaginatedPosts' }
+      & Pick<PaginatedPosts, 'hasMore'>
+      & { posts: Array<(
+        { __typename?: 'Post' }
+        & Pick<Post, '_id' | 'title' | 'description' | 'slug' | 'status' | 'exclusive' | 'createdAt'>
+        & { mainMedia?: Maybe<(
+          { __typename?: 'Media' }
+          & Pick<Media, 'thumbnailUrl'>
+        )> }
+      )> }
+    )> }
+  ) }
+);
+
 export type CommunityAdminCategoriesQueryVariables = Exact<{
   slug: Scalars['String'];
 }>;
@@ -1356,36 +1401,6 @@ export type CommunityAdminHighlightedTagsQuery = (
         { __typename?: 'User' }
         & Pick<User, 'name' | 'surname'>
       ) }
-    )> }
-  ) }
-);
-
-export type CommunityAdminPostsQueryVariables = Exact<{
-  slug: Scalars['String'];
-}>;
-
-
-export type CommunityAdminPostsQuery = (
-  { __typename?: 'Query' }
-  & { community: (
-    { __typename?: 'CommunityResponse' }
-    & { errors?: Maybe<Array<(
-      { __typename?: 'ErrorResponse' }
-      & Pick<ErrorResponse, 'field' | 'message'>
-    )>>, community?: Maybe<(
-      { __typename?: 'Community' }
-      & Pick<Community, 'title'>
-      & { creator: (
-        { __typename?: 'User' }
-        & Pick<User, 'name' | 'surname'>
-      ), posts: Array<(
-        { __typename?: 'Post' }
-        & Pick<Post, '_id' | 'title' | 'description' | 'slug' | 'status' | 'exclusive'>
-        & { mainMedia?: Maybe<(
-          { __typename?: 'Media' }
-          & Pick<Media, 'thumbnailUrl'>
-        )> }
-      )> }
     )> }
   ) }
 );
@@ -1617,14 +1632,17 @@ export type GetPostsSlugsQuery = (
     & { errors?: Maybe<Array<(
       { __typename?: 'ErrorResponse' }
       & Pick<ErrorResponse, 'field' | 'message'>
-    )>>, posts?: Maybe<Array<(
-      { __typename?: 'Post' }
-      & Pick<Post, 'slug'>
-      & { community: (
-        { __typename?: 'Community' }
-        & Pick<Community, 'slug'>
-      ) }
-    )>> }
+    )>>, paginatedPosts?: Maybe<(
+      { __typename?: 'PaginatedPosts' }
+      & { posts: Array<(
+        { __typename?: 'Post' }
+        & Pick<Post, 'slug'>
+        & { community: (
+          { __typename?: 'Community' }
+          & Pick<Community, 'slug'>
+        ) }
+      )> }
+    )> }
   ) }
 );
 
@@ -2553,6 +2571,55 @@ export function useUploadVideoMutation(baseOptions?: Apollo.MutationHookOptions<
 export type UploadVideoMutationHookResult = ReturnType<typeof useUploadVideoMutation>;
 export type UploadVideoMutationResult = Apollo.MutationResult<UploadVideoMutation>;
 export type UploadVideoMutationOptions = Apollo.BaseMutationOptions<UploadVideoMutation, UploadVideoMutationVariables>;
+export const AdminPostsDocument = gql`
+    query adminPosts($limit: Int!, $cursor: String, $postOptions: PostOptionsInput) {
+  posts(limit: $limit, cursor: $cursor, postOptions: $postOptions) {
+    paginatedPosts {
+      posts {
+        _id
+        title
+        description
+        slug
+        status
+        mainMedia {
+          thumbnailUrl
+        }
+        exclusive
+        createdAt
+      }
+      hasMore
+    }
+  }
+}
+    `;
+
+/**
+ * __useAdminPostsQuery__
+ *
+ * To run a query within a React component, call `useAdminPostsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useAdminPostsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useAdminPostsQuery({
+ *   variables: {
+ *      limit: // value for 'limit'
+ *      cursor: // value for 'cursor'
+ *      postOptions: // value for 'postOptions'
+ *   },
+ * });
+ */
+export function useAdminPostsQuery(baseOptions: Apollo.QueryHookOptions<AdminPostsQuery, AdminPostsQueryVariables>) {
+        return Apollo.useQuery<AdminPostsQuery, AdminPostsQueryVariables>(AdminPostsDocument, baseOptions);
+      }
+export function useAdminPostsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<AdminPostsQuery, AdminPostsQueryVariables>) {
+          return Apollo.useLazyQuery<AdminPostsQuery, AdminPostsQueryVariables>(AdminPostsDocument, baseOptions);
+        }
+export type AdminPostsQueryHookResult = ReturnType<typeof useAdminPostsQuery>;
+export type AdminPostsLazyQueryHookResult = ReturnType<typeof useAdminPostsLazyQuery>;
+export type AdminPostsQueryResult = Apollo.QueryResult<AdminPostsQuery, AdminPostsQueryVariables>;
 export const CommunityAdminCategoriesDocument = gql`
     query communityAdminCategories($slug: String!) {
   community(slug: $slug) {
@@ -2753,60 +2820,6 @@ export function useCommunityAdminHighlightedTagsLazyQuery(baseOptions?: Apollo.L
 export type CommunityAdminHighlightedTagsQueryHookResult = ReturnType<typeof useCommunityAdminHighlightedTagsQuery>;
 export type CommunityAdminHighlightedTagsLazyQueryHookResult = ReturnType<typeof useCommunityAdminHighlightedTagsLazyQuery>;
 export type CommunityAdminHighlightedTagsQueryResult = Apollo.QueryResult<CommunityAdminHighlightedTagsQuery, CommunityAdminHighlightedTagsQueryVariables>;
-export const CommunityAdminPostsDocument = gql`
-    query communityAdminPosts($slug: String!) {
-  community(slug: $slug) {
-    errors {
-      field
-      message
-    }
-    community {
-      title
-      creator {
-        name
-        surname
-      }
-      posts {
-        _id
-        title
-        description
-        slug
-        status
-        mainMedia {
-          thumbnailUrl
-        }
-        exclusive
-      }
-    }
-  }
-}
-    `;
-
-/**
- * __useCommunityAdminPostsQuery__
- *
- * To run a query within a React component, call `useCommunityAdminPostsQuery` and pass it any options that fit your needs.
- * When your component renders, `useCommunityAdminPostsQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useCommunityAdminPostsQuery({
- *   variables: {
- *      slug: // value for 'slug'
- *   },
- * });
- */
-export function useCommunityAdminPostsQuery(baseOptions: Apollo.QueryHookOptions<CommunityAdminPostsQuery, CommunityAdminPostsQueryVariables>) {
-        return Apollo.useQuery<CommunityAdminPostsQuery, CommunityAdminPostsQueryVariables>(CommunityAdminPostsDocument, baseOptions);
-      }
-export function useCommunityAdminPostsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<CommunityAdminPostsQuery, CommunityAdminPostsQueryVariables>) {
-          return Apollo.useLazyQuery<CommunityAdminPostsQuery, CommunityAdminPostsQueryVariables>(CommunityAdminPostsDocument, baseOptions);
-        }
-export type CommunityAdminPostsQueryHookResult = ReturnType<typeof useCommunityAdminPostsQuery>;
-export type CommunityAdminPostsLazyQueryHookResult = ReturnType<typeof useCommunityAdminPostsLazyQuery>;
-export type CommunityAdminPostsQueryResult = Apollo.QueryResult<CommunityAdminPostsQuery, CommunityAdminPostsQueryVariables>;
 export const GetCommunityBasicDataDocument = gql`
     query getCommunityBasicData($slug: String!) {
   community(slug: $slug) {
@@ -3220,10 +3233,12 @@ export const GetPostsSlugsDocument = gql`
       field
       message
     }
-    posts {
-      slug
-      community {
+    paginatedPosts {
+      posts {
         slug
+        community {
+          slug
+        }
       }
     }
   }

@@ -4,6 +4,7 @@ interface ButtonProps {
   priority: 'primary' | 'secondary' | 'tertiary';
   stretch?: boolean;
   size: 'medium' | 'small';
+  isLoading?: boolean;
 }
 
 export const ButtonContainer = styled.button<ButtonProps>`
@@ -68,6 +69,18 @@ export const ButtonContainer = styled.button<ButtonProps>`
   ${props =>
     !props.disabled &&
     css`
+      &:hover {
+        box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+
+        opacity: 0.9;
+      }
+    `}
+
+  ${props =>
+    props.isLoading &&
+    css`
+      cursor: auto;
+
       &:hover {
         box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
 

@@ -7,6 +7,7 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   size?: 'medium' | 'small';
   icon?: any;
   stretch?: boolean;
+  isLoading?: boolean;
 }
 
 const Button: React.FC<ButtonProps> = ({
@@ -16,6 +17,7 @@ const Button: React.FC<ButtonProps> = ({
   disabled = false,
   size = 'medium',
   icon,
+  isLoading = false,
   ...rest
 }) => (
   <ButtonContainer
@@ -23,6 +25,7 @@ const Button: React.FC<ButtonProps> = ({
     priority={priority}
     stretch={stretch}
     size={size}
+    isLoading={isLoading}
     {...rest}
   >
     {icon && icon}

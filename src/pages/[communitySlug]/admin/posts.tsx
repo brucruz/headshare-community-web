@@ -1,14 +1,21 @@
+/* eslint-disable @typescript-eslint/no-non-null-asserted-optional-chain */
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable no-underscore-dangle */
 import { useRouter } from 'next/router';
 import { useCallback, useEffect, useState } from 'react';
+import Button from '../../../components/Button';
 import { PostCard } from '../../../components/PostCard';
 import { AdminPageTemplate } from '../../../components/templates/AdminPageTemplate';
 import {
+  CommunityAdminPostsQuery,
   Maybe,
   Media,
   Post,
+  PostStatus,
+  useAdminPostsQuery,
   useCommunityAdminPostsQuery,
   useCreatePostMutation,
+  useGetCommunityBasicDataQuery,
 } from '../../../generated/graphql';
 import { useAuth } from '../../../hooks/useAuth';
 import { AdminPost, AdminPostList } from '../../../styles/pages/AdminPosts';
@@ -28,11 +35,43 @@ function AdminPosts(): JSX.Element {
 
   const { communitySlug } = router.query as { communitySlug: string };
 
-  const { loading, data, error } = useCommunityAdminPostsQuery({
+  const { data: communityData } = useGetCommunityBasicDataQuery({
     variables: {
       slug: communitySlug,
     },
   });
+
+  const {
+    data: postsData,
+    loading,
+    error,
+    fetchMore,
+    variables,
+  } = useAdminPostsQuery({
+    variables: {
+      limit: 5,
+      cursor: null,
+      postOptions: {
+        communityId: communityData?.community.community?._id,
+      },
+    },
+    notifyOnNetworkStatusChange: true,
+  });
+
+  // const {
+  //   loading,
+  //   data,
+  //   error,
+  //   fetchMore,
+  //   variables,
+  // } = useCommunityAdminPostsQuery({
+  //   variables: {
+  //     slug: communitySlug,
+  //     limit: 5,
+  //     cursor: null,
+  //   },
+  //   notifyOnNetworkStatusChange: true,
+  // });
 
   const { isCreator } = useAuth();
   const [createPost] = useCreatePostMutation();
@@ -59,15 +98,14 @@ function AdminPosts(): JSX.Element {
     setPosts(oldPosts => oldPosts.filter(post => post._id !== id));
   }
 
-  const community = data && data.community && data.community.community;
+  const community =
+    communityData &&
+    communityData.community &&
+    communityData.community.community;
 
   useEffect(() => {
-    community && setPosts(community.posts);
-  }, [community]);
-
-  if (!data && loading) {
-    return <div />;
-  }
+    postsData && setPosts(postsData.posts.paginatedPosts?.posts || []);
+  }, [postsData]);
 
   if ((!loading && error) || !community) {
     return (
@@ -111,6 +149,11 @@ function AdminPosts(): JSX.Element {
       ]}
     >
       <AdminPostList>
+        {!postsData && loading && <div>Carregando...</div>}
+
+        {!postsData && !loading && <div>Você ainda não tem posts criados</div>}
+
+        {/* {data?.community.community?.paginatedPosts.posts.map(post => ( */}
         {posts.map(post => (
           <AdminPost key={post._id}>
             <PostCard
@@ -130,6 +173,25 @@ function AdminPosts(): JSX.Element {
             />
           </AdminPost>
         ))}
+
+        {postsData && postsData.posts.paginatedPosts?.hasMore && (
+          <Button
+            isLoading={loading}
+            text="Carregar mais"
+            style={{ margin: '15px auto' }}
+            onClick={() => {
+              fetchMore({
+                variables: {
+                  limit: variables?.limit,
+                  cursor:
+                    postsData.posts.paginatedPosts?.posts[
+                      postsData.posts.paginatedPosts?.posts.length - 1
+                    ].createdAt,
+                },
+              });
+            }}
+          />
+        )}
       </AdminPostList>
     </AdminPageTemplate>
   );

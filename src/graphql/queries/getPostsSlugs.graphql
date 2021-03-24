@@ -4,10 +4,12 @@ query GetPostsSlugs {
       field
       message
     }
-    posts {
-      slug
-      community {
+    paginatedPosts {
+      posts {
         slug
+        community {
+          slug
+        }
       }
     }
   }

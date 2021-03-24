@@ -1,0 +1,23 @@
+query adminPosts(
+  $limit: Int!
+  $cursor: String
+  $postOptions: PostOptionsInput
+) {
+  posts(limit: $limit, cursor: $cursor, postOptions: $postOptions) {
+    paginatedPosts {
+      posts {
+        _id
+        title
+        description
+        slug
+        status
+        mainMedia {
+          thumbnailUrl
+        }
+        exclusive
+        createdAt
+      }
+      hasMore
+    }
+  }
+}
