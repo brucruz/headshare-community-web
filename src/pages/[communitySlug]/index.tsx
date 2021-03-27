@@ -32,6 +32,7 @@ import {
 } from '../../styles/pages/CommunityHome';
 import { withApollo } from '../../utils/withApollo';
 import { useAuth } from '../../hooks/useAuth';
+import { SEO } from '../../components/SEO';
 
 interface PostCardProps {
   title: string;
@@ -128,6 +129,26 @@ function CommunityHome(): JSX.Element {
       title={community && community.title}
       subtitle={community && community.tagline}
     >
+      {/* Criar conteúdo personalizável SEO para página principal (geral)
+        - imagem 200x200 e 400x400
+        - descrição - geral
+
+        Por post:
+        - título
+        - imagem: 200x200 e 400x400
+        - descrição
+      */}
+      <SEO
+        title={
+          community.tagline
+            ? `${community.title} | ${community.tagline}`
+            : community.title || 'Headshare'
+        }
+        // description={} // Criar campo de description para SEO
+        communityTitle={community.title}
+        shouldExcludeTitleSuffix
+      />
+
       <HomeContent>
         <HomeTitle>
           <div>

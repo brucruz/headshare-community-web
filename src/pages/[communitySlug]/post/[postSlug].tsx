@@ -17,6 +17,7 @@ import {
   MainMediaImage,
 } from '../../../styles/pages/PostContent';
 import { withApollo } from '../../../utils/withApollo';
+import { SEO } from '../../../components/SEO';
 
 function PostContent(): JSX.Element {
   const router = useRouter();
@@ -56,6 +57,12 @@ function PostContent(): JSX.Element {
 
   return (
     <>
+      <SEO
+        title={post?.title ? post.title : 'Post'}
+        // description={} // Criar campo de description para SEO
+        communityTitle={post.community.title}
+      />
+
       <Header
         communitySlug={communitySlug}
         communityTitle={post.community.title}

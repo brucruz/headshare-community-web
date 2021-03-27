@@ -9,6 +9,7 @@ import {
   CommunityTag,
   InputWithTagSuggestion,
 } from '../../../../components/InputWithTagSuggestion';
+import { SEO } from '../../../../components/SEO';
 import { AdminPageTemplate } from '../../../../components/templates/AdminPageTemplate';
 import {
   useCommunityAdminHighlightedTagsQuery,
@@ -165,6 +166,12 @@ function HighlightCategories(): JSX.Element {
         },
       ]}
     >
+      <SEO
+        title="Destaques | Categorias | Gerenciar a comunidade"
+        // description={} // Criar campo de description para SEO
+        communityTitle={community?.community.community?.title}
+      />
+
       <HighlightCategoriesSection>
         <h4>
           Selecione as categorias que aparecerão na página inicial da sua

@@ -10,6 +10,7 @@ import {
 } from '../../styles/pages/Categories';
 import CommunityPageTemplate from '../../components/templates/CommunityPageTemplate';
 import { withApollo } from '../../utils/withApollo';
+import { SEO } from '../../components/SEO';
 
 function Categories(): JSX.Element {
   const router = useRouter();
@@ -41,6 +42,12 @@ function Categories(): JSX.Element {
       subtitle={community && community.tagline}
       backButton
     >
+      <SEO
+        title="Categorias"
+        // description={} // Criar campo de description para SEO
+        communityTitle={community?.title}
+      />
+
       <HomeContent>
         <CategoriesContainer>
           <h4>Categorias</h4>

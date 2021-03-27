@@ -4,6 +4,7 @@ import { useRouter } from 'next/router';
 import { UrlObject } from 'url';
 import Button from '../../../components/Button';
 import LikeCommentCount from '../../../components/LikeCommentCount';
+import { SEO } from '../../../components/SEO';
 import CommunityPageTemplate from '../../../components/templates/CommunityPageTemplate';
 import {
   MediaFormat,
@@ -95,6 +96,12 @@ function TagPosts(): JSX.Element {
       subtitle={tag.description}
       backButton
     >
+      <SEO
+        title={tag.title ? tag.title : 'Categoria'}
+        // description={} // Criar campo de description para SEO
+        communityTitle={tag.community.title}
+      />
+
       <PostCountContainer>
         <h5>
           {tag.postCount === 1

@@ -1,3 +1,5 @@
+/* eslint-disable no-underscore-dangle */
+import { FetchResult } from '@apollo/client';
 import {
   createContext,
   Dispatch,
@@ -6,7 +8,15 @@ import {
   useContext,
   useState,
 } from 'react';
-import { CommonUserFragment, Community, Role } from '../generated/graphql';
+import {
+  CommonUserFragment,
+  Community,
+  LoginMutation,
+  Role,
+  useFollowCommunityMutation,
+  useLoginMutation,
+} from '../generated/graphql';
+import { useSnackbar } from './useSnackbar';
 
 export type AuthType = 'login' | 'register' | 'forgotPassword';
 
@@ -18,18 +28,32 @@ type LoggedUser = {
   >;
 } & CommonUserFragment;
 
+interface AfterAuth {
+  redirect?: string;
+  followCommunity: {
+    communityId: string;
+  };
+}
+interface AuthOptions {
+  after?: AfterAuth;
+}
+
 interface AuthContextData {
   isAuthOpen: boolean;
-  openAuth(args?: AuthType): void;
+  openAuth(args?: AuthType, options?: AuthOptions): void;
   closeAuth(): void;
   authType: AuthType;
   changeAuthType(type: AuthType): void;
   me?: LoggedUser;
   setMe: Dispatch<SetStateAction<LoggedUser | undefined>>;
+  isFollower?: boolean;
+  setIsFollower: Dispatch<SetStateAction<boolean | undefined>>;
   isMember?: boolean;
   setIsMember: Dispatch<SetStateAction<boolean | undefined>>;
   isCreator?: boolean;
   setIsCreator: Dispatch<SetStateAction<boolean | undefined>>;
+  afterAuth?: AfterAuth;
+  setAfterAuth: Dispatch<SetStateAction<AfterAuth | undefined>>;
 }
 
 const AuthContext = createContext<AuthContextData>({} as AuthContextData);
@@ -40,10 +64,15 @@ const AuthProvider: React.FC = ({ children }) => {
 
   const [isCreator, setIsCreator] = useState<boolean | undefined>(undefined);
   const [isMember, setIsMember] = useState<boolean | undefined>(undefined);
+  const [isFollower, setIsFollower] = useState<boolean | undefined>(undefined);
   const [me, setMe] = useState<LoggedUser | undefined>(undefined);
+  const [afterAuth, setAfterAuth] = useState<AfterAuth | undefined>(undefined);
 
-  const openAuth = useCallback((state?: AuthType) => {
+  const openAuth = useCallback((state?: AuthType, options?: AuthOptions) => {
     state && setAuthType(state);
+
+    options?.after && setAfterAuth(options.after);
+
     setAuthOpen(true);
   }, []);
 
@@ -69,6 +98,10 @@ const AuthProvider: React.FC = ({ children }) => {
         setIsCreator,
         isMember,
         setIsMember,
+        isFollower,
+        setIsFollower,
+        afterAuth,
+        setAfterAuth,
       }}
     >
       {children}

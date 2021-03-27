@@ -2,6 +2,7 @@
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { ExplainedInput } from '../../../../components/ExplainedInput';
+import { SEO } from '../../../../components/SEO';
 import { AdminPageTemplate } from '../../../../components/templates/AdminPageTemplate';
 import {
   MediaFormat,
@@ -179,6 +180,12 @@ function AdminConfigBranding(): JSX.Element {
         },
       ]}
     >
+      <SEO
+        title="Branding | Configurações | Gerenciar a comunidade"
+        // description={} // Criar campo de description para SEO
+        communityTitle={community?.title}
+      />
+
       <AdminConfigBrandingContainer>
         <ConfigBrandingTitle>
           <h2>Branding</h2>

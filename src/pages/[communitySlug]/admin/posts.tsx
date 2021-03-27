@@ -3,6 +3,7 @@ import { useRouter } from 'next/router';
 import { useCallback, useEffect, useState } from 'react';
 import Button from '../../../components/Button';
 import { PostCard } from '../../../components/PostCard';
+import { SEO } from '../../../components/SEO';
 import { AdminPageTemplate } from '../../../components/templates/AdminPageTemplate';
 import {
   Maybe,
@@ -129,6 +130,12 @@ function AdminPosts(): JSX.Element {
         },
       ]}
     >
+      <SEO
+        title="Posts | Gerenciar a comunidade"
+        // description={} // Criar campo de description para SEO
+        communityTitle={community?.title}
+      />
+
       <AdminPostList>
         {!postsData && loading && <div>Carregando...</div>}
 

@@ -13,6 +13,7 @@ query getCommunityHomeData(
       logo
       title
       tagline
+      description
       slug
       banner {
         url

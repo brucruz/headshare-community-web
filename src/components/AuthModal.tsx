@@ -1,3 +1,4 @@
+/* eslint-disable no-underscore-dangle */
 import { useCallback } from 'react';
 import { useFormik } from 'formik';
 import { MdClose } from 'react-icons/md';
@@ -13,10 +14,15 @@ import {
 } from '../styles/components/AuthModal';
 import Input from './Input';
 import Modal from './Modal';
-import { useLoginMutation, useRegisterMutation } from '../generated/graphql';
+import {
+  useFollowCommunityMutation,
+  useLoginMutation,
+  useRegisterMutation,
+} from '../generated/graphql';
 import { toErrorMap } from '../utils/toErrorMap';
 import Button from './Button';
 import MultiStep from './Multistep';
+import { useSnackbar } from '../hooks/useSnackbar';
 
 interface RegisterVariables {
   name: string;
@@ -35,11 +41,21 @@ interface ForgotPasswordVariables {
 }
 
 export default function AuthModal(): JSX.Element {
-  const { isAuthOpen, closeAuth, authType, changeAuthType } = useAuth();
+  const {
+    isAuthOpen,
+    closeAuth,
+    authType,
+    changeAuthType,
+    // signIn,
+    afterAuth,
+    setAfterAuth,
+  } = useAuth();
 
   const router = useRouter();
   const [login] = useLoginMutation();
   const [register] = useRegisterMutation();
+  const [followCommunity] = useFollowCommunityMutation();
+  const { addSnackbar } = useSnackbar();
 
   const registerForm = useFormik<RegisterVariables>({
     initialValues: {
@@ -103,6 +119,21 @@ export default function AuthModal(): JSX.Element {
       if (response.data?.login.errors) {
         setErrors(toErrorMap(response.data.login.errors));
       } else if (response.data?.login.user) {
+        if (afterAuth?.followCommunity) {
+          await followCommunity({
+            variables: {
+              communityId: afterAuth.followCommunity.communityId,
+              userId: response.data?.login.user?._id,
+            },
+          });
+
+          setAfterAuth(undefined);
+
+          addSnackbar({
+            message: 'Você está seguindo esta comunidade',
+          });
+        }
+
         router.reload();
       }
     },

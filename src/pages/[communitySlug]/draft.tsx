@@ -51,6 +51,7 @@ import { formatS3Filename, uploadToS3 } from '../../lib/s3';
 import { withApollo } from '../../utils/withApollo';
 import MainMedia from '../../components/MainMedia';
 import { Tags, CommunityTag } from '../../components/Tags';
+import { SEO } from '../../components/SEO';
 
 const PostBuilder = dynamic(() => import('../../components/PostBuilder'), {
   ssr: false,
@@ -414,6 +415,12 @@ function NewPost(): JSX.Element {
 
   return (
     <>
+      <SEO
+        title={post?.title ? post.title : 'Rascunho'}
+        // description={} // Criar campo de description para SEO
+        communityTitle={community?.title}
+      />
+
       <Header
         communityTitle={community ? community.title : 'Headshare'}
         communitySlug={community ? community.slug : ''}

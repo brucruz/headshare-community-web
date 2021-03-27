@@ -33,6 +33,7 @@ import Input from '../../../../components/Input';
 import Button from '../../../../components/Button';
 import { toErrorMap } from '../../../../utils/toErrorMap';
 import { ConfirmationModal } from '../../../../components/ConfirmationModal';
+import { SEO } from '../../../../components/SEO';
 
 interface CategoryVariables {
   title: string;
@@ -436,6 +437,12 @@ function AdminCategories(): JSX.Element {
         },
       ]}
     >
+      <SEO
+        title="Categorias | Gerenciar a comunidade"
+        // description={} // Criar campo de description para SEO
+        communityTitle={community?.title}
+      />
+
       <AdminCategoryList>
         {!tagsData && loading && <div>Carregando...</div>}
 

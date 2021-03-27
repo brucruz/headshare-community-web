@@ -6,6 +6,7 @@ import { FaAngleDown } from 'react-icons/fa';
 import { Link as ScrollLink } from 'react-scroll';
 
 import Button from '../components/Button';
+import { SEO } from '../components/SEO';
 // import Slider from '../components/Slider';
 import {
   HeaderHero,
@@ -43,6 +44,11 @@ function Home(): JSX.Element {
 
   return (
     <>
+      <SEO
+        title="Crie e gerencie sua própria comunidade"
+        description="Produza conteúdo, incentive conversas entre sua audiência e gerencie assinaturas"
+      />
+
       <WhiteSection>
         <HeaderLogo>
           <NextImage

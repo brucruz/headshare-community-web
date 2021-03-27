@@ -48,7 +48,14 @@ const Header: React.FC<HeaderProps> = ({
   const [sideMenuIsOpen, setSideMenuIsOpen] = useState(false);
   const [userMenuIsOpen, setUserMenuIsOpen] = useState(false);
   const [addMenuIsOpen, setAddMenuIsOpen] = useState(false);
-  const { isCreator, setIsCreator, setIsMember, me, setMe } = useAuth();
+  const {
+    isCreator,
+    setIsCreator,
+    setIsMember,
+    me,
+    setMe,
+    setIsFollower,
+  } = useAuth();
 
   const { openAuth } = useAuth();
   const router = useRouter();
@@ -73,17 +80,31 @@ const Header: React.FC<HeaderProps> = ({
           if (commRole === RoleOptions.Creator) {
             setIsCreator(true);
             setIsMember(false);
+            setIsFollower(false);
           } else if (commRole === RoleOptions.Member) {
             setIsCreator(false);
             setIsMember(true);
+            setIsFollower(false);
+          } else if (commRole === RoleOptions.Follower) {
+            setIsCreator(false);
+            setIsMember(false);
+            setIsFollower(true);
           } else {
             setIsCreator(false);
             setIsMember(false);
+            setIsFollower(false);
           }
         }
       }
     }
-  }, [userData, communitySlug, setMe, setIsCreator, setIsMember]);
+  }, [
+    userData,
+    communitySlug,
+    setMe,
+    setIsCreator,
+    setIsMember,
+    setIsFollower,
+  ]);
 
   const handleLogout = useCallback(async () => {
     logout();

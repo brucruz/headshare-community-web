@@ -1,5 +1,5 @@
 /* eslint-disable no-underscore-dangle */
-import { ChangeEvent, useCallback, useEffect, useState } from 'react';
+import { ChangeEvent, ReactNode, useCallback, useState } from 'react';
 import { MdAddAPhoto, MdPhoto } from 'react-icons/md';
 import Footer from '../Footer';
 import Header from '../Header';
@@ -15,15 +15,15 @@ import {
 import TitleSubtitle from '../TitleSubtitle';
 import {
   MediaFormat,
-  RoleOptions,
-  useCommunityPageTemplateMeQuery,
   useUpdateCommunityBannerMutation,
   useUploadImageMutation,
   useUpdateCommunityAvatarMutation,
+  useFollowCommunityMutation,
 } from '../../generated/graphql';
-import { isServer } from '../../utils/isServer';
 import { formatS3Filename, uploadToS3 } from '../../lib/s3';
 import { SideMenuSection } from '../SideMenuSection';
+import { useAuth } from '../../hooks/useAuth';
+import { useSnackbar } from '../../hooks/useSnackbar';
 
 interface CommunityPageTemplateProps {
   childrenMaxWidth?: number;
@@ -46,46 +46,34 @@ interface CommunityPageTemplateProps {
     };
     memberCount?: number;
   };
+  children: ReactNode;
 }
 
-const CommunityPageTemplate: React.FC<CommunityPageTemplateProps> = ({
+function CommunityPageTemplate({
   title,
   subtitle,
   backButton = false,
   community,
   children,
   childrenMaxWidth = 940,
-}) => {
-  const [isCreator, setIsCreator] = useState(false);
-  const [isMember, setIsMember] = useState(false);
+}: CommunityPageTemplateProps): JSX.Element {
   const [bannerUrl, setBannerUrl] = useState<string | undefined>();
   const [avatarUrl, setAvatarUrl] = useState<string | undefined>();
 
-  const { data: userData } = useCommunityPageTemplateMeQuery({
-    skip: isServer(),
-  });
+  const {
+    isCreator,
+    isMember,
+    isFollower,
+    me,
+    openAuth,
+    setIsFollower,
+  } = useAuth();
+  const { addSnackbar } = useSnackbar();
 
   const [uploadImage] = useUploadImageMutation();
   const [updateBanner] = useUpdateCommunityBannerMutation();
   const [updateAvatar] = useUpdateCommunityAvatarMutation();
-
-  useEffect(() => {
-    if (userData) {
-      if (userData.me) {
-        if (userData.me.user) {
-          const commRole = userData.me.user.roles.find(
-            role => role.community.slug === community.slug,
-          )?.role;
-
-          if (commRole === RoleOptions.Creator) {
-            setIsCreator(true);
-          } else if (commRole === RoleOptions.Member) {
-            setIsMember(true);
-          }
-        }
-      }
-    }
-  }, [userData, community]);
+  const [followCommunity] = useFollowCommunityMutation();
 
   const handleMediaUpload = useCallback(
     async (file: File, communitySlug: string) => {
@@ -184,6 +172,43 @@ const CommunityPageTemplate: React.FC<CommunityPageTemplateProps> = ({
     [community, handleMediaUpload, updateAvatar],
   );
 
+  async function handleFollowCommunity(): Promise<void> {
+    if (!me) {
+      openAuth('login', {
+        after: {
+          followCommunity: {
+            communityId: community._id,
+          },
+        },
+      });
+    }
+    if (me) {
+      const { data: followResponse } = await followCommunity({
+        variables: {
+          communityId: community._id,
+          userId: me._id,
+        },
+      });
+
+      if (followResponse?.createRole.success) {
+        setIsFollower(true);
+
+        addSnackbar({
+          message: 'Você está seguindo esta comunidade',
+        });
+      }
+
+      if (!followResponse?.createRole.success) {
+        addSnackbar({
+          message:
+            (followResponse?.createRole.errors &&
+              followResponse?.createRole.errors[0].message) ||
+            'Houve um erro ao tentar seguir esta comunidade, tente novamente mais tarde',
+        });
+      }
+    }
+  }
+
   return (
     <>
       <Header
@@ -250,11 +275,17 @@ const CommunityPageTemplate: React.FC<CommunityPageTemplateProps> = ({
                 )}
               </Avatar>
 
-              {!isCreator && !isMember && (
-                <Button text="Seguindo" priority="secondary" />
+              {!isCreator && !isMember && !isFollower && (
+                <Button
+                  text="Seguir"
+                  priority="secondary"
+                  onClick={handleFollowCommunity}
+                />
               )}
 
-              {isMember && <Button text="Seguir" priority="secondary" />}
+              {/* {(isMember || isFollower) && (
+                <Button text="Seguindo" priority="secondary" />
+              )} */}
             </AvatarHeader>
 
             {community && community.memberCount && (
@@ -282,6 +313,6 @@ const CommunityPageTemplate: React.FC<CommunityPageTemplateProps> = ({
       </SideMenuSection>
     </>
   );
-};
+}
 
 export default CommunityPageTemplate;

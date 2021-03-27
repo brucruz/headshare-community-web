@@ -502,9 +502,9 @@ export type CreateRoleInput = {
   /** User role in community */
   role: RoleOptions;
   /** User of which the role is about */
-  user: Scalars['ObjectId'];
+  userId: Scalars['String'];
   /** Community of which the role is about */
-  community: Scalars['ObjectId'];
+  communityId: Scalars['String'];
 };
 
 export type MediasResponse = {
@@ -541,7 +541,7 @@ export type Mutation = {
   updateTag?: Maybe<TagResponse>;
   /** Owners may  */
   deleteTag: SuccessResponse;
-  createRole: RoleResponse;
+  createRole: SuccessResponse;
   updateRole?: Maybe<RoleResponse>;
   /** Users can import a media */
   uploadVideo: MediaResponse;
@@ -731,7 +731,7 @@ export type UpdatePostInput = {
   /** If true, only exclusive members may view its content */
   exclusive?: Maybe<Scalars['Boolean']>;
   /** Post content */
-  tags?: Maybe<Array<Scalars['ObjectId']>>;
+  tags?: Maybe<Array<Scalars['String']>>;
   /** created post status */
   status?: Maybe<PostStatus>;
 };
@@ -1002,6 +1002,24 @@ export type DeleteTagMutationVariables = Exact<{
 export type DeleteTagMutation = (
   { __typename?: 'Mutation' }
   & { deleteTag: (
+    { __typename?: 'SuccessResponse' }
+    & Pick<SuccessResponse, 'success'>
+    & { errors?: Maybe<Array<(
+      { __typename?: 'ErrorResponse' }
+      & Pick<ErrorResponse, 'field' | 'message'>
+    )>> }
+  ) }
+);
+
+export type FollowCommunityMutationVariables = Exact<{
+  userId: Scalars['String'];
+  communityId: Scalars['String'];
+}>;
+
+
+export type FollowCommunityMutation = (
+  { __typename?: 'Mutation' }
+  & { createRole: (
     { __typename?: 'SuccessResponse' }
     & Pick<SuccessResponse, 'success'>
     & { errors?: Maybe<Array<(
@@ -1457,31 +1475,6 @@ export type GetCommunityBasicDataQuery = (
   ) }
 );
 
-export type CommunityPageTemplateMeQueryVariables = Exact<{ [key: string]: never; }>;
-
-
-export type CommunityPageTemplateMeQuery = (
-  { __typename?: 'Query' }
-  & { me?: Maybe<(
-    { __typename?: 'UserResponse' }
-    & { errors?: Maybe<Array<(
-      { __typename?: 'ErrorResponse' }
-      & Pick<ErrorResponse, 'field' | 'message'>
-    )>>, user?: Maybe<(
-      { __typename?: 'User' }
-      & { roles: Array<(
-        { __typename?: 'Role' }
-        & Pick<Role, 'role'>
-        & { community: (
-          { __typename?: 'Community' }
-          & Pick<Community, 'slug'>
-        ) }
-      )> }
-      & CommonUserFragment
-    )> }
-  )> }
-);
-
 export type CommunityTagPostsQueryVariables = Exact<{
   data: FindByTagsInput;
 }>;
@@ -1580,7 +1573,7 @@ export type GetCommunityHomeDataQuery = (
       & Pick<ErrorResponse, 'field' | 'message'>
     )>>, community?: Maybe<(
       { __typename?: 'Community' }
-      & Pick<Community, '_id' | 'logo' | 'title' | 'tagline' | 'slug' | 'followersCount' | 'membersCount'>
+      & Pick<Community, '_id' | 'logo' | 'title' | 'tagline' | 'description' | 'slug' | 'followersCount' | 'membersCount'>
       & { banner?: Maybe<(
         { __typename?: 'Media' }
         & Pick<Media, 'url'>
@@ -2043,6 +2036,43 @@ export function useDeleteTagMutation(baseOptions?: Apollo.MutationHookOptions<De
 export type DeleteTagMutationHookResult = ReturnType<typeof useDeleteTagMutation>;
 export type DeleteTagMutationResult = Apollo.MutationResult<DeleteTagMutation>;
 export type DeleteTagMutationOptions = Apollo.BaseMutationOptions<DeleteTagMutation, DeleteTagMutationVariables>;
+export const FollowCommunityDocument = gql`
+    mutation FollowCommunity($userId: String!, $communityId: String!) {
+  createRole(data: {role: FOLLOWER, userId: $userId, communityId: $communityId}) {
+    errors {
+      field
+      message
+    }
+    success
+  }
+}
+    `;
+export type FollowCommunityMutationFn = Apollo.MutationFunction<FollowCommunityMutation, FollowCommunityMutationVariables>;
+
+/**
+ * __useFollowCommunityMutation__
+ *
+ * To run a mutation, you first call `useFollowCommunityMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useFollowCommunityMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [followCommunityMutation, { data, loading, error }] = useFollowCommunityMutation({
+ *   variables: {
+ *      userId: // value for 'userId'
+ *      communityId: // value for 'communityId'
+ *   },
+ * });
+ */
+export function useFollowCommunityMutation(baseOptions?: Apollo.MutationHookOptions<FollowCommunityMutation, FollowCommunityMutationVariables>) {
+        return Apollo.useMutation<FollowCommunityMutation, FollowCommunityMutationVariables>(FollowCommunityDocument, baseOptions);
+      }
+export type FollowCommunityMutationHookResult = ReturnType<typeof useFollowCommunityMutation>;
+export type FollowCommunityMutationResult = Apollo.MutationResult<FollowCommunityMutation>;
+export type FollowCommunityMutationOptions = Apollo.BaseMutationOptions<FollowCommunityMutation, FollowCommunityMutationVariables>;
 export const LoginDocument = gql`
     mutation Login($loginData: LoginUserInput!) {
   login(loginData: $loginData) {
@@ -2920,50 +2950,6 @@ export function useGetCommunityBasicDataLazyQuery(baseOptions?: Apollo.LazyQuery
 export type GetCommunityBasicDataQueryHookResult = ReturnType<typeof useGetCommunityBasicDataQuery>;
 export type GetCommunityBasicDataLazyQueryHookResult = ReturnType<typeof useGetCommunityBasicDataLazyQuery>;
 export type GetCommunityBasicDataQueryResult = Apollo.QueryResult<GetCommunityBasicDataQuery, GetCommunityBasicDataQueryVariables>;
-export const CommunityPageTemplateMeDocument = gql`
-    query CommunityPageTemplateMe {
-  me {
-    errors {
-      field
-      message
-    }
-    user {
-      ...CommonUser
-      roles {
-        community {
-          slug
-        }
-        role
-      }
-    }
-  }
-}
-    ${CommonUserFragmentDoc}`;
-
-/**
- * __useCommunityPageTemplateMeQuery__
- *
- * To run a query within a React component, call `useCommunityPageTemplateMeQuery` and pass it any options that fit your needs.
- * When your component renders, `useCommunityPageTemplateMeQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useCommunityPageTemplateMeQuery({
- *   variables: {
- *   },
- * });
- */
-export function useCommunityPageTemplateMeQuery(baseOptions?: Apollo.QueryHookOptions<CommunityPageTemplateMeQuery, CommunityPageTemplateMeQueryVariables>) {
-        return Apollo.useQuery<CommunityPageTemplateMeQuery, CommunityPageTemplateMeQueryVariables>(CommunityPageTemplateMeDocument, baseOptions);
-      }
-export function useCommunityPageTemplateMeLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<CommunityPageTemplateMeQuery, CommunityPageTemplateMeQueryVariables>) {
-          return Apollo.useLazyQuery<CommunityPageTemplateMeQuery, CommunityPageTemplateMeQueryVariables>(CommunityPageTemplateMeDocument, baseOptions);
-        }
-export type CommunityPageTemplateMeQueryHookResult = ReturnType<typeof useCommunityPageTemplateMeQuery>;
-export type CommunityPageTemplateMeLazyQueryHookResult = ReturnType<typeof useCommunityPageTemplateMeLazyQuery>;
-export type CommunityPageTemplateMeQueryResult = Apollo.QueryResult<CommunityPageTemplateMeQuery, CommunityPageTemplateMeQueryVariables>;
 export const CommunityTagPostsDocument = gql`
     query CommunityTagPosts($data: FindByTagsInput!) {
   findTagBySlugs(data: $data) {
@@ -3125,6 +3111,7 @@ export const GetCommunityHomeDataDocument = gql`
       logo
       title
       tagline
+      description
       slug
       banner {
         url

@@ -16,6 +16,7 @@ import {
   ConfigMainFormTitle,
 } from '../../../../styles/pages/AdminConfigMain';
 import { useSnackbar } from '../../../../hooks/useSnackbar';
+import { SEO } from '../../../../components/SEO';
 
 interface EditConfigMainVariables {
   title: string;
@@ -125,6 +126,12 @@ function AdminConfigMain(): JSX.Element {
         },
       }}
     >
+      <SEO
+        title="Configurações | Gerenciar a comunidade"
+        // description={} // Criar campo de description para SEO
+        communityTitle={community?.title}
+      />
+
       <ConfigMainForm
         id="edit-config-main"
         onSubmit={editConfigMain.handleSubmit}

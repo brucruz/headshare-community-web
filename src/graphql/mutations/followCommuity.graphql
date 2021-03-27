@@ -1,0 +1,13 @@
+mutation FollowCommunity($userId: String!, $communityId: String!) {
+  createRole(data: {
+    role: FOLLOWER,
+    userId: $userId,
+    communityId: $communityId
+  }) {
+    errors {
+      field
+      message
+    }
+    success
+  }
+}
