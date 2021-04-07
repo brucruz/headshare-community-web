@@ -11,7 +11,7 @@
     "prepare": "husky install"
   },
   "lint-staged": {
-    "*.{ts,tsx}": ["eslint fix", "git add"]
+    "*.{ts,tsx}": ["eslint fix"]
   },
   "dependencies": {
     "@apollo/client": "^3.3.6",
