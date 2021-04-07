@@ -9,6 +9,7 @@
     "test": "jest --silent",
     "start": "next start",
     "gen": "graphql-codegen --config codegen.yml",
+    "husky": "npx husky",
     "prepare": "husky install"
   },
   "lint-staged": {
