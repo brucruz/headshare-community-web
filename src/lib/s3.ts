@@ -41,6 +41,8 @@ export const formatS3Filename = (
   const [fileExtension, primaryName] = getFileComponents(lowerCase);
 
   const cleanFileName = primaryName.toLowerCase().replace(/[^a-z0-9]/g, '-');
+
   const newFilename = `${communitySlug}/images/${date}-${randomString}-${cleanFileName}.${fileExtension}`;
+
   return [newFilename.substring(0, 60), `.${fileExtension}`];
 };
