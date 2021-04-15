@@ -6,6 +6,7 @@ import {
 } from '../../styles/components/FeaturesModal';
 import Button from '../Button';
 import Modal from '../Modal';
+import { RadioButtonGroup } from '../RadioButton';
 
 export interface FeaturesModalProps {
   communityTitle: string;
@@ -22,8 +23,26 @@ export function FeaturesModal({
         <h2>Acesso ao conteúdo exclusivo da página {communityTitle}</h2>
 
         <FeaturesPlanSelectionContainer>
-          <div>R$ 49,90 / mês</div>
-          <div>R$ 499 / ano</div>
+          <RadioButtonGroup
+            elements={[
+              {
+                index: 0,
+                length: 2,
+                label: 'R$ 49,90/mês',
+                name: 'month',
+                selected: 'month',
+                stretch: true,
+              },
+              {
+                index: 1,
+                length: 2,
+                label: 'R$ 499/ano',
+                name: 'annual',
+                selected: 'month',
+                stretch: true,
+              },
+            ]}
+          />
         </FeaturesPlanSelectionContainer>
 
         <FeaturesListContainer>

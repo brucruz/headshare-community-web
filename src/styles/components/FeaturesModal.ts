@@ -7,10 +7,7 @@ export const FeaturesModalContainer = styled.main`
   }
 `;
 
-export const FeaturesPlanSelectionContainer = styled.section`
-  display: flex;
-  justify-content: space-between;
-`;
+export const FeaturesPlanSelectionContainer = styled.section``;
 
 export const FeaturesListContainer = styled.ul`
   margin: 15px 0;
