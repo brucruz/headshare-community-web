@@ -2,11 +2,11 @@ import {
   ButtonsContainer,
   ConfirmationModalText,
   InnerContainer,
-} from '../styles/components/ConfirmationModal';
-import Button from './Button';
-import Modal from './Modal';
+} from '../../styles/components/ConfirmationModal';
+import Button from '../Button';
+import Modal from '../Modal';
 
-interface ConfirmationModalProps {
+export interface ConfirmationModalProps {
   isOpen: boolean;
   setIsOpen: () => void;
   confirmationText: {

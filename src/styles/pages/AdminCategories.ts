@@ -67,29 +67,11 @@ export const CategoryCardLink = styled.section`
   }
 `;
 
-export const EditCategoryModalContainer = styled.div`
-  margin-top: 15px;
-  margin-right: 20px;
-  margin-left: 20px;
-  margin-bottom: 50px;
-`;
+export const EditCategoryModalContainer = styled.div``;
 
 export const EditCategoryHeaderContainer = styled.div`
   h2 {
     color: var(--main-titles);
-  }
-
-  button {
-    width: 100%;
-    display: flex;
-    justify-content: flex-end;
-
-    margin-bottom: 5px;
-
-    svg {
-      height: 24px;
-      width: 24px;
-    }
   }
 `;
 

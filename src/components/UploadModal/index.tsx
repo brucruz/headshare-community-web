@@ -1,29 +1,27 @@
 import NextImage from 'next/image';
 import { useRouter } from 'next/router';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { MdClose } from 'react-icons/md';
 import * as tus from 'tus-js-client';
 
-import { IMAGE, VIDEO } from '../constants/mediaFormat';
+import { IMAGE, VIDEO } from '../../constants/mediaFormat';
 import {
   useUploadVideoMutation,
   MediaFormat,
   Media,
   useUpdatePostMainImageMutation,
-} from '../generated/graphql';
-import { formatS3Filename, uploadToS3 } from '../lib/s3';
+} from '../../generated/graphql';
+import { formatS3Filename, uploadToS3 } from '../../lib/s3';
 import {
   MediaFormatSelection,
   UploadModalContainer,
   UploadHeaderContainer,
   VideoUploadOptions,
   StateHeader,
-} from '../styles/components/UploadModal';
-import Button from './Button';
-import ButtonBack from './ButtonBack';
-import MediaInput, { ImageDimensions } from './MediaInput';
-import Modal from './Modal';
-import RadioButton from './RadioButton';
+} from '../../styles/components/UploadModal';
+import Button from '../Button';
+import MediaInput, { ImageDimensions } from '../MediaInput';
+import Modal from '../Modal';
+import { RadioInput } from '../RadioInput/index';
 
 type SelectedMediaProps = 'image' | 'video' | 'none';
 
@@ -46,7 +44,7 @@ export interface UploadInfoProps {
   > | null;
 }
 
-interface UploadModalProps {
+export interface UploadModalProps {
   communitySlug: string;
   postId: string;
   mediaInitialSelection?: SelectedMediaProps;
@@ -56,7 +54,7 @@ interface UploadModalProps {
   passUploadInfo: (args: UploadInfoProps) => void;
 }
 
-const UploadModal: React.FC<UploadModalProps> = ({
+function UploadModal({
   communitySlug,
   postId,
   mediaInitialSelection = 'none',
@@ -64,7 +62,7 @@ const UploadModal: React.FC<UploadModalProps> = ({
   setDisplayUploadModal,
   setMainMediaState,
   passUploadInfo,
-}) => {
+}: UploadModalProps): JSX.Element {
   const [selectedMedia, setSelectedMedia] = useState<SelectedMediaProps>(
     mediaInitialSelection,
   );
@@ -283,13 +281,9 @@ const UploadModal: React.FC<UploadModalProps> = ({
   }, [setDisplayUploadModal]);
 
   return (
-    <Modal isOpen={displayUploadModal} setIsOpen={closeUploadModal}>
+    <Modal isOpen={displayUploadModal} setIsOpen={closeUploadModal} closeButton>
       <UploadModalContainer>
         <UploadHeaderContainer>
-          <button type="button" onClick={closeUploadModal}>
-            <MdClose />
-          </button>
-
           <StateHeader>
             {selectedMedia !== 'none' && (
               <div className="button-wrapper">
@@ -308,13 +302,13 @@ const UploadModal: React.FC<UploadModalProps> = ({
         {selectedMedia === 'none' && (
           <>
             <MediaFormatSelection>
-              <RadioButton
+              <RadioInput
                 name="media-format"
                 label="Vídeo"
                 isChecked={clickedMediaSelector === VIDEO}
                 onChange={() => setClickedMediaSelector(VIDEO)}
               />
-              <RadioButton
+              <RadioInput
                 name="media-format"
                 label="Imagem"
                 isChecked={clickedMediaSelector === IMAGE}
@@ -371,6 +365,6 @@ const UploadModal: React.FC<UploadModalProps> = ({
       </UploadModalContainer>
     </Modal>
   );
-};
+}
 
 export default UploadModal;

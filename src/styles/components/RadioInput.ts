@@ -20,19 +20,15 @@ export const Base = styled.label`
     width: 0;
   }
 
-  span.text {
-    /* color: #3c4759; */
-  }
-
   .checkmark {
     display: flex;
-    padding: 5px;
+    padding: 4px;
     top: 0;
     left: 0;
-    height: 24px;
-    width: 24px;
+    height: 22px;
+    width: 22px;
     background-color: transparent;
-    border: 1px solid #bcc3d4;
+    border: 2px solid var(--subtitles);
     box-sizing: border-box;
     border-radius: 50%;
   }
@@ -43,15 +39,47 @@ export const Base = styled.label`
     width: 100%;
   }
 
-  input:checked ~ .checkmark span {
+  .shadow {
+    display: flex;
+    padding: 8px;
+
+    background-color: transparent;
+
+    border-radius: 50%;
+  }
+
+  &:hover .shadow {
+    background-color: var(--subtitles-10);
+  }
+
+  &:hover input:checked ~ .shadow {
+    background-color: var(--headshare-coral-10);
+  }
+
+  input:checked ~ .shadow .checkmark {
+    border-color: var(--headshare-coral);
+  }
+
+  input:checked ~ .shadow .checkmark span {
     background: var(--headshare-coral);
   }
 `;
 
-export const TextContainer = styled.div`
+interface TextContainerProps {
+  isChecked?: boolean;
+}
+
+export const TextContainer = styled.div<TextContainerProps>`
   display: flex;
   flex-direction: column;
-  margin-left: 12px;
+  margin-left: 5px;
+
+  span {
+    /* color: var(--subtitles); */
+    color: ${props =>
+      props.isChecked ? 'var(--headshare-coral)' : 'var(--subtitles)'};
+  }
+
   span:nth-child(2) {
     font-size: 12px;
   }

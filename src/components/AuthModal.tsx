@@ -1,7 +1,6 @@
 /* eslint-disable no-underscore-dangle */
 import { useCallback } from 'react';
 import { useFormik } from 'formik';
-import { MdClose } from 'react-icons/md';
 import * as Yup from 'yup';
 import { useRouter } from 'next/router';
 import { AuthType, useAuth } from '../hooks/useAuth';
@@ -368,7 +367,14 @@ export default function AuthModal(): JSX.Element {
             <OtherAuthOptions>
               <p>
                 Já possui cadastro?{' '}
-                <a onClick={() => changeAuthType('login')}>Entrar</a>
+                <a
+                  role="button"
+                  tabIndex={-1}
+                  onClick={() => changeAuthType('login')}
+                  onKeyDown={() => changeAuthType('login')}
+                >
+                  Entrar
+                </a>
               </p>
             </OtherAuthOptions>
           );
@@ -378,7 +384,14 @@ export default function AuthModal(): JSX.Element {
             <OtherAuthOptions>
               <p>
                 Voltar para o{' '}
-                <a onClick={() => changeAuthType('login')}>Login</a>
+                <a
+                  role="button"
+                  tabIndex={-2}
+                  onClick={() => changeAuthType('login')}
+                  onKeyDown={() => changeAuthType('login')}
+                >
+                  Login
+                </a>
               </p>
             </OtherAuthOptions>
           );
@@ -388,11 +401,23 @@ export default function AuthModal(): JSX.Element {
             <OtherAuthOptions>
               <p>
                 Ainda não possui cadastro?{' '}
-                <a onClick={() => changeAuthType('register')}>Cadastrar</a>
+                <a
+                  role="button"
+                  tabIndex={-3}
+                  onClick={() => changeAuthType('register')}
+                  onKeyDown={() => changeAuthType('register')}
+                >
+                  Cadastrar
+                </a>
               </p>
 
               <p>
-                <a onClick={() => changeAuthType('forgotPassword')}>
+                <a
+                  role="button"
+                  tabIndex={-4}
+                  onClick={() => changeAuthType('forgotPassword')}
+                  onKeyDown={() => changeAuthType('forgotPassword')}
+                >
                   Esqueci minha senha
                 </a>
               </p>
@@ -404,13 +429,9 @@ export default function AuthModal(): JSX.Element {
   );
 
   return (
-    <Modal isOpen={isAuthOpen} setIsOpen={() => closeAuth()}>
+    <Modal isOpen={isAuthOpen} setIsOpen={() => closeAuth()} closeButton>
       <AuthModalContainer>
         <AuthHeaderContainer>
-          <button type="button" onClick={() => closeAuth()}>
-            <MdClose />
-          </button>
-
           <h2>{authHeader(authType)}</h2>
         </AuthHeaderContainer>
 

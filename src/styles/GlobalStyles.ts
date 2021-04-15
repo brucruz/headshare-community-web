@@ -28,6 +28,7 @@ export default createGlobalStyle`
 
     --main-titles: #3E3E3E;
     --subtitles: #5A5A5A;
+    --subtitles-10: rgba(90, 90, 90, 0.1);
     --gray-text: #363636;
 
     --light-gray-background: #EEEEEE;

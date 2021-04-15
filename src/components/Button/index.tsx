@@ -1,5 +1,5 @@
 import { ButtonHTMLAttributes } from 'react';
-import { ButtonContainer } from '../styles/components/Button';
+import { ButtonContainer } from '../../styles/components/Button';
 
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   priority?: 'primary' | 'secondary' | 'tertiary';

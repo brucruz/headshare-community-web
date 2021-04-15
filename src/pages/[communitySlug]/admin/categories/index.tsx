@@ -3,7 +3,6 @@ import { useFormik } from 'formik';
 import { useRouter } from 'next/router';
 import { useCallback, useEffect, useState } from 'react';
 import * as Yup from 'yup';
-import { MdClose } from 'react-icons/md';
 import Modal from '../../../../components/Modal';
 import { OptionsMenu } from '../../../../components/OptionsMenu';
 import { AdminPageTemplate } from '../../../../components/templates/AdminPageTemplate';
@@ -207,13 +206,13 @@ function CategoryCard({
         </p>
       </CategoryCardLink>
 
-      <Modal isOpen={isOpenEditModal} setIsOpen={handleEditModalOpen}>
+      <Modal
+        isOpen={isOpenEditModal}
+        setIsOpen={handleEditModalOpen}
+        closeButton
+      >
         <EditCategoryModalContainer>
           <EditCategoryHeaderContainer>
-            <button type="button" onClick={() => setIsOpenEditModal(false)}>
-              <MdClose />
-            </button>
-
             <h2>Edição da Categoria</h2>
           </EditCategoryHeaderContainer>
 
@@ -488,13 +487,10 @@ function AdminCategories(): JSX.Element {
       <Modal
         isOpen={isOpenCreateModal}
         setIsOpen={() => setIsOpenCreateModal(false)}
+        closeButton
       >
         <EditCategoryModalContainer>
           <EditCategoryHeaderContainer>
-            <button type="button" onClick={() => setIsOpenCreateModal(false)}>
-              <MdClose />
-            </button>
-
             <h2>Criar categoria</h2>
           </EditCategoryHeaderContainer>
 

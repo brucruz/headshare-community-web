@@ -60,7 +60,7 @@ const cache: ApolloCache<NormalizedCacheObject> = new InMemoryCache({
   },
 });
 
-const createClient =
+export const createClient =
   // (
   //   ctx: NextPageContext,
   // ): ApolloClient<NormalizedCacheObject> =>

@@ -6,7 +6,7 @@ import {
   InputMaxLength,
   InputTextArea,
   UserInput,
-} from '../styles/components/Input';
+} from '../../styles/components/Input';
 
 export interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   name: string;

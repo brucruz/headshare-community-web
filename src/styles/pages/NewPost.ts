@@ -175,11 +175,6 @@ export const PublishButton = styled.div`
 `;
 
 export const ConfirmationModal = styled.div`
-  margin-top: 15px;
-  margin-right: 20px;
-  margin-left: 20px;
-  margin-bottom: 50px;
-
   display: flex;
   flex-direction: column;
   align-items: center;
