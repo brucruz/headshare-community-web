@@ -3803,6 +3803,13 @@
   dependencies:
     "@types/react" "*"
 
+"@types/react-input-mask@^3.0.0":
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/@types/react-input-mask/-/react-input-mask-3.0.0.tgz#e5e3f7ab53eff3b2190f6729823c905c36a84954"
+  integrity sha512-W8I2GRt1wkFgEJJ4dleSCw1ly2lL+pW71OPkJSz6G93V77io4ulSSnZyiyCv3uljmQDOr94NMbNr5V5hfkMaUg==
+  dependencies:
+    "@types/react" "*"
+
 "@types/react-modal@^3.10.6":
   version "3.10.6"
   resolved "https://registry.yarnpkg.com/@types/react-modal/-/react-modal-3.10.6.tgz#76717220f32bc72769190692147814a540053c7e"
@@ -12256,6 +12263,11 @@ package-json@^6.3.0:
     registry-url "^5.0.0"
     semver "^6.2.0"
 
+pagarme@^4.16.0:
+  version "4.16.0"
+  resolved "https://registry.yarnpkg.com/pagarme/-/pagarme-4.16.0.tgz#ec757e49395700e892ea6e0c466eb88c0949e017"
+  integrity sha512-h01HG6Pmkpo1ZiOuTY7c/5gQu/+X8XhtNO3ic0UBkIvVfVKOMbMgL0CgoNJJbxszf3HW+NF6f/9JEOOkGh+UUg==
+
 pako@~1.0.5:
   version "1.0.11"
   resolved "https://registry.yarnpkg.com/pako/-/pako-1.0.11.tgz#6c9599d340d54dfd3946380252a35705a6b992bf"
@@ -13174,6 +13186,14 @@ react-icons@^4.1.0:
   version "4.1.0"
   resolved "https://registry.yarnpkg.com/react-icons/-/react-icons-4.1.0.tgz#9ca9bcbf2e3aee8e86e378bb9d465842947bbfc3"
   integrity sha512-FCXBg1JbbR0vWALXIxmFAfozHdVIJmmwCD81Jk0EKOt7Ax4AdBNcaRkWhR0NaKy9ugJgoY3fFvo0PHpte55pXg==
+
+react-input-mask@^2.0.4:
+  version "2.0.4"
+  resolved "https://registry.yarnpkg.com/react-input-mask/-/react-input-mask-2.0.4.tgz#9ade5cf8196f4a856dbf010820fe75a795f3eb14"
+  integrity sha512-1hwzMr/aO9tXfiroiVCx5EtKohKwLk/NT8QlJXHQ4N+yJJFyUuMT+zfTpLBwX/lK3PkuMlievIffncpMZ3HGRQ==
+  dependencies:
+    invariant "^2.2.4"
+    warning "^4.0.2"
 
 react-inspector@^5.1.0:
   version "5.1.0"

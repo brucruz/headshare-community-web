@@ -1,5 +1,6 @@
 import { gql } from '@apollo/client';
 import * as Apollo from '@apollo/client';
+
 export type Maybe<T> = T | null;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
 export type MakeOptional<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]?: Maybe<T[SubKey]> };
@@ -50,6 +51,8 @@ export type Query = {
   role?: Maybe<RoleResponse>;
   medias: MediasResponse;
   media: MediaResponse;
+  /** Lists all cards, given filters */
+  cards: PaginatedCards;
 };
 
 
@@ -125,6 +128,13 @@ export type QueryRoleArgs = {
 
 export type QueryMediaArgs = {
   id: Scalars['String'];
+};
+
+
+export type QueryCardsArgs = {
+  userId?: Maybe<Scalars['String']>;
+  cursor?: Maybe<Scalars['String']>;
+  limit: Scalars['Int'];
 };
 
 export type CommunitiesResponse = {
@@ -318,6 +328,14 @@ export type User = {
   email: Scalars['String'];
   /** User avatar image link */
   avatar?: Maybe<Scalars['String']>;
+  /** User address */
+  address?: Maybe<Address>;
+  /** User personal documents */
+  documents: Array<PersonalDocument>;
+  /** User phone info */
+  phone?: Maybe<Phone>;
+  /** User birthday */
+  birthday?: Maybe<Scalars['DateTime']>;
   posts: Array<Post>;
   roles: Array<Role>;
   isActive: Scalars['Boolean'];
@@ -326,6 +344,47 @@ export type User = {
   createdAt: Scalars['DateTime'];
   /** User last update date */
   updatedAt?: Maybe<Scalars['DateTime']>;
+};
+
+/** Address model */
+export type Address = {
+  __typename?: 'Address';
+  /** Street name */
+  street?: Maybe<Scalars['String']>;
+  /** Street number */
+  number?: Maybe<Scalars['String']>;
+  /** Address complementary info */
+  complement?: Maybe<Scalars['String']>;
+  /** Address neighbourhood */
+  neighbourhood?: Maybe<Scalars['String']>;
+  /** Address city name */
+  city?: Maybe<Scalars['String']>;
+  /** Address zipcode */
+  zipcode?: Maybe<Scalars['String']>;
+  /** Address state name */
+  state?: Maybe<Scalars['String']>;
+  /** Address country name */
+  country?: Maybe<Scalars['String']>;
+};
+
+/** Personal Document Model */
+export type PersonalDocument = {
+  __typename?: 'PersonalDocument';
+  /** Document id type, excluding company documents */
+  type: Scalars['String'];
+  /** Document id number */
+  number: Scalars['String'];
+};
+
+/** Phone Info Model */
+export type Phone = {
+  __typename?: 'Phone';
+  /** Phone number country code */
+  countryCode: Scalars['String'];
+  /** Phone number regional code (DDD), if existent */
+  areaCode?: Maybe<Scalars['String']>;
+  /** Phone number */
+  phone: Scalars['String'];
 };
 
 /** The Roles model */
@@ -519,6 +578,44 @@ export type MediaResponse = {
   media?: Maybe<Media>;
 };
 
+export type PaginatedCards = {
+  __typename?: 'PaginatedCards';
+  cards: Array<Card>;
+  hasMore: Scalars['Boolean'];
+  next?: Maybe<Scalars['String']>;
+};
+
+/** The Cards model */
+export type Card = {
+  __typename?: 'Card';
+  _id: Scalars['ObjectId'];
+  /** Card ID at Pagarme */
+  pagarmeId: Scalars['String'];
+  /** Card brand */
+  brand: Scalars['String'];
+  /** Card holder name */
+  holderName: Scalars['String'];
+  /** Card first 6 digits */
+  firstDigits: Scalars['String'];
+  /** Card last 4 digits */
+  lastDigits: Scalars['String'];
+  /** Card fingerprint */
+  fingerprint: Scalars['String'];
+  /** Card is valid if it is not expired */
+  valid: Scalars['Boolean'];
+  /** Card expiration date */
+  expirationDate: Scalars['String'];
+  /** Indicates if this card is its user main one */
+  isMain?: Maybe<Scalars['Boolean']>;
+  user: User;
+  isActive: Scalars['Boolean'];
+  removedAt?: Maybe<Scalars['DateTime']>;
+  /** Card creation date */
+  createdAt: Scalars['DateTime'];
+  /** Card last update date */
+  updatedAt?: Maybe<Scalars['DateTime']>;
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
   /** Users can create a community */
@@ -547,6 +644,8 @@ export type Mutation = {
   uploadVideo: MediaResponse;
   /** Users can import a media */
   uploadImage: MediaResponse;
+  /** Creates a new card for a given user */
+  createCard: Card;
 };
 
 
@@ -612,7 +711,7 @@ export type MutationLoginArgs = {
 
 export type MutationUpdateUserArgs = {
   updateData: EditMeInput;
-  _id: Scalars['ObjectId'];
+  _id: Scalars['String'];
 };
 
 
@@ -655,6 +754,11 @@ export type MutationUploadVideoArgs = {
 export type MutationUploadImageArgs = {
   imageData: UploadImageInput;
   communitySlug: Scalars['String'];
+};
+
+
+export type MutationCreateCardArgs = {
+  data: CreateCardInput;
 };
 
 export type CreateCommunityInput = {
@@ -824,6 +928,56 @@ export type EditMeInput = {
   password?: Maybe<Scalars['String']>;
   /** User avatar image link */
   avatar?: Maybe<Scalars['String']>;
+  /** User address */
+  address?: Maybe<CreateAddressInput>;
+  /** User personal documents */
+  documents?: Maybe<Array<CreatePersonalDocumentInput>>;
+  /** User phone info */
+  phone?: Maybe<CreatePhoneInput>;
+  /** User birthday */
+  birthday?: Maybe<Scalars['DateTime']>;
+};
+
+export type CreateAddressInput = {
+  /** Street name */
+  street: Scalars['String'];
+  /** Street number */
+  number: Scalars['String'];
+  /** Address complementary info */
+  complement?: Maybe<Scalars['String']>;
+  /** Address neighbourhood */
+  neighbourhood?: Maybe<Scalars['String']>;
+  /** Address city name */
+  city: Scalars['String'];
+  /** Address zipcode */
+  zipcode: Scalars['String'];
+  /** Address state name */
+  state?: Maybe<Scalars['String']>;
+  /** Address country name */
+  country: Scalars['String'];
+};
+
+export type CreatePersonalDocumentInput = {
+  /** Document id type, excluding company documents */
+  type: DocumentIdType;
+  /** Document id number */
+  number: Scalars['String'];
+};
+
+/** Acceptable documents for using the platform */
+export enum DocumentIdType {
+  Cpf = 'CPF',
+  Passport = 'PASSPORT',
+  Cnpj = 'CNPJ'
+}
+
+export type CreatePhoneInput = {
+  /** Phone number country code */
+  countryCode: Scalars['String'];
+  /** Phone number regional code (DDD), if existent */
+  areaCode?: Maybe<Scalars['String']>;
+  /** Phone number */
+  phone: Scalars['String'];
 };
 
 export type CreateTagInput = {
@@ -860,6 +1014,25 @@ export type UploadMediaInput = {
   description?: Maybe<Scalars['String']>;
   /** Media file information */
   file: FileInput;
+};
+
+export type CreateCardInput = {
+  /** Card ID at Pagarme */
+  pagarmeId: Scalars['String'];
+  /** Card brand */
+  brand: Scalars['String'];
+  /** Card holder name */
+  holderName: Scalars['String'];
+  /** Card first 6 digits */
+  firstDigits: Scalars['String'];
+  /** Card last 4 digits */
+  lastDigits: Scalars['String'];
+  /** Card fingerprint */
+  fingerprint: Scalars['String'];
+  /** Card is valid if it is not expired */
+  valid: Scalars['Boolean'];
+  /** Card expiration date */
+  expirationDate: Scalars['String'];
 };
 
 export type CommonCommunityFragment = (
@@ -1280,6 +1453,26 @@ export type UpdatePostMainMediaThumbnailMutation = (
       )> }
     )> }
   ) }
+);
+
+export type UpdateUserAddressMutationVariables = Exact<{
+  userId: Scalars['String'];
+  address: CreateAddressInput;
+}>;
+
+
+export type UpdateUserAddressMutation = (
+  { __typename?: 'Mutation' }
+  & { updateUser?: Maybe<(
+    { __typename?: 'UserResponse' }
+    & { errors?: Maybe<Array<(
+      { __typename?: 'ErrorResponse' }
+      & Pick<ErrorResponse, 'field' | 'message'>
+    )>>, user?: Maybe<(
+      { __typename?: 'User' }
+      & Pick<User, '_id'>
+    )> }
+  )> }
 );
 
 export type UploadImageMutationVariables = Exact<{
@@ -2576,6 +2769,45 @@ export function useUpdatePostMainMediaThumbnailMutation(baseOptions?: Apollo.Mut
 export type UpdatePostMainMediaThumbnailMutationHookResult = ReturnType<typeof useUpdatePostMainMediaThumbnailMutation>;
 export type UpdatePostMainMediaThumbnailMutationResult = Apollo.MutationResult<UpdatePostMainMediaThumbnailMutation>;
 export type UpdatePostMainMediaThumbnailMutationOptions = Apollo.BaseMutationOptions<UpdatePostMainMediaThumbnailMutation, UpdatePostMainMediaThumbnailMutationVariables>;
+export const UpdateUserAddressDocument = gql`
+    mutation UpdateUserAddress($userId: String!, $address: CreateAddressInput!) {
+  updateUser(_id: $userId, updateData: {address: $address}) {
+    errors {
+      field
+      message
+    }
+    user {
+      _id
+    }
+  }
+}
+    `;
+export type UpdateUserAddressMutationFn = Apollo.MutationFunction<UpdateUserAddressMutation, UpdateUserAddressMutationVariables>;
+
+/**
+ * __useUpdateUserAddressMutation__
+ *
+ * To run a mutation, you first call `useUpdateUserAddressMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateUserAddressMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateUserAddressMutation, { data, loading, error }] = useUpdateUserAddressMutation({
+ *   variables: {
+ *      userId: // value for 'userId'
+ *      address: // value for 'address'
+ *   },
+ * });
+ */
+export function useUpdateUserAddressMutation(baseOptions?: Apollo.MutationHookOptions<UpdateUserAddressMutation, UpdateUserAddressMutationVariables>) {
+        return Apollo.useMutation<UpdateUserAddressMutation, UpdateUserAddressMutationVariables>(UpdateUserAddressDocument, baseOptions);
+      }
+export type UpdateUserAddressMutationHookResult = ReturnType<typeof useUpdateUserAddressMutation>;
+export type UpdateUserAddressMutationResult = Apollo.MutationResult<UpdateUserAddressMutation>;
+export type UpdateUserAddressMutationOptions = Apollo.BaseMutationOptions<UpdateUserAddressMutation, UpdateUserAddressMutationVariables>;
 export const UploadImageDocument = gql`
     mutation UploadImage($communitySlug: String!, $imageData: UploadImageInput!) {
   uploadImage(communitySlug: $communitySlug, imageData: $imageData) {

@@ -5,7 +5,7 @@ import { Story, Meta } from '@storybook/react';
 import { RadioButton, RadioButtonProps } from './index';
 
 export default {
-  title: 'Headshare/Membership/RadioButton',
+  title: 'Headshare/Basic Components/RadioButton',
   component: RadioButton,
   parameters: {
     backgrounds: {

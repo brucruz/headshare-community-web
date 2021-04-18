@@ -41,15 +41,15 @@ export const ButtonContainer = styled.button<ButtonProps>`
   ${props =>
     props.priority === 'primary' &&
     css`
-      background-color: #e74f4f;
-      color: #fafafa;
+      background-color: var(--headshare-coral);
+      color: #fff;
     `}
 
   ${props =>
     props.priority === 'secondary' &&
     css`
-      border: 2px solid #e74f4f;
-      color: #e74f4f;
+      border: 2px solid var(--headshare-coral);
+      color: var(--headshare-coral);
     `}
 
   ${props =>

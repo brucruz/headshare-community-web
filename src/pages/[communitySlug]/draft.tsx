@@ -136,6 +136,7 @@ function NewPost(): JSX.Element {
   const community = communityData && communityData.community.community;
 
   const handleMediaUpload = useCallback(
+    // eslint-disable-next-line consistent-return
     async (file: File, commSlug: string) => {
       const [filename, fileExtension] = formatS3Filename(file.name, commSlug);
 
@@ -319,7 +320,14 @@ function NewPost(): JSX.Element {
     router.push(postURL);
   }, [updatePost, communitySlug, id, description, slug, exclusive, router]);
 
-  const mainMedia = useMemo(() => {
+  const mainMedia = useMemo(():
+    | {
+        format: MediaFormat;
+        url: string;
+        height: number;
+        width: number;
+      }
+    | undefined => {
     const postMainMedia = postData?.findPostById?.post?.mainMedia;
     const uploadInfoMainMedia = uploadInfo?.mainMedia;
 
@@ -340,6 +348,8 @@ function NewPost(): JSX.Element {
         width: Number(uploadInfoMainMedia.width),
       };
     }
+
+    return undefined;
   }, [postData?.findPostById?.post?.mainMedia, uploadInfo.mainMedia]);
 
   const removePostMainMedia = useCallback(async () => {

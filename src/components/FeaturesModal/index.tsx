@@ -1,62 +1,124 @@
-import { useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import {
+  MdCheck,
+  MdClose,
+  MdKeyboardArrowDown,
+  MdKeyboardArrowUp,
+} from 'react-icons/md';
+import {
+  FeatureContainer,
   FeaturesListContainer,
   FeaturesModalContainer,
   FeaturesPlanSelectionContainer,
+  MoreFeaturesButton,
 } from '../../styles/components/FeaturesModal';
-import Button from '../Button';
 import Modal from '../Modal';
 import { RadioButtonGroup } from '../RadioButton';
 
+interface MainPlan {
+  value: number;
+  valueLabel: string;
+  period: 'annually' | 'monthly';
+}
+
+interface Feature {
+  included: boolean;
+  description: string;
+}
 export interface FeaturesModalProps {
   communityTitle: string;
+  communityMainPlans: MainPlan[];
+  communityFeatures: Feature[];
+  communityTrialDays?: number;
+  nextPage: () => void;
+  previousPage: () => void;
+  isOpen: boolean;
 }
 
 export function FeaturesModal({
   communityTitle = 'Headshare',
+  communityMainPlans,
+  communityFeatures,
+  communityTrialDays = 7,
+  nextPage,
+  isOpen,
 }: FeaturesModalProps): JSX.Element {
-  const [isOpen, setIsOpen] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(isOpen);
+  const [isFeaturesOpen, setIsFeaturesOpen] = useState(false);
+
+  const planQuantity = useMemo(() => communityMainPlans.length, [
+    communityMainPlans,
+  ]);
+
+  const handleFeaturesToggle = useCallback(() => {
+    setIsFeaturesOpen(!isFeaturesOpen);
+  }, [isFeaturesOpen]);
 
   return (
-    <Modal isOpen={isOpen} setIsOpen={() => setIsOpen} closeButton>
+    <Modal
+      isOpen={isModalOpen}
+      setIsOpen={() => setIsModalOpen}
+      closeButton
+      defaultContent={{
+        title: `Acesso ao conteúdo exclusivo da página ${communityTitle}`,
+        mainButton: {
+          text: `Assine grátis por ${communityTrialDays} dias`,
+          stretch: true,
+          onClick: nextPage,
+        },
+      }}
+    >
       <FeaturesModalContainer>
-        <h2>Acesso ao conteúdo exclusivo da página {communityTitle}</h2>
-
         <FeaturesPlanSelectionContainer>
           <RadioButtonGroup
-            elements={[
-              {
-                index: 0,
-                length: 2,
-                label: 'R$ 49,90/mês',
-                name: 'month',
-                selected: 'month',
-                stretch: true,
-              },
-              {
-                index: 1,
-                length: 2,
-                label: 'R$ 499/ano',
-                name: 'annual',
-                selected: 'month',
-                stretch: true,
-              },
-            ]}
+            elements={communityMainPlans.map((plan, index) => ({
+              index,
+              length: planQuantity,
+              label: plan.valueLabel,
+              name: plan.period,
+              selected: 'monthly',
+              stretch: true,
+            }))}
           />
         </FeaturesPlanSelectionContainer>
 
         <FeaturesListContainer>
-          <li>Novas aulas sendo adicionadas toda semana</li>
+          {isFeaturesOpen
+            ? communityFeatures.map(feat => (
+                <FeatureContainer>
+                  {feat.included && <MdCheck />}
+                  {!feat.included && <MdClose />}
 
-          <li>
-            Seja notificado por email quando novas aulas exclusivas para membros
-            forem publicadas
-          </li>
+                  <p>{feat.description}</p>
+                </FeatureContainer>
+              ))
+            : communityFeatures.slice(0, 5).map(feat => (
+                <FeatureContainer>
+                  {feat.included && <MdCheck />}
+                  {!feat.included && <MdClose />}
 
-          <li>Espaço para você definir outras vantagens que preferir</li>
+                  <p>{feat.description}</p>
+                </FeatureContainer>
+              ))}
+
+          {communityFeatures.length > 5 && (
+            <MoreFeaturesButton onClick={handleFeaturesToggle}>
+              {isFeaturesOpen ? (
+                <>
+                  <p>Veja menos</p>
+
+                  <MdKeyboardArrowUp />
+                </>
+              ) : (
+                <>
+                  <p>Veja mais</p>
+
+                  <MdKeyboardArrowDown />
+                </>
+              )}
+            </MoreFeaturesButton>
+          )}
         </FeaturesListContainer>
-
-        <Button text="Assinar" stretch />
       </FeaturesModalContainer>
     </Modal>
   );

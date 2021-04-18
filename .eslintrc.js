@@ -46,6 +46,7 @@ module.exports = {
     'import/no-named-default': 'off',
     'react/jsx-filename-extension': [1, { extensions: ['.tsx'] }],
     'import/prefer-default-export': 'off',
+    'no-underscore-dangle': 'off',
     '@typescript-eslint/explicit-function-return-type': [
       'error',
       {

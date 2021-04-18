@@ -1,3 +1,5 @@
+/* eslint-disable consistent-return */
+/* eslint-disable @typescript-eslint/explicit-function-return-type */
 /* eslint-disable no-underscore-dangle */
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';

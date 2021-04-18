@@ -1,11 +1,9 @@
 import styled from 'styled-components';
 
 export const InnerContainer = styled.section`
-  margin: 15px;
   text-align: center;
 
   h5 {
-    /* margin-top: 5px; */
     color: var(--error-color);
   }
 `;
@@ -24,7 +22,7 @@ export const ButtonsContainer = styled.div`
   display: flex;
   justify-content: center;
 
-  margin: 10px auto;
+  padding-top: 10px;
 
   button + button {
     margin-left: 10px;

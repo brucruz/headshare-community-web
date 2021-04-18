@@ -1,3 +1,4 @@
+/* eslint-disable consistent-return */
 /* eslint-disable no-underscore-dangle */
 import { ChangeEvent, ReactNode, useCallback, useState } from 'react';
 import { MdAddAPhoto, MdPhoto } from 'react-icons/md';

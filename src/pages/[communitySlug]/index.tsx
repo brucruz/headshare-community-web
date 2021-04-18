@@ -17,7 +17,6 @@ import {
   useGetCommunityHomeDataQuery,
 } from '../../generated/graphql';
 import {
-  CategoriesDetailContainer,
   CategoriesPosts,
   CategoryContent,
   CategoryPost,

@@ -1,45 +1,49 @@
 /* eslint-disable no-underscore-dangle */
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import { useRouter } from 'next/router';
-import { AuthType, useAuth } from '../hooks/useAuth';
+import { AuthType, useAuth } from '../../hooks/useAuth';
 import {
   AuthHeaderContainer,
   AuthModalContainer,
   OtherAuthOptions,
   AuthForm,
   MultiStepContainer,
-} from '../styles/components/AuthModal';
-import Input from './Input';
-import Modal from './Modal';
+} from '../../styles/components/AuthModal';
+import Input from '../Input';
+import Modal from '../Modal';
 import {
   useFollowCommunityMutation,
   useLoginMutation,
   useRegisterMutation,
-} from '../generated/graphql';
-import { toErrorMap } from '../utils/toErrorMap';
-import Button from './Button';
-import MultiStep from './Multistep';
-import { useSnackbar } from '../hooks/useSnackbar';
+} from '../../generated/graphql';
+import { toErrorMap } from '../../utils/toErrorMap';
+import Button from '../Button';
+import MultiStep from '../Multistep';
+import { useSnackbar } from '../../hooks/useSnackbar';
 
-interface RegisterVariables {
+export interface AuthModalProps {
+  isOpen?: boolean;
+}
+
+export interface RegisterVariables {
   name: string;
   surname?: string;
   email: string;
   password: string;
 }
 
-interface LoginVariables {
+export interface LoginVariables {
   email: string;
   password: string;
 }
 
-interface ForgotPasswordVariables {
+export interface ForgotPasswordVariables {
   email: string;
 }
 
-export default function AuthModal(): JSX.Element {
+export default function AuthModal({ isOpen }: AuthModalProps): JSX.Element {
   const {
     isAuthOpen,
     closeAuth,
@@ -55,6 +59,11 @@ export default function AuthModal(): JSX.Element {
   const [register] = useRegisterMutation();
   const [followCommunity] = useFollowCommunityMutation();
   const { addSnackbar } = useSnackbar();
+
+  const isModalOpen = useMemo(() => isOpen !== undefined || isAuthOpen, [
+    isAuthOpen,
+    isOpen,
+  ]);
 
   const registerForm = useFormik<RegisterVariables>({
     initialValues: {
@@ -429,7 +438,7 @@ export default function AuthModal(): JSX.Element {
   );
 
   return (
-    <Modal isOpen={isAuthOpen} setIsOpen={() => closeAuth()} closeButton>
+    <Modal isOpen={isModalOpen} setIsOpen={() => closeAuth()} closeButton>
       <AuthModalContainer>
         <AuthHeaderContainer>
           <h2>{authHeader(authType)}</h2>

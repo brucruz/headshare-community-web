@@ -1,3 +1,5 @@
+/* eslint-disable jsx-a11y/click-events-have-key-events */
+/* eslint-disable jsx-a11y/no-noninteractive-element-interactions */
 /* eslint-disable no-underscore-dangle */
 import { useCallback, useEffect, useState } from 'react';
 import Input from './Input';
