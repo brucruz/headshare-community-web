@@ -1,8 +1,10 @@
 import { InputHTMLAttributes, useEffect, useRef, useState } from 'react';
 import ReactInputMask from 'react-input-mask';
+import NextImage from 'next/image';
 
 import {
   InputContainer,
+  InputCreditCardBrand,
   InputError,
   InputMaxLength,
   InputTextArea,
@@ -22,6 +24,7 @@ export interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   type?: string;
   value: string;
   error?: any;
+  creditCardBrand?: string;
 }
 
 function Input({
@@ -38,6 +41,7 @@ function Input({
   value,
   maxLength,
   error,
+  creditCardBrand,
   ...rest
 }: InputProps): JSX.Element {
   const inputRef = useRef(null);
@@ -69,17 +73,13 @@ function Input({
             maskChar={maskChar}
             formatChars={formatChars}
           />
-          {/* <input
-            id={id}
-            name={name}
-            ref={inputRef}
-            value={value}
-            type={type}
-            placeholder={placeholder}
-            disabled={disabled}
-            maxLength={maxLength}
-          /> */}
         </InputTextArea>
+
+        {creditCardBrand && (
+          <InputCreditCardBrand>
+            <NextImage src={creditCardBrand} width={26} height={26} />
+          </InputCreditCardBrand>
+        )}
       </UserInput>
       {maxLength && (
         <InputMaxLength>

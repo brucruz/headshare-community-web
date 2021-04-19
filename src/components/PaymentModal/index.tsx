@@ -1,4 +1,4 @@
-import { ChangeEvent, useCallback } from 'react';
+import { ChangeEvent, useCallback, useState } from 'react';
 import { useFormik } from 'formik';
 
 import { MdCreditCard } from 'react-icons/md';
@@ -12,6 +12,7 @@ import {
 } from './PaymentModal';
 import { fetchCardBinData } from '../../services/binlist/fetchCardBinData';
 import { removeFormatCardNumber } from '../../utils/removeFormatCardNumber';
+import creditCardBrands, { GENERIC } from '../../constants/creditCardBrands';
 
 export interface PaymentModalProps {
   nextStep: () => void;
@@ -31,6 +32,8 @@ export function PaymentModal({
   isOpen,
   previousStep,
 }: PaymentModalProps): JSX.Element {
+  const [cardBrand, setCardBrand] = useState(GENERIC);
+
   const updateUserPaymentForm = useFormik<UpdateUserPaymentVariables>({
     initialValues: {
       card_number: '',
@@ -50,20 +53,39 @@ export function PaymentModal({
 
       updateUserPaymentForm.setFieldValue('card_number', cardNumber);
 
+      if (cardNumber.length < 4) {
+        setCardBrand(GENERIC);
+      }
+
       if (cardNumber.length >= 4) {
         const { cardBin, error } = await fetchCardBinData(
           removeFormatCardNumber(cardNumber),
         );
 
+        if (cardBin) {
+          const key =
+            cardBin.scheme &&
+            (cardBin.scheme.toUpperCase() as keyof typeof creditCardBrands);
+
+          if (key) {
+            const brand = creditCardBrands[key];
+
+            setCardBrand(brand);
+          }
+
+          if (!key) {
+            setCardBrand(GENERIC);
+          }
+        }
+
         if (error) {
           updateUserPaymentForm.setFieldError('card_number', error);
+          setCardBrand(GENERIC);
         }
       }
     },
     [updateUserPaymentForm],
   );
-
-  const { values: formValues } = updateUserPaymentForm;
 
   return (
     <Modal
@@ -102,6 +124,7 @@ export function PaymentModal({
               updateUserPaymentForm.errors.card_number
               // updateUserPaymentForm.touched.card_number &&
             }
+            creditCardBrand={cardBrand}
           />
         </PaymentInputWrapper>
 

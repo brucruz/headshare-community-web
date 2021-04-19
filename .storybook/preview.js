@@ -4,6 +4,15 @@ import { ApolloProvider } from '@apollo/client';
 import { createClient } from '../src/utils/withApollo';
 import AppProvider from '../src/hooks/AppProvider';
 
+import * as nextImage from 'next/image';
+
+Object.defineProperty(nextImage, 'default', {
+  configurable: true,
+  value: (props) => {
+    return <img {...props} />;
+  },
+});
+
 // Global decorator to apply the styles to all stories
 export const decorators = [
   Story => (

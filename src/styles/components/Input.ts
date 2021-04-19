@@ -56,7 +56,13 @@ export const InputTextArea = styled.div`
   display: flex;
   flex-direction: column;
 
-  width: 100%;
+  /* width: 100%; */
+`;
+
+export const InputCreditCardBrand = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
 `;
 
 export const InputError = styled.div`
