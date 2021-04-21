@@ -30,12 +30,22 @@ export const ButtonContainer = styled.button<ButtonProps>`
     `}
 
   h4 {
+    display: flex;
     margin: 8px 18px;
     font-weight: 600;
+
+    div {
+      margin-right: 8px;
+    }
   }
 
   p {
+    display: flex;
     margin: 3px 10px;
+
+    div {
+      margin-right: 8px;
+    }
   }
 
   ${props =>
@@ -70,8 +80,6 @@ export const ButtonContainer = styled.button<ButtonProps>`
     !props.disabled &&
     css`
       &:hover {
-        box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
-
         opacity: 0.9;
       }
     `}
@@ -82,8 +90,6 @@ export const ButtonContainer = styled.button<ButtonProps>`
       cursor: auto;
 
       &:hover {
-        box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
-
         opacity: 0.9;
       }
     `}

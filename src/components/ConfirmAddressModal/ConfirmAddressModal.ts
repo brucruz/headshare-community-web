@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+import device from '../../utils/devices';
 
 export const ConfirmAddressForm = styled.form``;
 
@@ -20,5 +21,14 @@ export const ConfirmAddressInputWrapperSameLine = styled.div`
 
   & > section {
     flex: 1 0 auto;
+  }
+
+  @media ${device.mobileS} {
+    flex-direction: column;
+
+    & > section + section {
+      margin-top: 16px;
+      margin-left: 0px;
+    }
   }
 `;

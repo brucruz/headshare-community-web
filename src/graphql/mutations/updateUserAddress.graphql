@@ -1,5 +1,5 @@
 mutation UpdateUserAddress($userId: String!, $address: CreateAddressInput!) {
-  updateUser(_id: $userId, updateData: { address: $address }) {
+  updateUser(userId: $userId, updateData: { address: $address }) {
     errors {
       field
       message

@@ -1,5 +1,6 @@
 import { ButtonHTMLAttributes } from 'react';
 import { ButtonContainer } from '../../styles/components/Button';
+import { LoadingAnimation } from '../LoadingAnimation';
 
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   priority?: 'primary' | 'secondary' | 'tertiary';
@@ -29,7 +30,27 @@ const Button: React.FC<ButtonProps> = ({
     {...rest}
   >
     {icon && icon}
-    {size === 'small' ? <p>{text}</p> : <h4>{text}</h4>}
+    {size === 'small' ? (
+      <p>
+        {isLoading && (
+          <LoadingAnimation
+            color={priority === 'primary' ? 'secondary' : 'primary'}
+            application="button"
+          />
+        )}
+        {text}
+      </p>
+    ) : (
+      <h4>
+        {isLoading && (
+          <LoadingAnimation
+            color={priority === 'primary' ? 'secondary' : 'primary'}
+            application="button"
+          />
+        )}
+        {text}
+      </h4>
+    )}
   </ButtonContainer>
 );
 

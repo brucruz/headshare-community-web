@@ -20,6 +20,18 @@ Primary.args = {
   isLoading: false,
 };
 
+export const LoadingPrimary = Template.bind({});
+LoadingPrimary.parameters = {
+  fileName: 'Loading Primary',
+};
+LoadingPrimary.args = {
+  priority: 'primary',
+  text: 'Click here',
+  size: 'medium',
+  stretch: false,
+  isLoading: true,
+};
+
 export const Secondary = Template.bind({});
 Secondary.args = {
   priority: 'secondary',
@@ -27,6 +39,18 @@ Secondary.args = {
   size: 'medium',
   stretch: false,
   isLoading: false,
+};
+
+export const LoadingSecondary = Template.bind({});
+LoadingSecondary.parameters = {
+  fileName: 'Loading Secondary',
+};
+LoadingSecondary.args = {
+  priority: 'secondary',
+  text: 'Click here',
+  size: 'medium',
+  stretch: false,
+  isLoading: true,
 };
 
 export const Tertiary = Template.bind({});

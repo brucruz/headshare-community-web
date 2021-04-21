@@ -22,7 +22,7 @@ export const UserInput = styled.header<InputProps>`
 
   padding: 0 12px;
 
-  margin-top: 8px;
+  /* margin-top: 8px; */
 
   label {
     font-size: 14px;

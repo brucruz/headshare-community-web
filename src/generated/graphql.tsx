@@ -1,6 +1,5 @@
 import { gql } from '@apollo/client';
 import * as Apollo from '@apollo/client';
-
 export type Maybe<T> = T | null;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
 export type MakeOptional<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]?: Maybe<T[SubKey]> };
@@ -711,7 +710,7 @@ export type MutationLoginArgs = {
 
 export type MutationUpdateUserArgs = {
   updateData: EditMeInput;
-  _id: Scalars['String'];
+  userId: Scalars['String'];
 };
 
 
@@ -1947,6 +1946,25 @@ export type PostBySlugsQuery = (
   ) }
 );
 
+export type UserCardsQueryVariables = Exact<{
+  cursor?: Maybe<Scalars['String']>;
+  limit: Scalars['Int'];
+  userId?: Maybe<Scalars['String']>;
+}>;
+
+
+export type UserCardsQuery = (
+  { __typename?: 'Query' }
+  & { cards: (
+    { __typename?: 'PaginatedCards' }
+    & Pick<PaginatedCards, 'hasMore' | 'next'>
+    & { cards: Array<(
+      { __typename?: 'Card' }
+      & Pick<Card, 'pagarmeId' | 'brand' | 'holderName' | 'firstDigits' | 'lastDigits' | 'valid' | 'isMain'>
+    )> }
+  ) }
+);
+
 export const CreatorNameFragmentDoc = gql`
     fragment CreatorName on User {
   name
@@ -2771,7 +2789,7 @@ export type UpdatePostMainMediaThumbnailMutationResult = Apollo.MutationResult<U
 export type UpdatePostMainMediaThumbnailMutationOptions = Apollo.BaseMutationOptions<UpdatePostMainMediaThumbnailMutation, UpdatePostMainMediaThumbnailMutationVariables>;
 export const UpdateUserAddressDocument = gql`
     mutation UpdateUserAddress($userId: String!, $address: CreateAddressInput!) {
-  updateUser(_id: $userId, updateData: {address: $address}) {
+  updateUser(userId: $userId, updateData: {address: $address}) {
     errors {
       field
       message
@@ -3673,3 +3691,48 @@ export function usePostBySlugsLazyQuery(baseOptions?: Apollo.LazyQueryHookOption
 export type PostBySlugsQueryHookResult = ReturnType<typeof usePostBySlugsQuery>;
 export type PostBySlugsLazyQueryHookResult = ReturnType<typeof usePostBySlugsLazyQuery>;
 export type PostBySlugsQueryResult = Apollo.QueryResult<PostBySlugsQuery, PostBySlugsQueryVariables>;
+export const UserCardsDocument = gql`
+    query userCards($cursor: String, $limit: Int!, $userId: String) {
+  cards(cursor: $cursor, limit: $limit, userId: $userId) {
+    cards {
+      pagarmeId
+      brand
+      holderName
+      firstDigits
+      lastDigits
+      valid
+      isMain
+    }
+    hasMore
+    next
+  }
+}
+    `;
+
+/**
+ * __useUserCardsQuery__
+ *
+ * To run a query within a React component, call `useUserCardsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useUserCardsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useUserCardsQuery({
+ *   variables: {
+ *      cursor: // value for 'cursor'
+ *      limit: // value for 'limit'
+ *      userId: // value for 'userId'
+ *   },
+ * });
+ */
+export function useUserCardsQuery(baseOptions: Apollo.QueryHookOptions<UserCardsQuery, UserCardsQueryVariables>) {
+        return Apollo.useQuery<UserCardsQuery, UserCardsQueryVariables>(UserCardsDocument, baseOptions);
+      }
+export function useUserCardsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<UserCardsQuery, UserCardsQueryVariables>) {
+          return Apollo.useLazyQuery<UserCardsQuery, UserCardsQueryVariables>(UserCardsDocument, baseOptions);
+        }
+export type UserCardsQueryHookResult = ReturnType<typeof useUserCardsQuery>;
+export type UserCardsLazyQueryHookResult = ReturnType<typeof useUserCardsLazyQuery>;
+export type UserCardsQueryResult = Apollo.QueryResult<UserCardsQuery, UserCardsQueryVariables>;

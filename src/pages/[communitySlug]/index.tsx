@@ -32,6 +32,7 @@ import {
 import { withApollo } from '../../utils/withApollo';
 import { useAuth } from '../../hooks/useAuth';
 import { SEO } from '../../components/SEO';
+import { ConfirmAddressModal } from '../../components/ConfirmAddressModal';
 
 interface PostCardProps {
   title: string;

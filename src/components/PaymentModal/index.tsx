@@ -1,18 +1,12 @@
-import { ChangeEvent, useCallback, useState } from 'react';
-import { useFormik } from 'formik';
-
-import { MdCreditCard } from 'react-icons/md';
-import Input from '../Input';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import Modal from '../Modal';
-import {
-  PaymentForm,
-  PaymentInputWrapper,
-  PaymentInputWrapperSameLine,
-  PaymentInputGroupWrapper,
-} from './PaymentModal';
-import { fetchCardBinData } from '../../services/binlist/fetchCardBinData';
-import { removeFormatCardNumber } from '../../utils/removeFormatCardNumber';
-import creditCardBrands, { GENERIC } from '../../constants/creditCardBrands';
+
+import { NewCardForm } from '../NewCardForm';
+import { useUserCardsQuery, Card } from '../../generated/graphql';
+import { useAuth } from '../../hooks/useAuth';
+import { LoadingAnimation } from '../LoadingAnimation';
+import { PaymentMethodCard } from '../PaymentMethodCard';
+import { ButtonProps } from '../Button';
 
 export interface PaymentModalProps {
   nextStep: () => void;
@@ -20,72 +14,169 @@ export interface PaymentModalProps {
   isOpen: boolean;
 }
 
-export interface UpdateUserPaymentVariables {
-  card_number: string;
-  card_holder_name: string;
-  card_cvv: string;
-  card_expiration_date_month: string;
-  card_expiration_date_year: string;
-}
+const testCards: Pick<
+  Card,
+  | 'pagarmeId'
+  | 'brand'
+  | 'holderName'
+  | 'firstDigits'
+  | 'lastDigits'
+  | 'valid'
+  | 'isMain'
+>[] = [
+  {
+    brand: 'mastercard',
+    firstDigits: '543210',
+    holderName: 'Bruno Gomes da Cruz',
+    lastDigits: '1234',
+    pagarmeId: '684098',
+    valid: true,
+    isMain: true,
+  },
+  {
+    brand: 'visa',
+    firstDigits: '456120',
+    holderName: 'Bruno Cruz',
+    lastDigits: '7418',
+    pagarmeId: '78090709',
+    valid: true,
+    isMain: false,
+  },
+  {
+    brand: 'amex',
+    firstDigits: '789023',
+    holderName: 'Amanda Ragusa',
+    lastDigits: '1695',
+    pagarmeId: '09840984',
+    valid: true,
+    isMain: false,
+  },
+  {
+    brand: 'discover',
+    firstDigits: '552233',
+    holderName: 'Bruno Cruz',
+    lastDigits: '6802',
+    pagarmeId: '9807974',
+    valid: true,
+    isMain: false,
+  },
+  {
+    brand: 'hipercard',
+    firstDigits: '112233',
+    holderName: 'Bruno Gomes',
+    lastDigits: '0984',
+    pagarmeId: '60938749',
+    valid: true,
+    isMain: false,
+  },
+];
 
 export function PaymentModal({
   isOpen,
   previousStep,
 }: PaymentModalProps): JSX.Element {
-  const [cardBrand, setCardBrand] = useState(GENERIC);
+  const [cards, setCards] = useState<
+    Pick<
+      Card,
+      | 'pagarmeId'
+      | 'brand'
+      | 'holderName'
+      | 'firstDigits'
+      | 'lastDigits'
+      | 'valid'
+      | 'isMain'
+    >[]
+  >(testCards);
+  const [paymentState, setPaymentState] = useState<
+    'new' | 'main' | 'select' | undefined
+  >();
 
-  const updateUserPaymentForm = useFormik<UpdateUserPaymentVariables>({
-    initialValues: {
-      card_number: '',
-      card_holder_name: '',
-      card_cvv: '',
-      card_expiration_date_month: '',
-      card_expiration_date_year: '',
-    },
-    onSubmit: async values => {
-      console.log(values);
+  const { me } = useAuth();
+
+  const { data, error, loading } = useUserCardsQuery({
+    variables: {
+      limit: 10,
+      userId: me?._id,
     },
   });
 
-  const handleCardNumberChange = useCallback(
-    async (e: ChangeEvent<HTMLInputElement>) => {
-      const cardNumber = e.target.value;
+  useEffect(() => {
+    if (data?.cards.cards) {
+      setCards(data?.cards.cards);
+    }
+  }, [data?.cards.cards]);
 
-      updateUserPaymentForm.setFieldValue('card_number', cardNumber);
+  useEffect(() => {
+    if (!loading && cards && cards.length === 0) {
+      setPaymentState('new');
+    }
 
-      if (cardNumber.length < 4) {
-        setCardBrand(GENERIC);
-      }
+    if (!loading && cards && cards.length > 0) {
+      setPaymentState('main');
+    }
+  }, [cards, loading]);
 
-      if (cardNumber.length >= 4) {
-        const { cardBin, error } = await fetchCardBinData(
-          removeFormatCardNumber(cardNumber),
-        );
+  const mainCard = useMemo(() => cards.find(card => card.isMain === true), [
+    cards,
+  ]);
 
-        if (cardBin) {
-          const key =
-            cardBin.scheme &&
-            (cardBin.scheme.toUpperCase() as keyof typeof creditCardBrands);
+  const handleDefineNewMainCard = useCallback(
+    (id: string) => {
+      const newCards = cards.map(card => {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { isMain, ...rest } = card;
+        return card.pagarmeId === id
+          ? { isMain: true, ...rest }
+          : { isMain: false, ...rest };
+      });
 
-          if (key) {
-            const brand = creditCardBrands[key];
-
-            setCardBrand(brand);
-          }
-
-          if (!key) {
-            setCardBrand(GENERIC);
-          }
-        }
-
-        if (error) {
-          updateUserPaymentForm.setFieldError('card_number', error);
-          setCardBrand(GENERIC);
-        }
-      }
+      setCards(newCards);
     },
-    [updateUserPaymentForm],
+    [cards],
   );
+
+  const ModalTitleSubtitleButton = useMemo((): {
+    title: string;
+    subtitle?: string;
+    mainButton?: ButtonProps;
+  } => {
+    switch (paymentState) {
+      case 'new':
+        return {
+          title: 'Informe os dados do seu cartão de crédito',
+          mainButton: {
+            text: 'Confirmar assinatura',
+            type: 'submit',
+            form: 'updateUserPaymentForm',
+            stretch: true,
+          },
+        };
+
+      case 'select':
+        return {
+          title: 'Selecione a forma de pagamento',
+          mainButton: {
+            text: 'Adicionar novo cartão',
+            priority: 'secondary',
+            stretch: true,
+            onClick: () => setPaymentState('new'),
+          },
+        };
+
+      default:
+        return {
+          title: 'Confirme os dados do seu cartão de crédito',
+          subtitle:
+            'Fique tranquilo: você não será cobrado se cancelar antes do período gratuito terminar',
+          mainButton: {
+            text: 'Confirmar assinatura',
+            type: 'submit',
+            form: 'updateUserPaymentForm',
+            stretch: true,
+          },
+        };
+    }
+  }, [paymentState]);
 
   return (
     <Modal
@@ -94,106 +185,44 @@ export function PaymentModal({
       previousStep={previousStep}
       closeButton
       defaultContent={{
-        title: 'Informe os dados do seu cartão de crédito',
-        mainButton: {
-          text: 'Confirmar assinatura',
-          type: 'submit',
-          form: 'updateUserPaymentForm',
-          stretch: true,
-        },
+        ...ModalTitleSubtitleButton,
       }}
     >
-      <PaymentForm
-        id="updateUserPaymentForm"
-        onSubmit={updateUserPaymentForm.handleSubmit}
-      >
-        <p>
-          Fique tranquilo: você não será cobrado se cancelar antes do período
-          gratuito terminar
-        </p>
+      {loading && <LoadingAnimation application="screen" />}
 
-        <PaymentInputWrapper>
-          <Input
-            name="card_number"
-            value={updateUserPaymentForm.values.card_number}
-            onChange={handleCardNumberChange}
-            label="Número"
-            placeholder="1234 5678 9012 3456"
-            mask="9999 9999 9999 9999"
-            error={
-              updateUserPaymentForm.errors.card_number
-              // updateUserPaymentForm.touched.card_number &&
-            }
-            creditCardBrand={cardBrand}
-          />
-        </PaymentInputWrapper>
+      {paymentState === 'new' && <NewCardForm />}
 
-        <PaymentInputWrapper>
-          <Input
-            name="card_holder_name"
-            value={updateUserPaymentForm.values.card_holder_name}
-            onChange={e =>
-              updateUserPaymentForm.setFieldValue(
-                'card_holder_name',
-                e.target.value,
-              )
-            }
-            label="Nome impresso"
-            placeholder="Fulano de Tal"
-          />
-        </PaymentInputWrapper>
+      {paymentState === 'main' && mainCard && (
+        <PaymentMethodCard
+          id={mainCard.pagarmeId}
+          type="confirmation"
+          brand={mainCard.brand}
+          cardHolder={mainCard.holderName}
+          firstDigits={mainCard.firstDigits}
+          lastDigits={mainCard.lastDigits}
+          getPaymentState={() => setPaymentState('select')}
+        />
+      )}
 
-        <PaymentInputGroupWrapper>
-          <p>Validade:</p>
-
-          <PaymentInputWrapperSameLine>
-            <Input
-              name="card_expiration_date_month"
-              value={updateUserPaymentForm.values.card_expiration_date_month}
-              onChange={e =>
-                updateUserPaymentForm.setFieldValue(
-                  'card_expiration_date_month',
-                  e.target.value,
-                )
-              }
-              label="Mês"
-              placeholder="11"
-              mask="99"
+      {paymentState === 'select' && (
+        <ul>
+          {cards.map(card => (
+            <PaymentMethodCard
+              key={card.pagarmeId}
+              id={card.pagarmeId}
+              type="list"
+              brand={card.brand}
+              cardHolder={card.holderName}
+              firstDigits={card.firstDigits}
+              lastDigits={card.lastDigits}
+              active={card.isMain || false}
+              getNewMainCard={id => handleDefineNewMainCard(id)}
             />
+          ))}
+        </ul>
+      )}
 
-            <Input
-              name="card_expiration_date_year"
-              value={updateUserPaymentForm.values.card_expiration_date_year}
-              onChange={e =>
-                updateUserPaymentForm.setFieldValue(
-                  'card_expiration_date_year',
-                  e.target.value,
-                )
-              }
-              label="Ano"
-              placeholder="2030"
-              mask="9999"
-            />
-          </PaymentInputWrapperSameLine>
-        </PaymentInputGroupWrapper>
-
-        <PaymentInputWrapperSameLine>
-          <Input
-            name="card_cvv"
-            value={updateUserPaymentForm.values.card_cvv}
-            onChange={e =>
-              updateUserPaymentForm.setFieldValue('card_cvv', e.target.value)
-            }
-            label="CVV"
-            placeholder="123"
-            mask="999"
-          />
-
-          <div>
-            <MdCreditCard />
-          </div>
-        </PaymentInputWrapperSameLine>
-      </PaymentForm>
+      {paymentState === 'main'}
     </Modal>
   );
 }
