@@ -26,6 +26,19 @@ import {
   FooterSection,
 } from '../styles/pages/Home';
 
+function CTALink(): JSX.Element {
+  return (
+    <HomeCTA>
+      <NextLink href="https://link.gy/headshare" passHref>
+        <a target="_blank" rel="noreferrer">
+          <Button text="Sign up for early access" stretch />
+        </a>
+      </NextLink>
+      <h4>And be informed when we launch</h4>
+    </HomeCTA>
+  );
+}
+
 function Home(): JSX.Element {
   const [fee, setFee] = useState(25);
   const [members, setMembers] = useState(100);
@@ -45,7 +58,7 @@ function Home(): JSX.Element {
   return (
     <>
       <SEO
-        title="Crie e gerencie sua própria comunidade"
+        title="Create and manage your own community"
         description="Produza conteúdo, incentive conversas entre sua audiência e gerencie assinaturas"
       />
 
@@ -61,24 +74,16 @@ function Home(): JSX.Element {
         <HeaderMain>
           <HeaderHero>
             <h1>
-              Crie sua própria <span>comunidade</span> e compartilhe o que te
-              move
+              Manage your own <span>community</span> and share what you love
             </h1>
 
             <h2>
-              Produza conteúdo, incentive conversas entre sua audiência e
-              gerencie assinaturas
+              Create content, boost your audience communication and manage
+              subscriptions
             </h2>
           </HeaderHero>
 
-          <HomeCTA>
-            <NextLink href="https://link.gy/headshare" passHref>
-              <a target="_blank" rel="noreferrer">
-                <Button text="Entre na lista de espera" stretch />
-              </a>
-            </NextLink>
-            <h4>E seja avisado quando lançarmos</h4>
-          </HomeCTA>
+          <CTALink />
 
           <RollToNextButton>
             <ScrollLink spy to="calculator" smooth>
@@ -90,14 +95,14 @@ function Home(): JSX.Element {
 
       <ColoredSection id="calculator">
         <CalculatorSection>
-          <h2>O que você ainda está esperando para monetizar sua audiência?</h2>
+          <h2>What are you still waiting to monetize your audience?</h2>
 
           <CalculatorInnerSection>
-            <h3>Descubra o quanto você pode faturar:</h3>
+            <h3>Find out how much you can earn:</h3>
 
             <CalculatorInputs>
               <CalculatorInput>
-                <p>Assinatura mensal:</p>
+                <p>Monthly fee:</p>
 
                 <Slider
                   valueLabelDisplay="off"
@@ -113,7 +118,7 @@ function Home(): JSX.Element {
               </CalculatorInput>
 
               <CalculatorInput>
-                <p>Assinantes:</p>
+                <p>Subscribers:</p>
 
                 <Slider
                   valueLabelDisplay="off"
@@ -130,28 +135,21 @@ function Home(): JSX.Element {
             </CalculatorInputs>
 
             <h4>
-              Ao cobrar <strong>R${fee}/mês</strong> de{' '}
-              <strong>{adjustedMembers} assinantes</strong>:
+              By charging <strong>{fee} USD/month</strong> from{' '}
+              <strong>{adjustedMembers} subscribers</strong>:
             </h4>
 
-            <h3>R$ {revenue}/mês</h3>
+            <h3>{revenue} USD/month</h3>
           </CalculatorInnerSection>
 
-          <HomeCTA>
-            <NextLink href="https://link.gy/headshare">
-              <a target="_blank" rel="noreferrer">
-                <Button text="Entre na lista de espera" stretch />
-              </a>
-            </NextLink>
-            <h4>E seja avisado quando lançarmos</h4>
-          </HomeCTA>
+          <CTALink />
         </CalculatorSection>
       </ColoredSection>
 
       <WhiteSection>
         <HowSection>
           <h2>
-            Como a <span>Headshare</span> funciona
+            How <span>Headshare</span> works
           </h2>
 
           <HowIcons>
@@ -162,7 +160,7 @@ function Home(): JSX.Element {
                 width={200}
               />
 
-              <h4>Crie e gerencie sua comunidade</h4>
+              <h4>Create and manage your community</h4>
             </HowIcon>
 
             <HowIcon>
@@ -172,7 +170,7 @@ function Home(): JSX.Element {
                 width={200}
               />
 
-              <h4>Produza conteúdo em texto ou vídeo</h4>
+              <h4>Creators and members produce text or video content</h4>
             </HowIcon>
 
             <HowIcon>
@@ -182,7 +180,7 @@ function Home(): JSX.Element {
                 width={200}
               />
 
-              <h4>Fomente e organize discussões entre os membros</h4>
+              <h4>Promote and organize members discussions</h4>
             </HowIcon>
 
             <HowIcon>
@@ -192,7 +190,7 @@ function Home(): JSX.Element {
                 width={200}
               />
 
-              <h4>Seja livre para publicar sobre o que quiser</h4>
+              <h4>You are free to publish whatever you like</h4>
             </HowIcon>
 
             <HowIcon>
@@ -202,18 +200,11 @@ function Home(): JSX.Element {
                 width={200}
               />
 
-              <h4>Utilize a lista de membros como preferir</h4>
+              <h4>You own your member list: use it as you wish</h4>
             </HowIcon>
           </HowIcons>
 
-          <HomeCTA>
-            <NextLink href="https://link.gy/headshare">
-              <a target="_blank" rel="noreferrer">
-                <Button text="Entre na lista de espera" stretch />
-              </a>
-            </NextLink>
-            <h4>E seja avisado quando lançarmos</h4>
-          </HomeCTA>
+          <CTALink />
         </HowSection>
       </WhiteSection>
 
@@ -226,7 +217,7 @@ function Home(): JSX.Element {
           />
 
           <div>
-            <p>2021 © Todos os direitos reservados</p>
+            <p>2021 © All rights reserved</p>
           </div>
         </FooterSection>
       </ColoredSection>
