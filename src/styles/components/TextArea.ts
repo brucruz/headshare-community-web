@@ -11,7 +11,7 @@ export const TextAreaContainer = styled.section`
 export const UserTextArea = styled.header<TextAreaProps>`
   background: var(--page-background);
   width: 100%;
-  height: 140px;
+  min-height: 140px;
 
   display: flex;
 
@@ -44,6 +44,8 @@ export const UserTextArea = styled.header<TextAreaProps>`
     margin: auto 0;
 
     height: 120px;
+    background-color: var(--page-background);
+    resize: vertical;
 
     ::placeholder {
       color: var(placeholder-color);

@@ -180,6 +180,10 @@ function AdminConfigBranding(): JSX.Element {
           text: 'Branding',
           active: true,
         },
+        {
+          text: 'Pagamentos',
+          url: `/${communitySlug}/admin/config/payments`,
+        },
       ]}
     >
       <SEO

@@ -115,6 +115,10 @@ function AdminConfigMain(): JSX.Element {
           text: 'Branding',
           url: `/${communitySlug}/admin/config/branding`,
         },
+        {
+          text: 'Pagamentos',
+          url: `/${communitySlug}/admin/config/payments`,
+        },
       ]}
       topButton={{
         text: 'Salvar',

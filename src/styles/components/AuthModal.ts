@@ -20,7 +20,7 @@ export const AuthForm = styled.form`
     header {
       div {
         label {
-          top: -2px;
+          /* top: -2px; */
         }
       }
     }
