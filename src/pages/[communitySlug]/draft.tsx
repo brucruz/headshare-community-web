@@ -124,6 +124,8 @@ function NewPost(): JSX.Element {
   const [thumbnailUrl, setThumbnailUrl] = useState<string | undefined>();
   const [tags, setTags] = useState<CommunityTag[]>([]);
 
+  console.log('exclusive: ', exclusive);
+
   const [uploadImage] = useUploadImageMutation();
   const [removeMainMedia] = useDeletePostMainMediaMutation();
 
@@ -235,8 +237,8 @@ function NewPost(): JSX.Element {
 
       setTags(postData.findPostById.post.tags.tags);
 
-      postData.findPostById.post.exclusive &&
-        setExclusive(postData.findPostById.post.exclusive);
+      postData.findPostById.post.exclusive === true && setExclusive(true);
+      postData.findPostById.post.exclusive === false && setExclusive(false);
 
       postData.findPostById.post.mainMedia?.format === MediaFormat.Video &&
         postData.findPostById.post.mainMedia.thumbnailUrl &&
