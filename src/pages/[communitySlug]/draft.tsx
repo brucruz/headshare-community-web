@@ -136,6 +136,7 @@ function NewPost(): JSX.Element {
   const community = communityData && communityData.community.community;
 
   const handleMediaUpload = useCallback(
+    // eslint-disable-next-line consistent-return
     async (file: File, commSlug: string) => {
       const [filename, fileExtension] = formatS3Filename(file.name, commSlug);
 
@@ -319,6 +320,7 @@ function NewPost(): JSX.Element {
     router.push(postURL);
   }, [updatePost, communitySlug, id, description, slug, exclusive, router]);
 
+  // eslint-disable-next-line consistent-return
   const mainMedia = useMemo(() => {
     const postMainMedia = postData?.findPostById?.post?.mainMedia;
     const uploadInfoMainMedia = uploadInfo?.mainMedia;

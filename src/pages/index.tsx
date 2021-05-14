@@ -7,7 +7,6 @@ import { Link as ScrollLink } from 'react-scroll';
 
 import Button from '../components/Button';
 import { SEO } from '../components/SEO';
-// import Slider from '../components/Slider';
 import {
   HeaderHero,
   HeaderLogo,
@@ -59,7 +58,7 @@ function Home(): JSX.Element {
     <>
       <SEO
         title="Create and manage your own community"
-        description="Produza conteúdo, incentive conversas entre sua audiência e gerencie assinaturas"
+        description="Create content, boost your audience communication and manage subscriptions"
       />
 
       <WhiteSection>

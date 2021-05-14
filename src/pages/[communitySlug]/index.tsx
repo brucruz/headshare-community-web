@@ -9,7 +9,7 @@ import {
 } from 'react-icons/md';
 import { UrlObject } from 'url';
 import Button from '../../components/Button';
-import LikeCommentCount from '../../components/LikeCommentCount';
+// import LikeCommentCount from '../../components/LikeCommentCount';
 import CommunityPageTemplate from '../../components/templates/CommunityPageTemplate';
 import {
   PostStatus,
@@ -17,7 +17,7 @@ import {
   useGetCommunityHomeDataQuery,
 } from '../../generated/graphql';
 import {
-  CategoriesDetailContainer,
+  // CategoriesDetailContainer,
   CategoriesPosts,
   CategoryContent,
   CategoryPost,
@@ -68,7 +68,7 @@ function PostCard({
           {exclusive && <h5>Exclusivo</h5>}
           <p>{title}</p>
 
-          <LikeCommentCount liked={liked} likes={likes} comments={comments} />
+          {/* <LikeCommentCount liked={liked} likes={likes} comments={comments} /> */}
         </PostContent>
       </CategoryPost>
     </NextLink>

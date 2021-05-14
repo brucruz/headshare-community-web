@@ -43,7 +43,7 @@ export const HeaderMain = styled.main`
   margin-top: 60px;
 
   @media ${device.laptop} {
-    margin-top: 160px;
+    margin-top: 60px;
   }
 
   max-width: 1080px;
@@ -64,7 +64,7 @@ export const HeaderHero = styled.div`
     }
 
     @media ${device.laptop} {
-      font-size: 50.5px;
+      font-size: 45.5px;
       line-height: 76px;
       margin: 0 auto;
     }
@@ -77,7 +77,7 @@ export const HeaderHero = styled.div`
     max-width: 1000px;
 
     @media ${device.laptop} {
-      font-size: 38px;
+      font-size: 32px;
       line-height: 56px;
     }
   }
@@ -97,8 +97,8 @@ export const HomeCTA = styled.div`
       border-radius: 25px;
 
       h4 {
-        font-size: 24px;
-        line-height: 38px;
+        font-size: 20px;
+        line-height: 34px;
       }
     }
   }

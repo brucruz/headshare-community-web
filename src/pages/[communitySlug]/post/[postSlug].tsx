@@ -6,7 +6,7 @@ import { useMemo } from 'react';
 import ReactPlayer from 'react-player';
 import Footer from '../../../components/Footer';
 import Header from '../../../components/Header';
-import LikeCommentCount from '../../../components/LikeCommentCount';
+// import LikeCommentCount from '../../../components/LikeCommentCount';
 import TitleSubtitle from '../../../components/TitleSubtitle';
 import { MediaFormat, usePostBySlugsQuery } from '../../../generated/graphql';
 import {
@@ -104,7 +104,7 @@ function PostContent(): JSX.Element {
         <PostDateLikeComments>
           <h5>Postado em: {postedDate}</h5>
 
-          <LikeCommentCount likes={0} comments={10} />
+          {/* <LikeCommentCount likes={0} comments={10} /> */}
         </PostDateLikeComments>
 
         <PostContentContainer>
