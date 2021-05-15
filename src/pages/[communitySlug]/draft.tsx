@@ -124,8 +124,6 @@ function NewPost(): JSX.Element {
   const [thumbnailUrl, setThumbnailUrl] = useState<string | undefined>();
   const [tags, setTags] = useState<CommunityTag[]>([]);
 
-  console.log('exclusive: ', exclusive);
-
   const [uploadImage] = useUploadImageMutation();
   const [removeMainMedia] = useDeletePostMainMediaMutation();
 
