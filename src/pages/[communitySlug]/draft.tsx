@@ -235,8 +235,8 @@ function NewPost(): JSX.Element {
 
       setTags(postData.findPostById.post.tags.tags);
 
-      postData.findPostById.post.exclusive &&
-        setExclusive(postData.findPostById.post.exclusive);
+      postData.findPostById.post.exclusive === true && setExclusive(true);
+      postData.findPostById.post.exclusive === false && setExclusive(false);
 
       postData.findPostById.post.mainMedia?.format === MediaFormat.Video &&
         postData.findPostById.post.mainMedia.thumbnailUrl &&

@@ -1,5 +1,4 @@
 /* eslint-disable no-underscore-dangle */
-import { FetchResult } from '@apollo/client';
 import {
   createContext,
   Dispatch,
@@ -8,15 +7,7 @@ import {
   useContext,
   useState,
 } from 'react';
-import {
-  CommonUserFragment,
-  Community,
-  LoginMutation,
-  Role,
-  useFollowCommunityMutation,
-  useLoginMutation,
-} from '../generated/graphql';
-import { useSnackbar } from './useSnackbar';
+import { CommonUserFragment, Community, Role } from '../generated/graphql';
 
 export type AuthType = 'login' | 'register' | 'forgotPassword';
 

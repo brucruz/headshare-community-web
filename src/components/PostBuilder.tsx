@@ -1,30 +1,19 @@
-import { useCallback, useEffect, useReducer, useRef, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Editor } from '@tinymce/tinymce-react';
 import { RawEditorSettings } from 'tinymce';
-import debounce from 'lodash/debounce';
 
 import { PostBuilderWrapper } from '../styles/PostBuilder';
-import saveActions from '../constants/saveActions';
 import { useUpdatePostMutation } from '../generated/graphql';
 import textBetweenTags from '../utils/textBetweenTags';
+import {
+  UpdatePostCallbackResponse,
+  useSavePostBuilder,
+} from '../hooks/useSavePostBuilder';
 
 interface ContentProps {
   title: string;
   formattedTitle: string;
   text: string;
-}
-
-interface SaveStateProps {
-  contentToSave?: ContentProps;
-  isSaving: boolean;
-  hasError: boolean;
-  errorMessage?: string;
-}
-
-interface ReducerActionProps {
-  type: string;
-  payload?: ContentProps;
-  error?: string;
 }
 
 interface PostBuilderProps {
@@ -39,36 +28,6 @@ const initialContent: ContentProps = {
   formattedTitle: '<h1>Título</h1>',
   text: '<p>Espalhe sua história...</p>',
 };
-
-function updateReducer(
-  state: SaveStateProps,
-  action: ReducerActionProps,
-): SaveStateProps {
-  switch (action.type) {
-    case saveActions.SAVE_START:
-      return {
-        ...state,
-        isSaving: true,
-        hasError: false,
-      };
-    case saveActions.SAVE_SUCCESS:
-      return {
-        ...state,
-        isSaving: false,
-        hasError: false,
-        contentToSave: action.payload,
-      };
-    case saveActions.SAVE_FAILURE:
-      return {
-        ...state,
-        isSaving: false,
-        hasError: true,
-        errorMessage: action.error,
-      };
-    default:
-      throw new Error();
-  }
-}
 
 const titleEditorConfig: RawEditorSettings & {
   selector?: undefined;
@@ -123,42 +82,17 @@ const PostBuilder: React.FC<PostBuilderProps> = ({
   postContent,
   passSaveState,
 }) => {
-  // Create abort controller
-  const abortController = useRef<AbortController>();
-
   const [content, setContent] = useState<ContentProps>(postContent);
-
-  const initialSaveState: SaveStateProps = {
-    contentToSave: postContent,
-    isSaving: false,
-    hasError: false,
-  };
-
-  const [
-    { contentToSave, hasError, isSaving, errorMessage },
-    dispatch,
-  ] = useReducer(updateReducer, initialSaveState);
 
   const [updatePost] = useUpdatePostMutation();
 
-  const saveContent = useCallback(
-    (
+  const updatePostCallback = useCallback(
+    async (
       contentInfo: ContentProps,
-      dispatchFunction: (value: ReducerActionProps) => void,
-    ) => {
-      if (
-        contentInfo.title === initialContent.title &&
-        contentInfo.text === initialContent.text
-      ) {
-        return;
-      }
-
-      const controller = new window.AbortController();
-      abortController.current = controller;
-
-      dispatchFunction({ type: saveActions.SAVE_START });
-
-      updatePost({
+      controllerSignal: AbortController['signal'],
+      // eslint-disable-next-line consistent-return
+    ): Promise<UpdatePostCallbackResponse> => {
+      const response = await updatePost({
         variables: {
           postId,
           communitySlug,
@@ -168,68 +102,57 @@ const PostBuilder: React.FC<PostBuilderProps> = ({
             content: contentInfo.text,
           },
         },
-        context: { fetchOptions: { signal: controller.signal } },
-      })
-        .then(result => {
-          if (!result.data) {
-            dispatchFunction({
-              type: saveActions.SAVE_FAILURE,
-              error: result.errors?.toString(),
-            });
-          } else if (result.data.updatePost) {
-            if (result.data.updatePost.errors) {
-              dispatchFunction({
-                type: saveActions.SAVE_FAILURE,
-                error: result.data.updatePost.errors.toString(),
-              });
-            } else if (result.data.updatePost.post) {
-              dispatchFunction({
-                type: saveActions.SAVE_SUCCESS,
-                payload: {
-                  title: contentInfo.title,
-                  formattedTitle: contentInfo.formattedTitle,
-                  text: contentInfo.text,
-                },
-              });
-            }
-          }
-        })
-        .catch(err => {
-          dispatchFunction({ type: saveActions.SAVE_FAILURE, error: err });
-        });
+        context: { fetchOptions: { signal: controllerSignal } },
+      });
+
+      if (!response.data) {
+        // Insert Snackbar with error detail and retry option
+
+        const callbackResponse: UpdatePostCallbackResponse = {
+          callbackStatus: 'error',
+          message: response.errors?.toString(),
+        };
+
+        return callbackResponse;
+      }
+      if (response.data.updatePost) {
+        if (response.data.updatePost.errors) {
+          // Insert Snackbar with error detail and retry option
+
+          const callbackResponse: UpdatePostCallbackResponse = {
+            callbackStatus: 'error',
+            message: response.data.updatePost.errors.toString(),
+          };
+
+          return callbackResponse;
+        }
+        if (response.data.updatePost.post) {
+          const callbackResponse: UpdatePostCallbackResponse = {
+            callbackStatus: 'success',
+          };
+
+          return callbackResponse;
+        }
+      }
+
+      const callbackResponse: UpdatePostCallbackResponse = {
+        callbackStatus: 'error',
+      };
+
+      return callbackResponse;
     },
     [communitySlug, postId, updatePost],
   );
 
-  const debouncedSaveContent = useRef(
-    debounce(
-      (contentInfo: ContentProps) => saveContent(contentInfo, dispatch),
-      1500,
-    ),
-  ).current;
+  const [saveStatus] = useSavePostBuilder<ContentProps>(
+    initialContent,
+    content,
+    updatePostCallback,
+  );
 
   useEffect(() => {
-    debouncedSaveContent(content);
-  }, [content, debouncedSaveContent]);
-
-  useEffect(() => {
-    isSaving ? passSaveState('saving') : passSaveState('saved');
-  }, [isSaving, passSaveState]);
-
-  // useEffect(() => {
-  // contentEditor.subscribe('editableInput', () => {
-  //   // title: postTitle.current?.value || '',
-  //   // subtitle: postSubtitle.current?.value || '',
-  //   setContent(state => ({
-  //     ...state,
-  //     text: contentEditor.getContent(0),
-  //     description: `${contentEditor
-  //       .getContent(0)
-  //       .substring(0, 30)
-  //       .toString()}...`,
-  //   }));
-  // });
-  // }, []);
+    passSaveState(saveStatus);
+  }, [passSaveState, saveStatus]);
 
   return (
     <PostBuilderWrapper>

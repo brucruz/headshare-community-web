@@ -11,7 +11,7 @@ import {
   LikeCommentStatusContainer,
   StatusBadgeContainer,
 } from '../styles/components/PostCard';
-import LikeCommentCount from './LikeCommentCount';
+// import LikeCommentCount from './LikeCommentCount';
 import { OptionsMenu } from './OptionsMenu';
 import { MenuItemProps } from './MenuItem';
 import { PostStatus, useDeletePostMutation } from '../generated/graphql';
@@ -180,7 +180,7 @@ export function PostCard({
           </PostCardUpperContent>
 
           <LikeCommentStatusContainer>
-            <LikeCommentCount liked={liked} likes={likes} comments={comments} />
+            {/* <LikeCommentCount liked={liked} likes={likes} comments={comments} /> */}
 
             {isOwner && postStatus}
           </LikeCommentStatusContainer>
@@ -205,16 +205,14 @@ export function PostCard({
     title,
     description,
     optionsMenuList,
-    liked,
-    likes,
-    comments,
     postStatus,
     isOpenConfirmationModal,
+    confirmationError,
     deletePost,
     communitySlug,
     id,
+    addSnackbar,
     removePost,
-    confirmationError,
   ]);
 
   return (

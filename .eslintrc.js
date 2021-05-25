@@ -17,6 +17,7 @@ module.exports = {
     'prettier',
     'prettier/@typescript-eslint',
     'prettier/react',
+    'plugin:cypress/recommended',
   ],
   parser: '@typescript-eslint/parser',
   parserOptions: {
@@ -33,6 +34,7 @@ module.exports = {
     'prettier',
     'import',
     'graphql',
+    'cypress',
   ],
   rules: {
     camelcase: 'off',

@@ -1,5 +1,6 @@
 import GlobalStyle from '../src/styles/GlobalStyles';
 import { ApolloProvider } from '@apollo/client';
+import * as nextImage from 'next/image';
 
 import { createClient } from '../src/utils/withApollo';
 import AppProvider from '../src/hooks/AppProvider';

@@ -3,7 +3,7 @@ import NextLink from 'next/link';
 import { useRouter } from 'next/router';
 import { UrlObject } from 'url';
 import Button from '../../../components/Button';
-import LikeCommentCount from '../../../components/LikeCommentCount';
+// import LikeCommentCount from '../../../components/LikeCommentCount';
 import { SEO } from '../../../components/SEO';
 import CommunityPageTemplate from '../../../components/templates/CommunityPageTemplate';
 import {
@@ -56,7 +56,7 @@ function TagPost({
           <h4>{title}</h4>
           {description && <p>{description}</p>}
 
-          <LikeCommentCount liked={liked} likes={likes} comments={comments} />
+          {/* <LikeCommentCount liked={liked} likes={likes} comments={comments} /> */}
         </CardContent>
       </TagPostCard>
     </NextLink>
