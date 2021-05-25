@@ -1,3 +1,4 @@
+import { S3 } from 'aws-sdk';
 import axios from 'axios';
 import format from 'date-fns/format';
 
@@ -11,12 +12,16 @@ export const uploadToS3 = async (
       'x-amz-acl': 'public-read',
     },
   };
-  await axios.put(signedRequest, file, options);
+  try {
+    await axios.put(signedRequest, file, options);
+  } catch (err) {
+    throw new Error(err);
+  }
 };
 
-type FormattedFilename = string;
-type FileExtension = string;
-type FormatS3Filename = [FormattedFilename, FileExtension];
+export type FormattedFilename = string;
+export type FileExtension = string;
+export type FormatS3Filename = [FormattedFilename, FileExtension];
 
 export const formatS3Filename = (
   filename: string,
@@ -46,3 +51,39 @@ export const formatS3Filename = (
 
   return [newFilename.substring(0, 60), `.${fileExtension}`];
 };
+
+export async function createSignedRequest(
+  filename: string,
+  filetype: string,
+): Promise<{ signedRequest: string; url: string }> {
+  const accessKeyId = process.env.NEXT_PUBLIC_AWS_ACCESS_KEY_ID as string;
+  const secretAccessKey = process.env
+    .NEXT_PUBLIC_AWS_SECRET_ACCESS_KEY as string;
+
+  const client = new S3({
+    region: process.env.AWS_DEFAULT_REGION as string,
+    credentials: {
+      accessKeyId,
+      secretAccessKey,
+    },
+  });
+
+  const s3Bucket = 'headshare';
+
+  const s3Params = {
+    Bucket: s3Bucket,
+    Key: filename,
+    Expires: 60,
+    ContentType: filetype,
+    ACL: 'public-read',
+  };
+
+  const signedRequest = await client.getSignedUrlPromise('putObject', s3Params);
+
+  const url = `https://${s3Bucket}.s3.amazonaws.com/${filename}`;
+
+  return {
+    signedRequest,
+    url,
+  };
+}

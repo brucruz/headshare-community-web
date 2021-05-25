@@ -50,6 +50,8 @@ export type Query = {
   role?: Maybe<RoleResponse>;
   medias: MediasResponse;
   media: MediaResponse;
+  /** Lists all cards, given filters */
+  cards: PaginatedCards;
 };
 
 
@@ -127,6 +129,13 @@ export type QueryMediaArgs = {
   id: Scalars['String'];
 };
 
+
+export type QueryCardsArgs = {
+  userId?: Maybe<Scalars['String']>;
+  cursor?: Maybe<Scalars['String']>;
+  limit: Scalars['Int'];
+};
+
 export type CommunitiesResponse = {
   __typename?: 'CommunitiesResponse';
   errors?: Maybe<Array<ErrorResponse>>;
@@ -153,6 +162,8 @@ export type Community = {
   tagline?: Maybe<Scalars['String']>;
   /** Community description */
   description?: Maybe<Scalars['String']>;
+  /** Stripe connected account ID */
+  stripeAccountId?: Maybe<Scalars['String']>;
   /** Community avatar used to visually identify community info */
   avatar?: Maybe<Media>;
   /** Community image banner to be displayed in its homepage */
@@ -271,6 +282,8 @@ export type Post = {
   status?: Maybe<PostStatus>;
   /** Post main media information */
   mainMedia?: Maybe<Media>;
+  /** Post cover media */
+  cover?: Maybe<Media>;
   /** Post content */
   content?: Maybe<Scalars['String']>;
   /** True if only exclusive members can access its content */
@@ -318,6 +331,16 @@ export type User = {
   email: Scalars['String'];
   /** User avatar image link */
   avatar?: Maybe<Scalars['String']>;
+  /** Stripe customer Id */
+  stripeCustomerId?: Maybe<Scalars['String']>;
+  /** User address */
+  address?: Maybe<Address>;
+  /** User personal documents */
+  documents: Array<PersonalDocument>;
+  /** User phone info */
+  phone?: Maybe<Phone>;
+  /** User birthday */
+  birthday?: Maybe<Scalars['DateTime']>;
   posts: Array<Post>;
   roles: Array<Role>;
   isActive: Scalars['Boolean'];
@@ -326,6 +349,47 @@ export type User = {
   createdAt: Scalars['DateTime'];
   /** User last update date */
   updatedAt?: Maybe<Scalars['DateTime']>;
+};
+
+/** Address model */
+export type Address = {
+  __typename?: 'Address';
+  /** Street name */
+  street?: Maybe<Scalars['String']>;
+  /** Street number */
+  number?: Maybe<Scalars['String']>;
+  /** Address complementary info */
+  complement?: Maybe<Scalars['String']>;
+  /** Address neighbourhood */
+  neighbourhood?: Maybe<Scalars['String']>;
+  /** Address city name */
+  city?: Maybe<Scalars['String']>;
+  /** Address zipcode */
+  zipcode?: Maybe<Scalars['String']>;
+  /** Address state name */
+  state?: Maybe<Scalars['String']>;
+  /** Address country name */
+  country?: Maybe<Scalars['String']>;
+};
+
+/** Personal Document Model */
+export type PersonalDocument = {
+  __typename?: 'PersonalDocument';
+  /** Document id type, excluding company documents */
+  type: Scalars['String'];
+  /** Document id number */
+  number: Scalars['String'];
+};
+
+/** Phone Info Model */
+export type Phone = {
+  __typename?: 'Phone';
+  /** Phone number country code */
+  countryCode: Scalars['String'];
+  /** Phone number regional code (DDD), if existent */
+  areaCode?: Maybe<Scalars['String']>;
+  /** Phone number */
+  phone: Scalars['String'];
 };
 
 /** The Roles model */
@@ -519,11 +583,51 @@ export type MediaResponse = {
   media?: Maybe<Media>;
 };
 
+export type PaginatedCards = {
+  __typename?: 'PaginatedCards';
+  cards: Array<Card>;
+  hasMore: Scalars['Boolean'];
+  next?: Maybe<Scalars['String']>;
+};
+
+/** The Cards model */
+export type Card = {
+  __typename?: 'Card';
+  _id: Scalars['ObjectId'];
+  /** Card ID at Pagarme */
+  pagarmeId: Scalars['String'];
+  /** Card brand */
+  brand: Scalars['String'];
+  /** Card holder name */
+  holderName: Scalars['String'];
+  /** Card first 6 digits */
+  firstDigits: Scalars['String'];
+  /** Card last 4 digits */
+  lastDigits: Scalars['String'];
+  /** Card fingerprint */
+  fingerprint: Scalars['String'];
+  /** Card is valid if it is not expired */
+  valid: Scalars['Boolean'];
+  /** Card expiration date */
+  expirationDate: Scalars['String'];
+  /** Indicates if this card is its user main one */
+  isMain?: Maybe<Scalars['Boolean']>;
+  user: User;
+  isActive: Scalars['Boolean'];
+  removedAt?: Maybe<Scalars['DateTime']>;
+  /** Card creation date */
+  createdAt: Scalars['DateTime'];
+  /** Card last update date */
+  updatedAt?: Maybe<Scalars['DateTime']>;
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
   /** Users can create a community */
   createCommunity: CommunityResponse;
   updateCommunity: CommunityResponse;
+  createStripeAccount: Community;
+  createStripeAccountLink: Scalars['String'];
   createPost: PostResponse;
   updatePost?: Maybe<PostResponse>;
   updatePostMainMedia: PostResponse;
@@ -533,6 +637,8 @@ export type Mutation = {
   deletePost: SuccessResponse;
   /** Users can upload a image directly as a post main media */
   updatePostMainImage: PostResponse;
+  /** Users can upload a image directly as a post cover */
+  updatePostCover: PostResponse;
   register: LoggedUserResponse;
   login: LoggedUserResponse;
   updateUser?: Maybe<UserResponse>;
@@ -547,6 +653,12 @@ export type Mutation = {
   uploadVideo: MediaResponse;
   /** Users can import a media */
   uploadImage: MediaResponse;
+  /** Creates a new card for a given user */
+  createCard: Card;
+  createProduct: Product;
+  updateProduct: Product;
+  createPrice: Price;
+  updatePrice: Price;
 };
 
 
@@ -558,6 +670,16 @@ export type MutationCreateCommunityArgs = {
 export type MutationUpdateCommunityArgs = {
   updateData: UpdateCommunityInput;
   id: Scalars['String'];
+};
+
+
+export type MutationCreateStripeAccountArgs = {
+  communityId: Scalars['String'];
+};
+
+
+export type MutationCreateStripeAccountLinkArgs = {
+  communityId: Scalars['String'];
 };
 
 
@@ -600,6 +722,13 @@ export type MutationUpdatePostMainImageArgs = {
 };
 
 
+export type MutationUpdatePostCoverArgs = {
+  imageData: UploadImageInput;
+  postId: Scalars['String'];
+  communitySlug: Scalars['String'];
+};
+
+
 export type MutationRegisterArgs = {
   data: RegisterUserInput;
 };
@@ -612,7 +741,7 @@ export type MutationLoginArgs = {
 
 export type MutationUpdateUserArgs = {
   updateData: EditMeInput;
-  _id: Scalars['ObjectId'];
+  userId: Scalars['String'];
 };
 
 
@@ -655,6 +784,38 @@ export type MutationUploadVideoArgs = {
 export type MutationUploadImageArgs = {
   imageData: UploadImageInput;
   communitySlug: Scalars['String'];
+};
+
+
+export type MutationCreateCardArgs = {
+  data: CreateCardInput;
+};
+
+
+export type MutationCreateProductArgs = {
+  productData: CreateProductInput;
+  communityId: Scalars['String'];
+};
+
+
+export type MutationUpdateProductArgs = {
+  productData: UpdateProductInput;
+  productId: Scalars['String'];
+  communityId: Scalars['String'];
+};
+
+
+export type MutationCreatePriceArgs = {
+  priceData: CreatePriceInput;
+  productId: Scalars['String'];
+  communityId: Scalars['String'];
+};
+
+
+export type MutationUpdatePriceArgs = {
+  priceData: UpdatePriceInput;
+  priceId: Scalars['String'];
+  communityId: Scalars['String'];
 };
 
 export type CreateCommunityInput = {
@@ -709,6 +870,8 @@ export type CreatePostInput = {
   content?: Maybe<Scalars['String']>;
   /** Post main media information */
   mainMedia?: Maybe<Scalars['ObjectId']>;
+  /** Post cover information */
+  cover?: Maybe<Scalars['ObjectId']>;
   /** If true, only exclusive members may view its content */
   exclusive?: Maybe<Scalars['Boolean']>;
   /** Post content */
@@ -728,6 +891,8 @@ export type UpdatePostInput = {
   content?: Maybe<Scalars['String']>;
   /** Post main media information */
   mainMedia?: Maybe<Scalars['String']>;
+  /** Post main media information */
+  cover?: Maybe<Scalars['String']>;
   /** If true, only exclusive members may view its content */
   exclusive?: Maybe<Scalars['Boolean']>;
   /** Post content */
@@ -824,6 +989,56 @@ export type EditMeInput = {
   password?: Maybe<Scalars['String']>;
   /** User avatar image link */
   avatar?: Maybe<Scalars['String']>;
+  /** User address */
+  address?: Maybe<CreateAddressInput>;
+  /** User personal documents */
+  documents?: Maybe<Array<CreatePersonalDocumentInput>>;
+  /** User phone info */
+  phone?: Maybe<CreatePhoneInput>;
+  /** User birthday */
+  birthday?: Maybe<Scalars['DateTime']>;
+};
+
+export type CreateAddressInput = {
+  /** Street name */
+  street: Scalars['String'];
+  /** Street number */
+  number: Scalars['String'];
+  /** Address complementary info */
+  complement?: Maybe<Scalars['String']>;
+  /** Address neighbourhood */
+  neighbourhood?: Maybe<Scalars['String']>;
+  /** Address city name */
+  city: Scalars['String'];
+  /** Address zipcode */
+  zipcode: Scalars['String'];
+  /** Address state name */
+  state?: Maybe<Scalars['String']>;
+  /** Address country name */
+  country: Scalars['String'];
+};
+
+export type CreatePersonalDocumentInput = {
+  /** Document id type, excluding company documents */
+  type: DocumentIdType;
+  /** Document id number */
+  number: Scalars['String'];
+};
+
+/** Acceptable documents for using the platform */
+export enum DocumentIdType {
+  Cpf = 'CPF',
+  Passport = 'PASSPORT',
+  Cnpj = 'CNPJ'
+}
+
+export type CreatePhoneInput = {
+  /** Phone number country code */
+  countryCode: Scalars['String'];
+  /** Phone number regional code (DDD), if existent */
+  areaCode?: Maybe<Scalars['String']>;
+  /** Phone number */
+  phone: Scalars['String'];
 };
 
 export type CreateTagInput = {
@@ -860,6 +1075,158 @@ export type UploadMediaInput = {
   description?: Maybe<Scalars['String']>;
   /** Media file information */
   file: FileInput;
+};
+
+export type CreateCardInput = {
+  /** Card ID at Pagarme */
+  pagarmeId: Scalars['String'];
+  /** Card brand */
+  brand: Scalars['String'];
+  /** Card holder name */
+  holderName: Scalars['String'];
+  /** Card first 6 digits */
+  firstDigits: Scalars['String'];
+  /** Card last 4 digits */
+  lastDigits: Scalars['String'];
+  /** Card fingerprint */
+  fingerprint: Scalars['String'];
+  /** Card is valid if it is not expired */
+  valid: Scalars['Boolean'];
+  /** Card expiration date */
+  expirationDate: Scalars['String'];
+};
+
+/** The Products model */
+export type Product = {
+  __typename?: 'Product';
+  _id: Scalars['ObjectId'];
+  /** A community product name */
+  name: Scalars['String'];
+  /** A community product description */
+  description?: Maybe<Scalars['String']>;
+  /** Owner selected tags to appear on community home, given a specific order */
+  benefits: Array<ProductBenefit>;
+  /** Mini-description shown on membership credit card invoice */
+  statementDescriptor?: Maybe<Scalars['String']>;
+  /** Stripe connected account ID */
+  stripeProductId: Scalars['String'];
+  /** Community which is the owner of this product */
+  community: Community;
+  isActive: Scalars['Boolean'];
+  removedAt?: Maybe<Scalars['DateTime']>;
+  /** Community creation date */
+  createdAt: Scalars['DateTime'];
+  /** Community last update date */
+  updatedAt?: Maybe<Scalars['DateTime']>;
+};
+
+/** Community product benefit model */
+export type ProductBenefit = {
+  __typename?: 'ProductBenefit';
+  /** The community product description */
+  description: Scalars['String'];
+  /** The order of the community product description */
+  order: Scalars['Int'];
+};
+
+export type CreateProductInput = {
+  /** A community product name */
+  name: Scalars['String'];
+  /** A community product description */
+  description?: Maybe<Scalars['String']>;
+  /** Mini-description shown on membership credit card invoice */
+  statementDescriptor?: Maybe<Scalars['String']>;
+};
+
+export type UpdateProductInput = {
+  /** A community product name */
+  name?: Maybe<Scalars['String']>;
+  /** A community product description */
+  description?: Maybe<Scalars['String']>;
+  /** Mini-description shown on membership credit card invoice */
+  statementDescriptor?: Maybe<Scalars['String']>;
+  /** Owner selected tags to appear on community home, given a specific order */
+  benefits?: Maybe<Array<ProductBenefitInput>>;
+  /** Stripe connected account ID */
+  stripeProductId?: Maybe<Scalars['String']>;
+  isActive?: Maybe<Scalars['Boolean']>;
+};
+
+export type ProductBenefitInput = {
+  /** A community product name */
+  description: Scalars['String'];
+  /** A community product description */
+  order?: Maybe<Scalars['Int']>;
+};
+
+/** The Products model */
+export type Price = {
+  __typename?: 'Price';
+  _id: Scalars['ObjectId'];
+  /** A product price currency */
+  currency: Scalars['String'];
+  /** A product price nickname */
+  nickname?: Maybe<Scalars['String']>;
+  /** Especifies if the customer has to pay once or repeately to mantain access to the product */
+  type: PriceType;
+  /** The possible diferent periods a recurring price might take */
+  recurringInterval?: Maybe<RecurringInterval>;
+  /** The number of recurring intervals to aply to each invoice */
+  recurringIntervalCount?: Maybe<Scalars['Int']>;
+  /** The amount billed per invoice to the customer */
+  amount: Scalars['Int'];
+  /** The number of days before charging the customer */
+  trialDays?: Maybe<Scalars['Int']>;
+  /** Stripe price ID */
+  stripePriceId: Scalars['String'];
+  /** Product to which this price refers to */
+  product: Product;
+  /** Community to which this price refers to */
+  community: Community;
+  isActive: Scalars['Boolean'];
+  removedAt?: Maybe<Scalars['DateTime']>;
+  /** Community creation date */
+  createdAt: Scalars['DateTime'];
+  /** Community last update date */
+  updatedAt?: Maybe<Scalars['DateTime']>;
+};
+
+/** Especifies if the customer has to pay once or repeately to mantain access to the product */
+export enum PriceType {
+  Onetime = 'ONETIME',
+  Recurring = 'RECURRING'
+}
+
+/** The possible diferent periods a recurring price might take */
+export enum RecurringInterval {
+  Day = 'DAY',
+  Week = 'WEEK',
+  Month = 'MONTH',
+  Year = 'YEAR'
+}
+
+export type CreatePriceInput = {
+  /** A product price currency */
+  currency: Scalars['String'];
+  /** A product price nickname */
+  nickname?: Maybe<Scalars['String']>;
+  /** Especifies if the customer has to pay once or repeately to mantain access to the product */
+  type: PriceType;
+  /** The possible diferent periods a recurring price might take */
+  recurringInterval?: Maybe<RecurringInterval>;
+  /** The number of recurring intervals to aply to each invoice */
+  recurringIntervalCount?: Maybe<Scalars['Int']>;
+  /** The amount billed per invoice to the customer */
+  amount: Scalars['Int'];
+  /** The number of days before charging the customer */
+  trialDays?: Maybe<Scalars['Int']>;
+};
+
+export type UpdatePriceInput = {
+  /** A product price nickname */
+  nickname?: Maybe<Scalars['String']>;
+  /** Especifies if price is active */
+  isActive?: Maybe<Scalars['Boolean']>;
 };
 
 export type CommonCommunityFragment = (
@@ -1661,6 +2028,28 @@ export type GetPostByIdQuery = (
           & Pick<Tag, '_id' | 'title' | 'postCount'>
         )> }
       ) }
+    )> }
+  )> }
+);
+
+export type GetPostMainMediaQueryVariables = Exact<{
+  id: Scalars['String'];
+}>;
+
+
+export type GetPostMainMediaQuery = (
+  { __typename?: 'Query' }
+  & { findPostById?: Maybe<(
+    { __typename?: 'PostResponse' }
+    & { errors?: Maybe<Array<(
+      { __typename?: 'ErrorResponse' }
+      & Pick<ErrorResponse, 'field' | 'message'>
+    )>>, post?: Maybe<(
+      { __typename?: 'Post' }
+      & { mainMedia?: Maybe<(
+        { __typename?: 'Media' }
+        & Pick<Media, '_id' | 'url' | 'thumbnailUrl' | 'format' | 'width' | 'height'>
+      )> }
     )> }
   )> }
 );
@@ -3287,6 +3676,52 @@ export function useGetPostByIdLazyQuery(baseOptions?: Apollo.LazyQueryHookOption
 export type GetPostByIdQueryHookResult = ReturnType<typeof useGetPostByIdQuery>;
 export type GetPostByIdLazyQueryHookResult = ReturnType<typeof useGetPostByIdLazyQuery>;
 export type GetPostByIdQueryResult = Apollo.QueryResult<GetPostByIdQuery, GetPostByIdQueryVariables>;
+export const GetPostMainMediaDocument = gql`
+    query GetPostMainMedia($id: String!) {
+  findPostById(id: $id) {
+    errors {
+      field
+      message
+    }
+    post {
+      mainMedia {
+        _id
+        url
+        thumbnailUrl
+        format
+        width
+        height
+      }
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetPostMainMediaQuery__
+ *
+ * To run a query within a React component, call `useGetPostMainMediaQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetPostMainMediaQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetPostMainMediaQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useGetPostMainMediaQuery(baseOptions: Apollo.QueryHookOptions<GetPostMainMediaQuery, GetPostMainMediaQueryVariables>) {
+        return Apollo.useQuery<GetPostMainMediaQuery, GetPostMainMediaQueryVariables>(GetPostMainMediaDocument, baseOptions);
+      }
+export function useGetPostMainMediaLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetPostMainMediaQuery, GetPostMainMediaQueryVariables>) {
+          return Apollo.useLazyQuery<GetPostMainMediaQuery, GetPostMainMediaQueryVariables>(GetPostMainMediaDocument, baseOptions);
+        }
+export type GetPostMainMediaQueryHookResult = ReturnType<typeof useGetPostMainMediaQuery>;
+export type GetPostMainMediaLazyQueryHookResult = ReturnType<typeof useGetPostMainMediaLazyQuery>;
+export type GetPostMainMediaQueryResult = Apollo.QueryResult<GetPostMainMediaQuery, GetPostMainMediaQueryVariables>;
 export const GetPostsSlugsDocument = gql`
     query GetPostsSlugs {
   allPosts(postOptions: {status: PUBLISHED}) {

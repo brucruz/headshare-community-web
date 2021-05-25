@@ -2,6 +2,7 @@ import { debounce } from 'lodash';
 import { useCallback, useEffect, useReducer, useRef, useState } from 'react';
 import saveActions from '../constants/saveActions';
 import { isObjectsEqual } from '../utils/isObjectsEqual';
+import { useSnackbar } from './useSnackbar';
 
 export type PostSaveStatus = 'saved' | 'saving';
 
@@ -74,6 +75,7 @@ export function useSavePostBuilder<ContentProps>(
   const [saveStatus, setSaveStatus] = useState<PostSaveStatus>('saved');
   const [{ isSaving }, dispatch] = useReducer(updateReducer, initialSaveState);
   const abortController = useRef<AbortController>();
+  const { addSnackbar } = useSnackbar();
 
   const saveContent = useCallback(
     async (
@@ -99,6 +101,7 @@ export function useSavePostBuilder<ContentProps>(
 
       if (callbackStatus === 'error') {
         // Insert Snackbar with error detail and retry option
+        message && addSnackbar({ message });
 
         dispatchFunction({
           type: saveActions.SAVE_FAILURE,
@@ -113,7 +116,7 @@ export function useSavePostBuilder<ContentProps>(
         });
       }
     },
-    [initialContent, updatePostCallback],
+    [addSnackbar, initialContent, updatePostCallback],
   );
 
   const debouncedSaveContent = useRef(

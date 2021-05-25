@@ -17,7 +17,7 @@ interface SnackbarContextData {
   removeSnackbar(id: string): void;
 }
 
-interface SnackbarProviderProps {
+export interface SnackbarProviderProps {
   children: ReactNode;
 }
 
