@@ -1,3 +1,4 @@
+/* eslint-disable react/no-array-index-key */
 import { ReactElement, useState } from 'react';
 import Button from './Button';
 

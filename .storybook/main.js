@@ -1,4 +1,11 @@
 module.exports = {
+  babel: async (options) => ({
+    ...options,
+    // any extra options you want to set
+    "plugins": [
+      "inline-react-svg"
+    ]
+  }),
   "stories": [
     "../src/**/*.stories.mdx",
     "../src/**/*.stories.@(js|jsx|ts|tsx)"

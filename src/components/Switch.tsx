@@ -1,4 +1,5 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
+// eslint-disable-next-line no-use-before-define
 import React, { InputHTMLAttributes } from 'react';
 
 import {

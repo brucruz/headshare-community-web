@@ -5,14 +5,15 @@
   "license": "MIT",
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
-    "test": "jest",
+    "build": "yarn gen && next build",
+    "test": "node $(which jest) --detectOpenHandles",
     "start": "next start",
     "gen": "graphql-codegen --config codegen.yml",
     "husky": "npx husky",
     "prepare": "husky install",
-    "storybook": "start-storybook -p 6006",
-    "build-storybook": "build-storybook"
+    "storybook": "start-storybook -s ./public -p 6006",
+    "build-storybook": "build-storybook",
+    "cypress:open": "cypress open"
   },
   "lint-staged": {
     "*.{ts,tsx}": [
@@ -23,10 +24,11 @@
   "dependencies": {
     "@apollo/client": "^3.3.6",
     "@material-ui/core": "^4.11.2",
+    "@testing-library/react-hooks": "^6.0.0",
     "@tinymce/tinymce-react": "^3.9.0",
+    "aws-sdk": "^2.912.0",
     "axios": "^0.21.1",
     "date-fns": "^2.16.1",
-    "dotenv": "^8.2.0",
     "formik": "^2.2.6",
     "graphql": "^15.4.0",
     "lodash": "^4.17.20",
@@ -44,6 +46,7 @@
     "tinymce": "^5.6.2",
     "tus-js-client": "^2.2.0",
     "uuidv4": "^6.2.6",
+    "webpack": "^5.37.0",
     "yup": "^0.32.8"
   },
   "devDependencies": {
@@ -78,16 +81,19 @@
     "@typescript-eslint/parser": "^4.10.0",
     "babel-jest": "^26.6.3",
     "babel-loader": "^8.2.2",
+    "babel-plugin-inline-react-svg": "^2.0.1",
     "babel-plugin-module-resolver": "^4.1.0",
     "babel-plugin-styled-components": "^1.12.0",
     "commitizen": "^4.2.3",
     "cross-env": "^7.0.3",
+    "cypress": "^7.3.0",
     "cz-conventional-changelog": "3.3.0",
     "eslint": "^7.16.0",
     "eslint-config-airbnb": "^18.2.1",
     "eslint-config-prettier": "^7.1.0",
     "eslint-import-resolver-babel-module": "^5.2.0",
     "eslint-import-resolver-typescript": "^2.3.0",
+    "eslint-plugin-cypress": "^2.11.3",
     "eslint-plugin-graphql": "^4.0.0",
     "eslint-plugin-import": "^2.22.1",
     "eslint-plugin-jsx-a11y": "^6.4.1",

@@ -76,6 +76,7 @@ function CommunityPageTemplate({
   const [followCommunity] = useFollowCommunityMutation();
 
   const handleMediaUpload = useCallback(
+    // eslint-disable-next-line consistent-return
     async (file: File, communitySlug: string) => {
       const filename = formatS3Filename(file.name, communitySlug);
 
