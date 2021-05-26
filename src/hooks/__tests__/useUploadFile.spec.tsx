@@ -41,7 +41,6 @@ describe('useUploadFile hook', () => {
     const filename = 'sampleImage.jpg';
     const imageFile = path.resolve(tmpFolder, filename);
     const buffer = fs.readFileSync(imageFile);
-    // const buffer: Buffer = Buffer.from(imageFile);
     const file = new File([buffer], filename);
 
     const uploadLink = mockedCreateSignedRequest(filename);

@@ -20,6 +20,7 @@ export interface UseUploadFileProps {
   uploadCallback: (
     fileName?: string,
     fileExtension?: string,
+    file?: File | undefined,
   ) => Promise<UploadCallbackResponse>;
 }
 
@@ -35,7 +36,6 @@ export interface UploadInfoProps {
   bytesTotal: number;
   progress: number;
   status?: 'started' | 'paused' | 'finished' | 'errored';
-  mediaStatus?: 'empty' | 'uploading' | 'ready';
   error?: string;
 }
 
@@ -47,7 +47,6 @@ export function useUploadFile(): UploadFileResponse {
     bytesSent: 0,
     bytesTotal: 0,
     progress: 0,
-    mediaStatus: 'empty',
   });
   const upload = useRef<tus.Upload>();
 
@@ -83,6 +82,7 @@ export function useUploadFile(): UploadFileResponse {
       uploadCallback: (
         filename?: string,
         fileextension?: string,
+        imageFile?: File | undefined,
       ) => Promise<UploadCallbackResponse>,
     ) => {
       setUploadInfo(oldState => ({
@@ -90,12 +90,12 @@ export function useUploadFile(): UploadFileResponse {
         bytesTotal: oldState.bytesTotal,
         progress: oldState.progress,
         status: 'started',
-        mediaStatus: 'uploading',
       }));
 
       const { callbackStatus, message, uploadLink } = await uploadCallback(
         fileName,
         fileExtension,
+        file,
       );
 
       if (callbackStatus === 'error') {
@@ -120,17 +120,26 @@ export function useUploadFile(): UploadFileResponse {
   const uploadVideo = useCallback(
     async (
       file: File,
-      uploadCallback: () => Promise<UploadCallbackResponse>,
+      fileName: string | undefined,
+      fileExtension: string | undefined,
+      uploadCallback: (
+        filename?: string,
+        fileextension?: string,
+        videoFile?: File | undefined,
+      ) => Promise<UploadCallbackResponse>,
     ) => {
       setUploadInfo(oldState => ({
         bytesSent: oldState.bytesSent,
         bytesTotal: oldState.bytesTotal,
         progress: oldState.progress,
         status: 'started',
-        mediaStatus: 'uploading',
       }));
 
-      const { callbackStatus, message, uploadLink } = await uploadCallback();
+      const { callbackStatus, message, uploadLink } = await uploadCallback(
+        fileName,
+        fileExtension,
+        file,
+      );
 
       if (callbackStatus === 'error') {
         handleUploadFailing(file.size, message);
@@ -155,8 +164,6 @@ export function useUploadFile(): UploadFileResponse {
           },
           onSuccess() {
             handleUploadSuccess(file.size);
-
-            // setMainMediaState('ready');
           },
         });
 
@@ -173,7 +180,6 @@ export function useUploadFile(): UploadFileResponse {
         bytesTotal: oldState.bytesTotal,
         progress: oldState.progress,
         status: 'started',
-        mediaStatus: oldState.mediaStatus,
       }));
 
       if (format === MediaFormat.Image) {
@@ -186,7 +192,7 @@ export function useUploadFile(): UploadFileResponse {
       }
 
       if (format === MediaFormat.Video) {
-        uploadVideo(file, uploadCallback);
+        uploadVideo(file, undefined, undefined, uploadCallback);
       }
     },
     [uploadImage, uploadVideo],

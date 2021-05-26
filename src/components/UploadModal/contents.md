@@ -84,11 +84,11 @@
 
 [ ] isolate main media:
 [x] it should be separated component, containing the different states
-[ ] it should be handle the mutations and querying (if provided with an media id) of the
-[ ] it should call upload modal whenever an user wants to update the component
-[ ] it should delegate what to do about the post thumbnail to the server
+[x] it should be handle the mutations and querying (if provided with an media id) of the
+[x] it should call upload modal whenever an user wants to update the component
+[x] it should delegate what to do about the post thumbnail to the server
+[ ] create tests to this component
 
-[ ] create tests to this component
-[ ] make upload modal independent
-[ ] it should be able to serve both the thumbnail and the main media
-[ ] create tests to this component
+[x] make upload modal independent
+[x] it should be able to serve both the thumbnail and the main media
+[x] create tests to this component

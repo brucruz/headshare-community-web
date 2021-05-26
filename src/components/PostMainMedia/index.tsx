@@ -1,6 +1,6 @@
 import NextImage from 'next/image';
 import { MdPause } from 'react-icons/md';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import {
   PostMainMediaContainer,
   ImageVideoIcon,
@@ -13,9 +13,19 @@ import {
   UploadStatus,
 } from '../../styles/components/PostMainMedia';
 import { Media } from '../Media';
-import { useGetPostMainMediaQuery } from '../../generated/graphql';
-import UploadModal from '../UploadModal';
-import { UploadInfoProps } from '../../hooks/useUploadFile';
+import {
+  MediaFormat,
+  useGetPostMainMediaQuery,
+  useUpdatePostMainImageMutation,
+  useUploadVideoMutation,
+} from '../../generated/graphql';
+import { UploadModal } from '../UploadModal';
+import {
+  UploadCallbackResponse,
+  UploadInfoProps,
+} from '../../hooks/useUploadFile';
+import { ImageDimensions } from '../MediaInput';
+import { useFormattedUpload } from '../../hooks/useFormattedUpload';
 
 export interface PostMainMediaProps {
   postId: string;
@@ -33,15 +43,138 @@ export function PostMainMedia({
     bytesSent: 0,
     bytesTotal: 0,
     progress: 0,
-    mediaStatus: 'empty',
   });
   const [displayUploadModal, setDisplayUploadModal] = useState<boolean>(false);
+  const [imageDimensions, setImageDimensions] = useState<
+    ImageDimensions | undefined
+  >(undefined);
 
   const { data } = useGetPostMainMediaQuery({
     variables: {
       id: postId,
     },
   });
+
+  const [uploadVideo] = useUploadVideoMutation();
+  const [uploadImage] = useUpdatePostMainImageMutation();
+
+  const formattedUpload = useFormattedUpload(uploadInfo);
+
+  const videoUploadCallback = useCallback(
+    async (
+      fileName?: string,
+      fileExtension?: string,
+      videoFile?: File,
+    ): Promise<UploadCallbackResponse> => {
+      const { data: videoData, errors } = await uploadVideo({
+        variables: {
+          communitySlug,
+          // postId: thisPostId,
+          videoData: {
+            format: MediaFormat.Video,
+            file: {
+              name: fileName,
+              type: videoFile && videoFile.type,
+              extension: fileExtension,
+              size: videoFile && videoFile.size,
+            },
+          },
+        },
+      });
+
+      if (errors) {
+        return {
+          callbackStatus: 'error',
+          message: errors[0].message,
+        };
+      }
+
+      if (videoData?.uploadVideo.errors) {
+        return {
+          callbackStatus: 'error',
+          message: videoData.uploadVideo.errors[0].message,
+        };
+      }
+
+      if (videoData?.uploadVideo.media?.uploadLink) {
+        setMainMediaState('ready');
+
+        setDisplayUploadModal(false);
+
+        // router.reload();
+
+        return {
+          callbackStatus: 'success',
+          uploadLink: videoData?.uploadVideo.media?.uploadLink,
+        };
+      }
+
+      return {
+        callbackStatus: 'error',
+        message: 'An error ocurred, try again later',
+      };
+    },
+    [communitySlug, uploadVideo],
+  );
+
+  const imageUploadCallback = useCallback(
+    async (
+      fileName?: string,
+      fileExtension?: string,
+      imageFile?: File,
+    ): Promise<UploadCallbackResponse> => {
+      const { data: imageData, errors } = await uploadImage({
+        variables: {
+          communitySlug,
+          postId,
+          imageData: {
+            format: MediaFormat.Image,
+            width: imageDimensions?.width,
+            height: imageDimensions?.height,
+            file: {
+              name: fileName,
+              type: imageFile && imageFile.type,
+              extension: fileExtension,
+              size: imageFile && imageFile.size,
+            },
+          },
+        },
+      });
+
+      if (errors) {
+        return {
+          callbackStatus: 'error',
+          message: errors[0].message,
+        };
+      }
+
+      if (imageData?.updatePostMainImage.errors) {
+        return {
+          callbackStatus: 'error',
+          message: imageData.updatePostMainImage.errors[0].message,
+        };
+      }
+
+      if (imageData?.updatePostMainImage.post?.mainMedia?.uploadLink) {
+        setMainMediaState('ready');
+
+        setDisplayUploadModal(false);
+
+        // router.reload();
+
+        return {
+          callbackStatus: 'success',
+          uploadLink: imageData.updatePostMainImage.post.mainMedia.uploadLink,
+        };
+      }
+
+      return {
+        callbackStatus: 'error',
+        message: 'An error ocurred, try again later',
+      };
+    },
+    [communitySlug, imageDimensions, postId, uploadImage],
+  );
 
   useEffect(() => {
     if (data?.findPostById?.post?.mainMedia) {
@@ -53,7 +186,7 @@ export function PostMainMedia({
 
   return (
     <PostMainMediaContainer>
-      {uploadInfo.mediaStatus === 'empty' && (
+      {mainMediaState === 'empty' && (
         <ImageVideoUpload
           type="button"
           onClick={() => setDisplayUploadModal(true)}
@@ -68,13 +201,13 @@ export function PostMainMedia({
         </ImageVideoUpload>
       )}
 
-      {uploadInfo.mediaStatus === 'uploading' && (
+      {mainMediaState === 'uploading' && (
         <ImageVideoUploading>
           <UploadStatus>
             <UploadStatusHeader>
               <UploadStatusBarContainer>
                 <UploadStatusBar progress={0.5} />
-                {/* <UploadStatusBar progress={uploadInfo.progress} /> */}
+                <UploadStatusBar progress={uploadInfo.progress} />
               </UploadStatusBarContainer>
               <UploadPauseResumeButton>
                 <MdPause />
@@ -82,35 +215,34 @@ export function PostMainMedia({
             </UploadStatusHeader>
 
             <h5>
-              Uploaded 120kb of 240kb{' '}
-              {/* Uploaded {formattedUpload.bytesSent} of {formattedUpload.bytesTotal}{' '} */}
-              {/* ({formattedUpload.progress}) */}
+              Uploaded {formattedUpload.bytesSent} of{' '}
+              {formattedUpload.bytesTotal} ({formattedUpload.progress})
             </h5>
           </UploadStatus>
         </ImageVideoUploading>
       )}
 
-      {uploadInfo.mediaStatus === 'ready' &&
-        data?.findPostById?.post?.mainMedia && (
-          <Media
-            mediaUrl={data?.findPostById?.post?.mainMedia.url}
-            format={data?.findPostById?.post?.mainMedia.format}
-            width={data?.findPostById?.post?.mainMedia?.width}
-            height={data?.findPostById?.post?.mainMedia?.height}
-            editClick={() => ''}
-            removeClick={() => ''}
-            // editClick={() => setDisplayMainMediaModal(!displayMainMediaModal)}
-            // removeClick={() => removePostMainMedia()}
-          />
-        )}
+      {mainMediaState === 'ready' && data?.findPostById?.post?.mainMedia && (
+        <Media
+          mediaUrl={data?.findPostById?.post?.mainMedia.url}
+          format={data?.findPostById?.post?.mainMedia.format}
+          width={data?.findPostById?.post?.mainMedia?.width}
+          height={data?.findPostById?.post?.mainMedia?.height}
+          editClick={() => ''}
+          removeClick={() => ''}
+          // editClick={() => setDisplayMainMediaModal(!displayMainMediaModal)}
+          // removeClick={() => removePostMainMedia()}
+        />
+      )}
 
       <UploadModal
         communitySlug={communitySlug}
         displayUploadModal={displayUploadModal}
         setDisplayUploadModal={() => setDisplayUploadModal(false)}
-        postId={postId}
         passUploadInfo={args => setUploadInfo(args)}
-        setMainMediaState={() => ''}
+        getImageDimensions={setImageDimensions}
+        imageUploadCallback={imageUploadCallback}
+        videoUploadCallback={videoUploadCallback}
       />
     </PostMainMediaContainer>
   );

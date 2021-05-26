@@ -1,15 +1,7 @@
-import { useRouter } from 'next/router';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-// import * as tus from 'tus-js-client';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { IMAGE, VIDEO } from '../../constants/mediaFormat';
-import {
-  useUploadVideoMutation,
-  MediaFormat,
-  Media,
-  useUpdatePostMainImageMutation,
-} from '../../generated/graphql';
-// import { formatS3Filename, uploadToS3 } from '../../lib/s3';
+import { MediaFormat, Media } from '../../generated/graphql';
 import {
   MediaFormatSelection,
   UploadModalContainer,
@@ -50,22 +42,32 @@ export interface UploadInfoProps {
 
 export interface UploadModalProps {
   communitySlug: string;
-  postId: string;
   mediaInitialSelection?: SelectedMediaProps;
   displayUploadModal: boolean;
   setDisplayUploadModal: (args: boolean) => void;
-  setMainMediaState: (args: 'empty' | 'uploading' | 'ready') => void;
   passUploadInfo: (args: UploadInfoProps) => void;
+  getImageDimensions?: (arg: ImageDimensions) => void;
+  imageUploadCallback(
+    fileName?: string,
+    fileExtension?: string,
+    imageFile?: File,
+  ): Promise<UploadCallbackResponse>;
+  videoUploadCallback(
+    fileName?: string,
+    fileExtension?: string,
+    videoFile?: File,
+  ): Promise<UploadCallbackResponse>;
 }
 
-function UploadModal({
+export function UploadModal({
   communitySlug,
-  postId,
   mediaInitialSelection = 'none',
   displayUploadModal,
   setDisplayUploadModal,
-  setMainMediaState,
   passUploadInfo,
+  getImageDimensions,
+  imageUploadCallback,
+  videoUploadCallback,
 }: UploadModalProps): JSX.Element {
   const [selectedMedia, setSelectedMedia] = useState<SelectedMediaProps>(
     mediaInitialSelection,
@@ -75,27 +77,12 @@ function UploadModal({
     setClickedMediaSelector,
   ] = useState<SelectedMediaProps>('none');
   const [selectedFile, setSelectedFile] = useState<File | undefined>();
-  // const [uploadInfo, setUploadInfo] = useState<UploadInfoProps>({
-  //   bytesSent: 0,
-  //   bytesTotal: 0,
-  //   progress: 0,
-  // });
-  const [imageDimensions, setImageDimensions] = useState<
-    ImageDimensions | undefined
-  >(undefined);
 
   const [uploadInfo, uploadMedia] = useUploadFile();
-
-  const [uploadVideo] = useUploadVideoMutation();
-  const [uploadImage] = useUpdatePostMainImageMutation();
-
-  const router = useRouter();
 
   useEffect(() => {
     passUploadInfo(uploadInfo);
   }, [uploadInfo, passUploadInfo]);
-
-  // const upload = useRef<tus.Upload>();
 
   const state = useMemo(() => {
     let title: string;
@@ -120,290 +107,32 @@ function UploadModal({
     return { title, buttonTitle };
   }, [selectedMedia]);
 
-  const handleSelectMediaFormat = useCallback(() => {
-    setSelectedMedia(clickedMediaSelector);
-  }, [clickedMediaSelector]);
-
-  const handleGetFile = useCallback((file: File) => {
-    setSelectedFile(file);
-  }, []);
-
   const handleUploadVideo = useCallback(
-    async (thisPostId: string, commSlug: string, videoFile: File) => {
-      async function uploadCallback(
-        fileName?: string,
-        fileExtension?: string,
-      ): Promise<UploadCallbackResponse> {
-        const { data, errors } = await uploadVideo({
-          variables: {
-            communitySlug: commSlug,
-            // postId: thisPostId,
-            videoData: {
-              format: MediaFormat.Video,
-              file: {
-                name: fileName,
-                type: videoFile.type,
-                extension: fileExtension,
-                size: videoFile.size,
-              },
-            },
-          },
-        });
-
-        if (errors) {
-          return {
-            callbackStatus: 'error',
-            message: errors[0].message,
-          };
-        }
-
-        if (data?.uploadVideo.errors) {
-          return {
-            callbackStatus: 'error',
-            message: data.uploadVideo.errors[0].message,
-          };
-        }
-
-        if (data?.uploadVideo.media?.uploadLink) {
-          setMainMediaState('ready');
-
-          setDisplayUploadModal(false);
-
-          router.reload();
-
-          return {
-            callbackStatus: 'success',
-            uploadLink: data?.uploadVideo.media?.uploadLink,
-          };
-        }
-
-        return {
-          callbackStatus: 'error',
-          message: 'An error ocurred, try again later',
-        };
-      }
-
+    async (commSlug: string, videoFile: File) => {
       uploadMedia({
         communitySlug: commSlug,
         format: MediaFormat.Video,
         file: videoFile,
-        uploadCallback,
+        uploadCallback: videoUploadCallback,
       });
 
       setDisplayUploadModal(false);
-
-      // if (selectedFile) {
-      //   const { size, name, type } = selectedFile;
-
-      //   const response = await uploadVideo({
-      //     variables: {
-      //       communitySlug,
-      //       videoData: {
-      //         file: {
-      //           name,
-      //           size,
-      //         },
-      //         format: MediaFormat.Video,
-      //       },
-      //     },
-      //   });
-
-      //   upload.current = new tus.Upload(selectedFile, {
-      //     uploadUrl: response.data?.uploadVideo.media?.uploadLink,
-      //     onError(error) {
-      //       console.log(`Failed because: ${error.message}`);
-
-      //       setUploadInfo(previousUploadInfo => ({
-      //         bytesSent: previousUploadInfo.bytesSent,
-      //         bytesTotal: size,
-      //         progress: previousUploadInfo.progress,
-      //         status: 'errored',
-      //         mainMedia: previousUploadInfo.mainMedia,
-      //       }));
-      //     },
-      //     onProgress(bytesSent: number, bytesTotal: number) {
-      //       const progress = bytesSent / bytesTotal;
-
-      //       setUploadInfo(previousUploadInfo => ({
-      //         bytesSent,
-      //         bytesTotal,
-      //         progress,
-      //         status: 'started',
-      //         mainMedia: previousUploadInfo.mainMedia,
-      //       }));
-      //     },
-      //     onSuccess() {
-      //       setUploadInfo(previousUploadInfo => ({
-      //         bytesSent: previousUploadInfo.bytesSent,
-      //         bytesTotal: size,
-      //         progress: previousUploadInfo.progress,
-      //         status: 'finished',
-      //         mainMedia: previousUploadInfo.mainMedia,
-      //       }));
-
-      //       setMainMediaState('ready');
-      //     },
-      //   });
-
-      //   upload.current.start();
-      //   setMainMediaState('uploading');
-
-      //   setDisplayUploadModal(false);
-
-      //   setUploadInfo({
-      //     bytesSent: 0,
-      //     bytesTotal: size,
-      //     progress: 0,
-      //     status: 'started',
-      //     mainMedia: response.data?.uploadVideo.media,
-      //   });
-      // }
     },
-    [
-      uploadMedia,
-      uploadVideo,
-      setMainMediaState,
-      setDisplayUploadModal,
-      router,
-    ],
+    [uploadMedia, videoUploadCallback, setDisplayUploadModal],
   );
 
   const handleUploadImageAsMain = useCallback(
-    async (thisPostId: string, commSlug: string, imageFile: File) => {
-      async function uploadCallback(
-        fileName?: string,
-        fileExtension?: string,
-      ): Promise<UploadCallbackResponse> {
-        const { data, errors } = await uploadImage({
-          variables: {
-            communitySlug: commSlug,
-            postId: thisPostId,
-            imageData: {
-              format: MediaFormat.Image,
-              width: imageDimensions?.width,
-              height: imageDimensions?.height,
-              file: {
-                name: fileName,
-                type: imageFile.type,
-                extension: fileExtension,
-                size: imageFile.size,
-              },
-            },
-          },
-        });
-
-        if (errors) {
-          return {
-            callbackStatus: 'error',
-            message: errors[0].message,
-          };
-        }
-
-        if (data?.updatePostMainImage.errors) {
-          return {
-            callbackStatus: 'error',
-            message: data.updatePostMainImage.errors[0].message,
-          };
-        }
-
-        if (data?.updatePostMainImage.post?.mainMedia?.uploadLink) {
-          setMainMediaState('ready');
-
-          setDisplayUploadModal(false);
-
-          router.reload();
-
-          return {
-            callbackStatus: 'success',
-            uploadLink: data.updatePostMainImage.post.mainMedia.uploadLink,
-          };
-        }
-
-        return {
-          callbackStatus: 'error',
-          message: 'An error ocurred, try again later',
-        };
-      }
-
+    async (commSlug: string, imageFile: File) => {
       uploadMedia({
         communitySlug: commSlug,
         format: MediaFormat.Image,
         file: imageFile,
-        uploadCallback,
+        uploadCallback: imageUploadCallback,
       });
 
       setDisplayUploadModal(false);
-
-      // if (imageFile) {
-      //   const [filename, fileExtension] = formatS3Filename(
-      //     imageFile.name,
-      //     commSlug,
-      //   );
-
-      //   const { data: uploadData } = await uploadImage({
-      //     variables: {
-      //       communitySlug: commSlug,
-      //       postId: thisPostId,
-      //       imageData: {
-      //         format: MediaFormat.Image,
-      //         width: imageDimensions?.width,
-      //         height: imageDimensions?.height,
-      //         file: {
-      //           name: filename,
-      //           type: imageFile.type,
-      //           extension: fileExtension,
-      //           size: imageFile.size,
-      //         },
-      //       },
-      //     },
-      //   });
-
-      //   if (
-      //     uploadData &&
-      //     uploadData.updatePostMainImage &&
-      //     uploadData.updatePostMainImage.post &&
-      //     uploadData.updatePostMainImage.post.mainMedia
-      //   ) {
-      //     const { mainMedia } = uploadData.updatePostMainImage.post;
-      //     const { uploadLink } = mainMedia;
-
-      //     try {
-      //       await uploadToS3(imageFile, uploadLink);
-
-      //       setUploadInfo({
-      //         status: 'finished',
-      //         bytesSent: imageFile.size,
-      //         bytesTotal: imageFile.size,
-      //         progress: 1,
-      //         mainMedia,
-      //       });
-      //     } catch (err) {
-      //       setUploadInfo({
-      //         status: 'errored',
-      //         bytesSent: 0,
-      //         bytesTotal: imageFile.size,
-      //         progress: 0,
-      //         error: err,
-      //         mainMedia,
-      //       });
-      //     }
-      //   }
-
-      //   setMainMediaState('ready');
-
-      //   setDisplayUploadModal(false);
-
-      //   router.reload();
-      // }
     },
-    [
-      uploadMedia,
-      uploadImage,
-      imageDimensions,
-      setMainMediaState,
-      setDisplayUploadModal,
-      router,
-    ],
+    [uploadMedia, imageUploadCallback, setDisplayUploadModal],
   );
 
   const closeUploadModal = useCallback(() => {
@@ -415,7 +144,12 @@ function UploadModal({
   }, [setDisplayUploadModal]);
 
   return (
-    <Modal isOpen={displayUploadModal} setIsOpen={closeUploadModal} closeButton>
+    <Modal
+      data-test-id="upload-modal"
+      isOpen={displayUploadModal}
+      setIsOpen={closeUploadModal}
+      closeButton
+    >
       <UploadModalContainer>
         <UploadHeaderContainer>
           <StateHeader>
@@ -438,23 +172,25 @@ function UploadModal({
           <>
             <MediaFormatSelection>
               <RadioInput
-                name="media-format"
+                name="video-media-format"
                 label="Vídeo"
                 isChecked={clickedMediaSelector === VIDEO}
                 onChange={() => setClickedMediaSelector(VIDEO)}
+                value={MediaFormat.Video}
               />
               <RadioInput
-                name="media-format"
+                name="image-media-format"
                 label="Imagem"
                 isChecked={clickedMediaSelector === IMAGE}
                 onChange={() => setClickedMediaSelector(IMAGE)}
+                value={MediaFormat.Image}
               />
             </MediaFormatSelection>
 
             <Button
               text={state.buttonTitle}
               stretch
-              onClick={handleSelectMediaFormat}
+              onClick={() => setSelectedMedia(clickedMediaSelector)}
             />
           </>
         )}
@@ -465,7 +201,7 @@ function UploadModal({
               <MediaInput
                 name="main-video"
                 label="Selecione um arquivo"
-                getFile={handleGetFile}
+                getFile={file => setSelectedFile(file)}
                 fileType="video"
               />
             </VideoUploadOptions>
@@ -475,8 +211,7 @@ function UploadModal({
               disabled={!selectedFile}
               stretch
               onClick={() =>
-                selectedFile &&
-                handleUploadVideo(postId, communitySlug, selectedFile)
+                selectedFile && handleUploadVideo(communitySlug, selectedFile)
               }
             />
           </>
@@ -488,9 +223,9 @@ function UploadModal({
               <MediaInput
                 name="main-video"
                 label="Selecione um arquivo"
-                getFile={handleGetFile}
+                getFile={file => setSelectedFile(file)}
                 fileType="image"
-                getImageDimensions={setImageDimensions}
+                getImageDimensions={getImageDimensions}
               />
             </VideoUploadOptions>
 
@@ -500,7 +235,7 @@ function UploadModal({
               stretch
               onClick={() =>
                 selectedFile &&
-                handleUploadImageAsMain(postId, communitySlug, selectedFile)
+                handleUploadImageAsMain(communitySlug, selectedFile)
               }
             />
           </>
@@ -509,5 +244,3 @@ function UploadModal({
     </Modal>
   );
 }
-
-export default UploadModal;

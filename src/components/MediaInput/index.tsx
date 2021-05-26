@@ -94,6 +94,7 @@ const MediaInput: React.FC<MediaInputProps> = ({
     <MediaInputContainer>
       <UploadArea htmlFor={name}>
         <input
+          data-testid="media-input-upload-area-input"
           type="file"
           id={name}
           onChange={handleChange}

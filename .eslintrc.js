@@ -69,6 +69,10 @@ module.exports = {
     'jsx-a11y/label-has-associated-control': 'off',
     'react/no-unescaped-entities': 'off',
     'jsx-a11y/accessible-emoji': 'off',
+    'import/no-extraneous-dependencies': [
+      'error',
+      { devDependencies: ['**/*.spec.ts', '**/*.spec.tsx'] },
+    ],
   },
   settings: {
     'import/resolver': {
