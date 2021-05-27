@@ -1,6 +1,6 @@
 import NextImage from 'next/image';
 import { MdPause } from 'react-icons/md';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   PostMainMediaContainer,
   ImageVideoIcon,
@@ -15,7 +15,8 @@ import {
 import { Media } from '../Media';
 import {
   MediaFormat,
-  useGetPostMainMediaQuery,
+  useDeletePostMainMediaMutation,
+  useGetPostMainMediaLazyQuery,
   useUpdatePostMainImageMutation,
   useUploadVideoMutation,
 } from '../../generated/graphql';
@@ -26,6 +27,7 @@ import {
 } from '../../hooks/useUploadFile';
 import { ImageDimensions } from '../MediaInput';
 import { useFormattedUpload } from '../../hooks/useFormattedUpload';
+import { useSnackbar } from '../../hooks/useSnackbar';
 
 export interface PostMainMediaProps {
   postId: string;
@@ -48,15 +50,18 @@ export function PostMainMedia({
   const [imageDimensions, setImageDimensions] = useState<
     ImageDimensions | undefined
   >(undefined);
+  const [preview, setPreview] = useState<string | undefined>(undefined);
 
-  const { data } = useGetPostMainMediaQuery({
-    variables: {
-      id: postId,
-    },
-  });
+  const [getPostMainMedia, { data }] = useGetPostMainMediaLazyQuery();
+  const [mainMedia, setMainMedia] = useState(
+    data?.findPostById?.post?.mainMedia,
+  );
 
   const [uploadVideo] = useUploadVideoMutation();
   const [uploadImage] = useUpdatePostMainImageMutation();
+  const [removeMainMedia] = useDeletePostMainMediaMutation();
+
+  const { addSnackbar } = useSnackbar();
 
   const formattedUpload = useFormattedUpload(uploadInfo);
 
@@ -176,13 +181,62 @@ export function PostMainMedia({
     [communitySlug, imageDimensions, postId, uploadImage],
   );
 
+  const removePostMainMedia = useCallback(async () => {
+    const { data: removeResponse } = await removeMainMedia({
+      variables: {
+        communitySlug,
+        postId,
+      },
+    });
+
+    const errors = removeResponse?.deletePostMainMedia.errors;
+    const returnedMainMedia =
+      removeResponse?.deletePostMainMedia.post?.mainMedia;
+
+    if (returnedMainMedia || errors) {
+      // add retry action to this snackbar
+      addSnackbar({
+        message: 'Houve um problema ao remover a mídia principal do seu post',
+      });
+    }
+
+    if (!returnedMainMedia && !errors) {
+      setMainMediaState('empty');
+      setMainMedia(undefined);
+    }
+  }, [addSnackbar, communitySlug, postId, removeMainMedia]);
+
+  useEffect(() => {
+    if (postId) {
+      getPostMainMedia({
+        variables: {
+          id: postId,
+        },
+      });
+    }
+  }, [getPostMainMedia, postId]);
+
   useEffect(() => {
     if (data?.findPostById?.post?.mainMedia) {
       setMainMediaState('ready');
+      setMainMedia(data?.findPostById?.post?.mainMedia);
     } else {
       setMainMediaState('empty');
     }
   }, [data?.findPostById?.post?.mainMedia]);
+
+  const mediaUrl = useMemo(() => {
+    switch ((uploadInfo.status, mainMedia?.url)) {
+      case mainMedia?.url:
+        return mainMedia?.url;
+
+      case !mainMedia?.url && uploadInfo.status === 'finished' && preview:
+        return preview;
+
+      default:
+        return undefined;
+    }
+  }, [mainMedia?.url, preview, uploadInfo.status]);
 
   return (
     <PostMainMediaContainer>
@@ -222,16 +276,14 @@ export function PostMainMedia({
         </ImageVideoUploading>
       )}
 
-      {mainMediaState === 'ready' && data?.findPostById?.post?.mainMedia && (
+      {mainMediaState === 'ready' && mainMedia && mediaUrl && (
         <Media
-          mediaUrl={data?.findPostById?.post?.mainMedia.url}
-          format={data?.findPostById?.post?.mainMedia.format}
-          width={data?.findPostById?.post?.mainMedia?.width}
-          height={data?.findPostById?.post?.mainMedia?.height}
-          editClick={() => ''}
-          removeClick={() => ''}
-          // editClick={() => setDisplayMainMediaModal(!displayMainMediaModal)}
-          // removeClick={() => removePostMainMedia()}
+          mediaUrl={mediaUrl}
+          format={mainMedia.format}
+          width={mainMedia?.width}
+          height={mainMedia?.height}
+          editClick={() => setDisplayUploadModal(true)}
+          removeClick={() => removePostMainMedia()}
         />
       )}
 
@@ -241,6 +293,7 @@ export function PostMainMedia({
         setDisplayUploadModal={() => setDisplayUploadModal(false)}
         passUploadInfo={args => setUploadInfo(args)}
         getImageDimensions={setImageDimensions}
+        getPreview={prv => prv && setPreview(prv)}
         imageUploadCallback={imageUploadCallback}
         videoUploadCallback={videoUploadCallback}
       />

@@ -82,7 +82,7 @@
 
 ## So.. what to do?
 
-[ ] isolate main media:
+[x] isolate main media:
 [x] it should be separated component, containing the different states
 [x] it should be handle the mutations and querying (if provided with an media id) of the
 [x] it should call upload modal whenever an user wants to update the component

@@ -47,6 +47,7 @@ export interface UploadModalProps {
   setDisplayUploadModal: (args: boolean) => void;
   passUploadInfo: (args: UploadInfoProps) => void;
   getImageDimensions?: (arg: ImageDimensions) => void;
+  getPreview?: (preview?: string) => void;
   imageUploadCallback(
     fileName?: string,
     fileExtension?: string,
@@ -66,6 +67,7 @@ export function UploadModal({
   setDisplayUploadModal,
   passUploadInfo,
   getImageDimensions,
+  getPreview,
   imageUploadCallback,
   videoUploadCallback,
 }: UploadModalProps): JSX.Element {
@@ -226,6 +228,7 @@ export function UploadModal({
                 getFile={file => setSelectedFile(file)}
                 fileType="image"
                 getImageDimensions={getImageDimensions}
+                getPreview={preview => getPreview && getPreview(preview)}
               />
             </VideoUploadOptions>
 

@@ -2,8 +2,8 @@
 import dynamic from 'next/dynamic';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/router';
-import Image from 'next/image';
-import { MdPause } from 'react-icons/md';
+// import Image from 'next/image';
+// import { MdPause } from 'react-icons/md';
 import Header from '../../components/Header';
 import {
   useGetCommunityBasicDataQuery,
@@ -18,6 +18,8 @@ import {
   useUpdatePostMainMediaThumbnailMutation,
   useDeletePostMainMediaMutation,
   PaginatedTags,
+  useGetPostByIdLazyQuery,
+  useGetCommunityBasicDataLazyQuery,
 } from '../../generated/graphql';
 import {
   ImageVideoIcon,
@@ -38,8 +40,8 @@ import {
   VideoThumbnailContainer,
   VideoThumbnailPreview,
 } from '../../styles/pages/NewPost';
-import UploadModal, { UploadInfoProps } from '../../components/UploadModal';
-import readableBytes from '../../utils/readableBytes';
+// import UploadModal, { UploadInfoProps } from '../../components/UploadModal';
+// import readableBytes from '../../utils/readableBytes';
 import PublishOption from '../../components/PublishOption';
 import Input from '../../components/Input';
 import Button from '../../components/Button';
@@ -49,9 +51,10 @@ import Switch from '../../components/Switch';
 import MediaInput from '../../components/MediaInput';
 import { formatS3Filename, uploadToS3 } from '../../lib/s3';
 import { withApollo } from '../../utils/withApollo';
-import MainMedia from '../../components/MainMedia';
+// import MainMedia from '../../components/MainMedia';
 import { Tags, CommunityTag } from '../../components/Tags';
 import { SEO } from '../../components/SEO';
+import { PostMainMedia } from '../../components/PostMainMedia';
 
 const PostBuilder = dynamic(() => import('../../components/PostBuilder'), {
   ssr: false,
@@ -66,14 +69,13 @@ function NewPost(): JSX.Element {
   const { id } = router.query as { id: string };
   const { communitySlug } = (router.query as unknown) as QueryProps;
 
-  const { data: postData, loading: loadingPostData } = useGetPostByIdQuery({
-    variables: {
-      id,
-    },
-  });
+  const [
+    getPostData,
+    { data: postData, loading: loadingPostData },
+  ] = useGetPostByIdLazyQuery();
   const [updatePost] = useUpdatePostMutation();
 
-  const [displayMainMediaModal, setDisplayMainMediaModal] = useState(false);
+  // const [displayMainMediaModal, setDisplayMainMediaModal] = useState(false);
   const [post, setPost] = useState<
     | ({ __typename?: 'Post' } & Pick<
         Post,
@@ -108,14 +110,14 @@ function NewPost(): JSX.Element {
     | undefined
     | null
   >(postData?.findPostById?.post);
-  const [mainMediaState, setMainMediaState] = useState<
-    'empty' | 'uploading' | 'ready'
-  >('empty');
-  const [uploadInfo, setUploadInfo] = useState<UploadInfoProps>({
-    bytesSent: 0,
-    bytesTotal: 0,
-    progress: 0,
-  });
+  // const [mainMediaState, setMainMediaState] = useState<
+  //   'empty' | 'uploading' | 'ready'
+  // >('empty');
+  // const [uploadInfo, setUploadInfo] = useState<UploadInfoProps>({
+  //   bytesSent: 0,
+  //   bytesTotal: 0,
+  //   progress: 0,
+  // });
   const [saveState, setSaveState] = useState<'saved' | 'saving'>('saved');
   const [description, setDescription] = useState<string | null | undefined>();
   const [slug, setSlug] = useState<string | null | undefined>();
@@ -125,13 +127,12 @@ function NewPost(): JSX.Element {
   const [tags, setTags] = useState<CommunityTag[]>([]);
 
   const [uploadImage] = useUploadImageMutation();
-  const [removeMainMedia] = useDeletePostMainMediaMutation();
+  // const [removeMainMedia] = useDeletePostMainMediaMutation();
 
-  const { data: communityData } = useGetCommunityBasicDataQuery({
-    variables: {
-      slug: communitySlug,
-    },
-  });
+  const [
+    getCommunityBasicData,
+    { data: communityData },
+  ] = useGetCommunityBasicDataLazyQuery();
 
   const community = communityData && communityData.community.community;
 
@@ -213,17 +214,37 @@ function NewPost(): JSX.Element {
   );
 
   useEffect(() => {
-    if (post) {
-      if (!post.mainMedia) {
-        setMainMediaState('empty');
-      } else {
-        setMainMediaState('ready');
-
-        return;
-      }
+    if (id) {
+      getPostData({
+        variables: {
+          id,
+        },
+      });
     }
-    setMainMediaState('empty');
-  }, [post]);
+  }, [getPostData, id]);
+
+  useEffect(() => {
+    if (communitySlug) {
+      getCommunityBasicData({
+        variables: {
+          slug: communitySlug,
+        },
+      });
+    }
+  }, [communitySlug, getCommunityBasicData]);
+
+  // useEffect(() => {
+  //   if (post) {
+  //     if (!post.mainMedia) {
+  //       setMainMediaState('empty');
+  //     } else {
+  //       setMainMediaState('ready');
+
+  //       return;
+  //     }
+  //   }
+  //   setMainMediaState('empty');
+  // }, [post]);
 
   useEffect(() => {
     if (postData && postData.findPostById && postData.findPostById.post) {
@@ -244,58 +265,58 @@ function NewPost(): JSX.Element {
     }
   }, [postData]);
 
-  useEffect(() => {
-    if (
-      mainMediaState === 'ready' &&
-      post &&
-      !post.mainMedia &&
-      uploadInfo.mainMedia
-    ) {
-      updatePost({
-        variables: {
-          communitySlug,
-          postId: id,
-          post: {
-            // eslint-disable-next-line no-underscore-dangle
-            mainMedia: uploadInfo.mainMedia._id,
-            exclusive,
-          },
-        },
-      }).then(result => {
-        if (
-          result.data &&
-          result.data.updatePost &&
-          result.data.updatePost.post
-        ) {
-          setPost(result.data.updatePost.post);
-        }
-      });
-    }
-  }, [
-    mainMediaState,
-    post,
-    updatePost,
-    communitySlug,
-    id,
-    uploadInfo,
-    exclusive,
-  ]);
+  // useEffect(() => {
+  //   if (
+  //     mainMediaState === 'ready' &&
+  //     post &&
+  //     !post.mainMedia &&
+  //     uploadInfo.mainMedia
+  //   ) {
+  //     updatePost({
+  //       variables: {
+  //         communitySlug,
+  //         postId: id,
+  //         post: {
+  //           // eslint-disable-next-line no-underscore-dangle
+  //           mainMedia: uploadInfo.mainMedia._id,
+  //           exclusive,
+  //         },
+  //       },
+  //     }).then(result => {
+  //       if (
+  //         result.data &&
+  //         result.data.updatePost &&
+  //         result.data.updatePost.post
+  //       ) {
+  //         setPost(result.data.updatePost.post);
+  //       }
+  //     });
+  //   }
+  // }, [
+  //   mainMediaState,
+  //   post,
+  //   updatePost,
+  //   communitySlug,
+  //   id,
+  //   uploadInfo,
+  //   exclusive,
+  // ]);
 
-  const formattedUpload = useMemo(() => {
-    const bytesSent =
-      uploadInfo.bytesSent === 0 ? '0 Kb' : readableBytes(uploadInfo.bytesSent);
-    const bytesTotal =
-      uploadInfo.bytesTotal === 0
-        ? '0 Kb'
-        : readableBytes(uploadInfo.bytesTotal);
-    const progress = `${(uploadInfo.progress * 100).toFixed(1)}%`;
+  // const formattedUpload = useMemo(() => {
+  //   const bytesSent =
+  //     uploadInfo.bytesSent === 0 ? '0 Kb' : readableBytes(uploadInfo.bytesSent);
+  //   const bytesTotal =
+  //     uploadInfo.bytesTotal === 0
+  //       ? '0 Kb'
+  //       : readableBytes(uploadInfo.bytesTotal);
+  //   const progress = `${(uploadInfo.progress * 100).toFixed(1)}%`;
 
-    return {
-      bytesSent,
-      bytesTotal,
-      progress,
-    };
-  }, [uploadInfo]);
+  //   return {
+  //     bytesSent,
+  //     bytesTotal,
+  //     progress,
+  //   };
+  // }, [uploadInfo]);
 
   const getEditorSaveState = useCallback((state: 'saved' | 'saving'): void => {
     setSaveState(state);
@@ -321,57 +342,57 @@ function NewPost(): JSX.Element {
   }, [updatePost, communitySlug, id, description, slug, exclusive, router]);
 
   // eslint-disable-next-line consistent-return
-  const mainMedia = useMemo(() => {
-    const postMainMedia = postData?.findPostById?.post?.mainMedia;
-    const uploadInfoMainMedia = uploadInfo?.mainMedia;
+  // const mainMedia = useMemo(() => {
+  //   const postMainMedia = postData?.findPostById?.post?.mainMedia;
+  //   const uploadInfoMainMedia = uploadInfo?.mainMedia;
 
-    if (postMainMedia) {
-      return {
-        format: postMainMedia.format,
-        url: postMainMedia.url,
-        height: Number(postMainMedia.height),
-        width: Number(postMainMedia.width),
-      };
-    }
+  //   if (postMainMedia) {
+  //     return {
+  //       format: postMainMedia.format,
+  //       url: postMainMedia.url,
+  //       height: Number(postMainMedia.height),
+  //       width: Number(postMainMedia.width),
+  //     };
+  //   }
 
-    if (uploadInfoMainMedia) {
-      return {
-        format: uploadInfoMainMedia.format,
-        url: uploadInfoMainMedia.url,
-        height: Number(uploadInfoMainMedia.height),
-        width: Number(uploadInfoMainMedia.width),
-      };
-    }
-  }, [postData?.findPostById?.post?.mainMedia, uploadInfo.mainMedia]);
+  //   if (uploadInfoMainMedia) {
+  //     return {
+  //       format: uploadInfoMainMedia.format,
+  //       url: uploadInfoMainMedia.url,
+  //       height: Number(uploadInfoMainMedia.height),
+  //       width: Number(uploadInfoMainMedia.width),
+  //     };
+  //   }
+  // }, [postData?.findPostById?.post?.mainMedia, uploadInfo.mainMedia]);
 
-  const removePostMainMedia = useCallback(async () => {
-    const { data: removeResponse } = await removeMainMedia({
-      variables: {
-        communitySlug,
-        postId: post?._id,
-      },
-    });
+  // const removePostMainMedia = useCallback(async () => {
+  //   const { data: removeResponse } = await removeMainMedia({
+  //     variables: {
+  //       communitySlug,
+  //       postId: post?._id,
+  //     },
+  //   });
 
-    const errors = removeResponse?.deletePostMainMedia.errors;
-    const url = removeResponse?.deletePostMainMedia.post?.mainMedia?.url;
+  //   const errors = removeResponse?.deletePostMainMedia.errors;
+  //   const url = removeResponse?.deletePostMainMedia.post?.mainMedia?.url;
 
-    if (url || errors) {
-      alert('Houve um problema ao remover a mídia principal do seu post');
-    }
+  //   if (url || errors) {
+  //     alert('Houve um problema ao remover a mídia principal do seu post');
+  //   }
 
-    if (!url && !errors && postData?.findPostById?.post) {
-      setUploadInfo(oldState => {
-        const { mainMedia: _, status: __, ...rest } = oldState;
+  //   if (!url && !errors && postData?.findPostById?.post) {
+  //     setUploadInfo(oldState => {
+  //       const { mainMedia: _, status: __, ...rest } = oldState;
 
-        return {
-          status: undefined,
-          mainMedia: undefined,
-          ...rest,
-        };
-      });
-      setMainMediaState('empty');
-    }
-  }, [communitySlug, post?._id, postData?.findPostById?.post, removeMainMedia]);
+  //       return {
+  //         status: undefined,
+  //         mainMedia: undefined,
+  //         ...rest,
+  //       };
+  //     });
+  //     setMainMediaState('empty');
+  //   }
+  // }, [communitySlug, post?._id, postData?.findPostById?.post, removeMainMedia]);
 
   const handleRemoveTagFromPost = useCallback(
     async (tagId: string) => {
@@ -429,7 +450,9 @@ function NewPost(): JSX.Element {
         editorMode={saveState}
       />
       <div style={{ height: '56px' }} />
-      {mainMediaState === 'empty' && (
+
+      <PostMainMedia communitySlug={communitySlug} postId={id} />
+      {/* {mainMediaState === 'empty' && (
         <ImageVideoUpload
           type="button"
           onClick={() => setDisplayMainMediaModal(!displayMainMediaModal)}
@@ -473,7 +496,7 @@ function NewPost(): JSX.Element {
           editClick={() => setDisplayMainMediaModal(!displayMainMediaModal)}
           removeClick={() => removePostMainMedia()}
         />
-      )}
+      )} */}
 
       <ContentWrapperArea>
         <ContentArea>
@@ -622,14 +645,14 @@ function NewPost(): JSX.Element {
         </ContentArea>
       </ContentWrapperArea>
 
-      <UploadModal
+      {/* <UploadModal
         displayUploadModal={displayMainMediaModal}
         setDisplayUploadModal={setDisplayMainMediaModal}
         communitySlug={communitySlug}
         postId={post?._id}
         setMainMediaState={args => setMainMediaState(args)}
         passUploadInfo={args => setUploadInfo(args)}
-      />
+      /> */}
 
       <Modal
         isOpen={isOpenConfirmation}

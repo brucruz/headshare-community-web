@@ -6,7 +6,7 @@ mutation DeletePostMainMedia($communitySlug: String!, $postId: String!) {
     }
     post {
       mainMedia {
-        url
+        _id
       }
     }
   }

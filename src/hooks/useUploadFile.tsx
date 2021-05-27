@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import * as tus from 'tus-js-client';
 
 import { MediaFormat } from '../generated/graphql';
@@ -106,7 +106,9 @@ export function useUploadFile(): UploadFileResponse {
         try {
           await uploadToS3(file, uploadLink);
 
+          // setInterval(() => {
           handleUploadSuccess(file.size);
+          // }, 5 * 1000 /* 5 seconds await for s3 process the uploaded file */);
         } catch (err) {
           addSnackbar({
             message: 'We could not process you media upload. Try again later',

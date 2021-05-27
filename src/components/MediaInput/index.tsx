@@ -20,6 +20,7 @@ export interface MediaInputProps {
   currentFileUrl?: string;
   fileType?: 'image' | 'video';
   getImageDimensions?: (arg: ImageDimensions) => void;
+  getPreview?: (preview?: string) => void;
 }
 
 const MediaInput: React.FC<MediaInputProps> = ({
@@ -32,6 +33,7 @@ const MediaInput: React.FC<MediaInputProps> = ({
   fileType,
   getImageDimensions,
   children,
+  getPreview,
 }) => {
   const [file, setFile] = useState<File | undefined>(undefined);
   const [preview, setPreview] = useState<string | undefined>(currentFileUrl);
@@ -69,6 +71,7 @@ const MediaInput: React.FC<MediaInputProps> = ({
       async function doFileRead(): Promise<void> {
         const { result, error } = await readFileAsDataURL(target.files[0]);
         result && setPreview(result);
+        result && getPreview && getPreview(result);
         error && addSnackbar({ message: error });
 
         if (result && fileType === 'image') {
@@ -87,7 +90,7 @@ const MediaInput: React.FC<MediaInputProps> = ({
       setFile(target.files[0]);
       getFile(target.files[0]);
     },
-    [addSnackbar, fileType, getFile, getImageDimensions],
+    [addSnackbar, fileType, getFile, getImageDimensions, getPreview],
   );
 
   return (

@@ -47,7 +47,7 @@ describe('useUploadFile hook', () => {
 
     const format = MediaFormat.Image;
 
-    const { result, waitForNextUpdate } = renderHook(() => useUploadFile());
+    const { result, waitForValueToChange } = renderHook(() => useUploadFile());
 
     act(() => {
       result.current[1]({
@@ -61,7 +61,7 @@ describe('useUploadFile hook', () => {
       });
     });
 
-    await waitForNextUpdate();
+    await waitForValueToChange(() => result.current[0].status);
 
     expect(result.current[0].status).toBe('finished');
     expect(result.current[0].progress).toBe(1);

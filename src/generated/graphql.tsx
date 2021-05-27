@@ -1354,7 +1354,7 @@ export type DeletePostMainMediaMutation = (
       { __typename?: 'Post' }
       & { mainMedia?: Maybe<(
         { __typename?: 'Media' }
-        & Pick<Media, 'url'>
+        & Pick<Media, '_id'>
       )> }
     )> }
   ) }
@@ -2356,7 +2356,7 @@ export const DeletePostMainMediaDocument = gql`
     }
     post {
       mainMedia {
-        url
+        _id
       }
     }
   }
