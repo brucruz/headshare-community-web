@@ -39,6 +39,10 @@ import { withApollo } from '../../utils/withApollo';
 import { Tags, CommunityTag } from '../../components/Tags';
 import { SEO } from '../../components/SEO';
 import { PostMainMedia } from '../../components/PostMainMedia';
+import {
+  UpdatePostCallbackResponse,
+  useSavePostBuilder,
+} from '../../hooks/useSavePostBuilder';
 
 const PostBuilder = dynamic(() => import('../../components/PostBuilder'), {
   ssr: false,
@@ -47,6 +51,20 @@ const PostBuilder = dynamic(() => import('../../components/PostBuilder'), {
 interface QueryProps {
   communitySlug: string;
 }
+
+interface PostOptionsProps {
+  communitySlug: string;
+  postId: string;
+  description?: string | null;
+  slug?: string | null;
+  exclusive: boolean;
+}
+
+const initialPostOptions: PostOptionsProps = {
+  communitySlug: 'test',
+  postId: 'test',
+  exclusive: true,
+};
 
 function NewPost(): JSX.Element {
   const router = useRouter();
@@ -92,14 +110,19 @@ function NewPost(): JSX.Element {
     | null
   >(postData?.findPostById?.post);
   const [saveState, setSaveState] = useState<'saved' | 'saving'>('saved');
-  const [description, setDescription] = useState<string | null | undefined>();
-  const [slug, setSlug] = useState<string | null | undefined>();
-  const [exclusive, setExclusive] = useState<boolean>(true);
+  const [postOptions, setPostOptions] = useState<PostOptionsProps>({
+    communitySlug,
+    postId: id,
+    description: post?.description,
+    exclusive: post?.exclusive || true,
+    slug: post?.slug,
+  });
   const [isOpenConfirmation, setIsOpenConfirmation] = useState(false);
   const [thumbnailUrl, setThumbnailUrl] = useState<string | undefined>();
   const [tags, setTags] = useState<CommunityTag[]>([]);
 
   const [uploadImage] = useUploadImageMutation();
+  const [updateThumbnail] = useUpdatePostMainMediaThumbnailMutation();
 
   const [getCommunityBasicData, { data: communityData }] =
     useGetCommunityBasicDataLazyQuery();
@@ -146,8 +169,6 @@ function NewPost(): JSX.Element {
     [uploadImage],
   );
 
-  const [updateThumbnail] = useUpdatePostMainMediaThumbnailMutation();
-
   const handleThumbnailSelect = useCallback(
     async (
       file: File,
@@ -182,6 +203,75 @@ function NewPost(): JSX.Element {
     [handleMediaUpload, updateThumbnail],
   );
 
+  const updatePostOptionsCallback = useCallback(
+    async (
+      postOptionsInfo: PostOptionsProps,
+      controllerSignal: AbortController['signal'],
+    ): Promise<UpdatePostCallbackResponse> => {
+      if (!postOptionsInfo.communitySlug || !postOptionsInfo.postId) {
+        return {
+          callbackStatus: 'error',
+        };
+      }
+
+      const response = await updatePost({
+        variables: {
+          communitySlug: postOptionsInfo.communitySlug,
+          postId: postOptionsInfo.postId,
+          post: {
+            description: postOptionsInfo.description,
+            slug: postOptionsInfo.slug,
+            exclusive: postOptionsInfo.exclusive,
+          },
+        },
+        context: { fetchOptions: { signal: controllerSignal } },
+      });
+
+      if (!response.data && response.errors) {
+        const callbackResponse: UpdatePostCallbackResponse = {
+          callbackStatus: 'error',
+          message: `Ocorreu um erro ao atualizar as opções do post. ${response.errors}`,
+        };
+
+        return callbackResponse;
+      }
+
+      if (response.data?.updatePost?.errors) {
+        const callbackResponse: UpdatePostCallbackResponse = {
+          callbackStatus: 'error',
+          message: response.data.updatePost.errors.toString(),
+        };
+
+        return callbackResponse;
+      }
+
+      if (response.data?.updatePost?.post) {
+        const callbackResponse: UpdatePostCallbackResponse = {
+          callbackStatus: 'success',
+        };
+
+        return callbackResponse;
+      }
+
+      const callbackResponse: UpdatePostCallbackResponse = {
+        callbackStatus: 'error',
+      };
+
+      return callbackResponse;
+    },
+    [updatePost],
+  );
+
+  const [saveStatus] = useSavePostBuilder<PostOptionsProps>(
+    initialPostOptions,
+    postOptions,
+    updatePostOptionsCallback,
+  );
+
+  useEffect(() => {
+    setSaveState(saveStatus);
+  }, [saveStatus]);
+
   useEffect(() => {
     if (id) {
       getPostData({
@@ -206,20 +296,22 @@ function NewPost(): JSX.Element {
     if (postData && postData.findPostById && postData.findPostById.post) {
       setPost(postData.findPostById.post);
 
-      setDescription(postData.findPostById.post.description);
-
-      setSlug(postData.findPostById.post.slug);
-
-      setTags(postData.findPostById.post.tags.tags);
-
-      postData.findPostById.post.exclusive === true && setExclusive(true);
-      postData.findPostById.post.exclusive === false && setExclusive(false);
+      setPostOptions({
+        communitySlug,
+        postId: id,
+        exclusive:
+          (postData.findPostById.post.exclusive === true && true) ||
+          (postData.findPostById.post.exclusive === false && false) ||
+          true,
+        description: postData.findPostById.post.description,
+        slug: postData.findPostById.post.slug,
+      });
 
       postData.findPostById.post.mainMedia?.format === MediaFormat.Video &&
         postData.findPostById.post.mainMedia.thumbnailUrl &&
         setThumbnailUrl(postData.findPostById.post.mainMedia.thumbnailUrl);
     }
-  }, [postData]);
+  }, [communitySlug, id, postData]);
 
   const getEditorSaveState = useCallback((state: 'saved' | 'saving'): void => {
     setSaveState(state);
@@ -231,9 +323,6 @@ function NewPost(): JSX.Element {
         communitySlug,
         postId: id,
         post: {
-          description,
-          slug,
-          exclusive,
           status: PostStatus.Published,
         },
       },
@@ -242,7 +331,7 @@ function NewPost(): JSX.Element {
     const postURL = `/${communitySlug}/post/${result.data?.updatePost?.post?.slug}`;
 
     router.push(postURL);
-  }, [updatePost, communitySlug, id, description, slug, exclusive, router]);
+  }, [updatePost, communitySlug, id, router]);
 
   const handleRemoveTagFromPost = useCallback(
     async (tagId: string) => {
@@ -334,8 +423,13 @@ function NewPost(): JSX.Element {
                 <Input
                   name="post-description"
                   label="Descrição"
-                  value={description || ''}
-                  onChange={e => setDescription(e.target.value)}
+                  value={postOptions.description || ''}
+                  onChange={e =>
+                    setPostOptions(state => ({
+                      ...state,
+                      description: e.target.value,
+                    }))
+                  }
                   maxLength={80}
                 />
               </PublishOptionInput>
@@ -349,8 +443,13 @@ function NewPost(): JSX.Element {
                 <Input
                   name="post-slug"
                   label="Slug"
-                  value={slug || ''}
-                  onChange={e => setSlug(e.target.value)}
+                  value={postOptions.slug || ''}
+                  onChange={e =>
+                    setPostOptions(state => ({
+                      ...state,
+                      slug: e.target.value,
+                    }))
+                  }
                   maxLength={30}
                 />
               </PublishOptionInput>
@@ -367,8 +466,13 @@ function NewPost(): JSX.Element {
                   </div>
                   <Switch
                     id="exclusive-switch"
-                    isOn={exclusive}
-                    handleToggle={() => setExclusive(!exclusive)}
+                    isOn={postOptions.exclusive}
+                    handleToggle={() =>
+                      setPostOptions(state => ({
+                        ...state,
+                        exclusive: !state.exclusive,
+                      }))
+                    }
                   />
                 </PublishOptionSwitch>
               </PublishOptionInput>

@@ -99,6 +99,9 @@ export function useSavePostBuilder<ContentProps>(
         controller.signal,
       );
 
+      console.log('contentInfo: ', contentInfo);
+      console.log('callbackStatus: ', callbackStatus);
+
       if (callbackStatus === 'error') {
         // Insert Snackbar with error detail and retry option
         message && addSnackbar({ message });

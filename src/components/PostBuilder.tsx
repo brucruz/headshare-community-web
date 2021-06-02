@@ -92,6 +92,12 @@ const PostBuilder: React.FC<PostBuilderProps> = ({
       controllerSignal: AbortController['signal'],
       // eslint-disable-next-line consistent-return
     ): Promise<UpdatePostCallbackResponse> => {
+      if (!communitySlug || !postId) {
+        return {
+          callbackStatus: 'error',
+        };
+      }
+
       const response = await updatePost({
         variables: {
           postId,
