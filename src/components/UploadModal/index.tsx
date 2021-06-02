@@ -74,10 +74,8 @@ export function UploadModal({
   const [selectedMedia, setSelectedMedia] = useState<SelectedMediaProps>(
     mediaInitialSelection,
   );
-  const [
-    clickedMediaSelector,
-    setClickedMediaSelector,
-  ] = useState<SelectedMediaProps>('none');
+  const [clickedMediaSelector, setClickedMediaSelector] =
+    useState<SelectedMediaProps>('none');
   const [selectedFile, setSelectedFile] = useState<File | undefined>();
 
   const [uploadInfo, uploadMedia] = useUploadFile();
@@ -146,12 +144,7 @@ export function UploadModal({
   }, [setDisplayUploadModal]);
 
   return (
-    <Modal
-      data-test-id="upload-modal"
-      isOpen={displayUploadModal}
-      setIsOpen={closeUploadModal}
-      closeButton
-    >
+    <Modal isOpen={displayUploadModal} setIsOpen={closeUploadModal} closeButton>
       <UploadModalContainer>
         <UploadHeaderContainer>
           <StateHeader>

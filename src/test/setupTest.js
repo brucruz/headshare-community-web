@@ -1,4 +1,12 @@
-// /* eslint-disable @typescript-eslint/no-var-requires */
-// const dotenv = require('dotenv');
+process.env.NODE_ENV = 'test';
 
-// dotenv.config({ path: '.env.development.local' });
+process.env = {
+  ...process.env,
+  __NEXT_IMAGE_OPTS: {
+    deviceSizes: [320, 420, 768, 1024, 1200],
+    imageSizes: [],
+    domains: ['headshare.s3.amazonaws.com', 'example.com'],
+    path: '/_next/image',
+    loader: 'default',
+  },
+};

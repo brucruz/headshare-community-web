@@ -49,7 +49,7 @@ export function Media({
       )}
 
       {format === MediaFormat.Image && width && height && (
-        <ImageUploaded>
+        <ImageUploaded data-testid="media-image">
           <NextImage
             src={mediaUrl}
             layout="intrinsic"

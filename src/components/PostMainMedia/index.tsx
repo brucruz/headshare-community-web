@@ -38,18 +38,16 @@ export function PostMainMedia({
   postId,
   communitySlug,
 }: PostMainMediaProps): JSX.Element {
-  const [mainMediaState, setMainMediaState] = useState<
-    'empty' | 'uploading' | 'ready'
-  >('ready');
+  const [mainMediaState, setMainMediaState] =
+    useState<'empty' | 'uploading' | 'ready'>('ready');
   const [uploadInfo, setUploadInfo] = useState<UploadInfoProps>({
     bytesSent: 0,
     bytesTotal: 0,
     progress: 0,
   });
   const [displayUploadModal, setDisplayUploadModal] = useState<boolean>(false);
-  const [imageDimensions, setImageDimensions] = useState<
-    ImageDimensions | undefined
-  >(undefined);
+  const [imageDimensions, setImageDimensions] =
+    useState<ImageDimensions | undefined>(undefined);
   const [preview, setPreview] = useState<string | undefined>(undefined);
 
   const [getPostMainMedia, { data }] = useGetPostMainMediaLazyQuery();
@@ -193,6 +191,12 @@ export function PostMainMedia({
     const returnedMainMedia =
       removeResponse?.deletePostMainMedia.post?.mainMedia;
 
+    if (!returnedMainMedia) {
+      addSnackbar({
+        message: 'Mídia removida com sucesso',
+      });
+    }
+
     if (returnedMainMedia || errors) {
       // add retry action to this snackbar
       addSnackbar({
@@ -239,9 +243,10 @@ export function PostMainMedia({
   }, [mainMedia?.url, preview, uploadInfo.status]);
 
   return (
-    <PostMainMediaContainer>
+    <PostMainMediaContainer data-testid="post-main-media">
       {mainMediaState === 'empty' && (
         <ImageVideoUpload
+          data-testid="post-main-media-empty"
           type="button"
           onClick={() => setDisplayUploadModal(true)}
         >
@@ -260,7 +265,6 @@ export function PostMainMedia({
           <UploadStatus>
             <UploadStatusHeader>
               <UploadStatusBarContainer>
-                <UploadStatusBar progress={0.5} />
                 <UploadStatusBar progress={uploadInfo.progress} />
               </UploadStatusBarContainer>
               <UploadPauseResumeButton>
