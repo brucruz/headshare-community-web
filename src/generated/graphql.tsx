@@ -4,6 +4,7 @@ export type Maybe<T> = T | null;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
 export type MakeOptional<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]?: Maybe<T[SubKey]> };
 export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]: Maybe<T[SubKey]> };
+const defaultOptions =  {}
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
   ID: string;
@@ -637,6 +638,8 @@ export type Mutation = {
   deletePost: SuccessResponse;
   /** Users can upload a image directly as a post main media */
   updatePostMainImage: PostResponse;
+  /** Users can upload a video directly as a post main media */
+  updatePostMainVideo: Post;
   /** Users can upload a image directly as a post cover */
   updatePostCover: PostResponse;
   register: LoggedUserResponse;
@@ -717,6 +720,13 @@ export type MutationDeletePostArgs = {
 
 export type MutationUpdatePostMainImageArgs = {
   imageData: UploadImageInput;
+  postId: Scalars['String'];
+  communitySlug: Scalars['String'];
+};
+
+
+export type MutationUpdatePostMainVideoArgs = {
+  videoData: UploadVideoInput;
   postId: Scalars['String'];
   communitySlug: Scalars['String'];
 };
@@ -952,6 +962,19 @@ export type UploadImageInput = {
   width?: Maybe<Scalars['Float']>;
   /** Media original height */
   height?: Maybe<Scalars['Float']>;
+};
+
+export type UploadVideoInput = {
+  /** Media format */
+  format: MediaFormat;
+  /** Media thumbnail picture url */
+  thumbnailUrl?: Maybe<Scalars['String']>;
+  /** Media internal name */
+  name?: Maybe<Scalars['String']>;
+  /** Media internal description */
+  description?: Maybe<Scalars['String']>;
+  /** Media file information */
+  file: FileInput;
 };
 
 export type LoggedUserResponse = {
@@ -1649,6 +1672,36 @@ export type UpdatePostMainMediaThumbnailMutation = (
   ) }
 );
 
+export type UpdatePostMainVideoMutationVariables = Exact<{
+  communitySlug: Scalars['String'];
+  postId: Scalars['String'];
+  videoData: UploadVideoInput;
+}>;
+
+
+export type UpdatePostMainVideoMutation = (
+  { __typename?: 'Mutation' }
+  & { updatePostMainVideo: (
+    { __typename?: 'Post' }
+    & Pick<Post, '_id' | 'title' | 'formattedTitle' | 'slug' | 'description' | 'status' | 'content' | 'exclusive'>
+    & { mainMedia?: Maybe<(
+      { __typename?: 'Media' }
+      & Pick<Media, '_id' | 'url' | 'thumbnailUrl' | 'format' | 'uploadLink'>
+      & { file: (
+        { __typename?: 'File' }
+        & Pick<File, 'name' | 'size' | 'extension' | 'type'>
+      ) }
+    )>, tags: (
+      { __typename?: 'PaginatedTags' }
+      & Pick<PaginatedTags, 'hasMore'>
+      & { tags: Array<(
+        { __typename?: 'Tag' }
+        & Pick<Tag, '_id' | 'title'>
+      )> }
+    ) }
+  ) }
+);
+
 export type UploadImageMutationVariables = Exact<{
   communitySlug: Scalars['String'];
   imageData: UploadImageInput;
@@ -2210,7 +2263,8 @@ export type CreateCommunityTagMutationFn = Apollo.MutationFunction<CreateCommuni
  * });
  */
 export function useCreateCommunityTagMutation(baseOptions?: Apollo.MutationHookOptions<CreateCommunityTagMutation, CreateCommunityTagMutationVariables>) {
-        return Apollo.useMutation<CreateCommunityTagMutation, CreateCommunityTagMutationVariables>(CreateCommunityTagDocument, baseOptions);
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateCommunityTagMutation, CreateCommunityTagMutationVariables>(CreateCommunityTagDocument, options);
       }
 export type CreateCommunityTagMutationHookResult = ReturnType<typeof useCreateCommunityTagMutation>;
 export type CreateCommunityTagMutationResult = Apollo.MutationResult<CreateCommunityTagMutation>;
@@ -2251,7 +2305,8 @@ export type CreateCommunityTagFromAdminTagHighlightMutationFn = Apollo.MutationF
  * });
  */
 export function useCreateCommunityTagFromAdminTagHighlightMutation(baseOptions?: Apollo.MutationHookOptions<CreateCommunityTagFromAdminTagHighlightMutation, CreateCommunityTagFromAdminTagHighlightMutationVariables>) {
-        return Apollo.useMutation<CreateCommunityTagFromAdminTagHighlightMutation, CreateCommunityTagFromAdminTagHighlightMutationVariables>(CreateCommunityTagFromAdminTagHighlightDocument, baseOptions);
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateCommunityTagFromAdminTagHighlightMutation, CreateCommunityTagFromAdminTagHighlightMutationVariables>(CreateCommunityTagFromAdminTagHighlightDocument, options);
       }
 export type CreateCommunityTagFromAdminTagHighlightMutationHookResult = ReturnType<typeof useCreateCommunityTagFromAdminTagHighlightMutation>;
 export type CreateCommunityTagFromAdminTagHighlightMutationResult = Apollo.MutationResult<CreateCommunityTagFromAdminTagHighlightMutation>;
@@ -2305,7 +2360,8 @@ export type CreatePostMutationFn = Apollo.MutationFunction<CreatePostMutation, C
  * });
  */
 export function useCreatePostMutation(baseOptions?: Apollo.MutationHookOptions<CreatePostMutation, CreatePostMutationVariables>) {
-        return Apollo.useMutation<CreatePostMutation, CreatePostMutationVariables>(CreatePostDocument, baseOptions);
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreatePostMutation, CreatePostMutationVariables>(CreatePostDocument, options);
       }
 export type CreatePostMutationHookResult = ReturnType<typeof useCreatePostMutation>;
 export type CreatePostMutationResult = Apollo.MutationResult<CreatePostMutation>;
@@ -2342,7 +2398,8 @@ export type DeletePostMutationFn = Apollo.MutationFunction<DeletePostMutation, D
  * });
  */
 export function useDeletePostMutation(baseOptions?: Apollo.MutationHookOptions<DeletePostMutation, DeletePostMutationVariables>) {
-        return Apollo.useMutation<DeletePostMutation, DeletePostMutationVariables>(DeletePostDocument, baseOptions);
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DeletePostMutation, DeletePostMutationVariables>(DeletePostDocument, options);
       }
 export type DeletePostMutationHookResult = ReturnType<typeof useDeletePostMutation>;
 export type DeletePostMutationResult = Apollo.MutationResult<DeletePostMutation>;
@@ -2383,7 +2440,8 @@ export type DeletePostMainMediaMutationFn = Apollo.MutationFunction<DeletePostMa
  * });
  */
 export function useDeletePostMainMediaMutation(baseOptions?: Apollo.MutationHookOptions<DeletePostMainMediaMutation, DeletePostMainMediaMutationVariables>) {
-        return Apollo.useMutation<DeletePostMainMediaMutation, DeletePostMainMediaMutationVariables>(DeletePostMainMediaDocument, baseOptions);
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DeletePostMainMediaMutation, DeletePostMainMediaMutationVariables>(DeletePostMainMediaDocument, options);
       }
 export type DeletePostMainMediaMutationHookResult = ReturnType<typeof useDeletePostMainMediaMutation>;
 export type DeletePostMainMediaMutationResult = Apollo.MutationResult<DeletePostMainMediaMutation>;
@@ -2420,7 +2478,8 @@ export type DeleteTagMutationFn = Apollo.MutationFunction<DeleteTagMutation, Del
  * });
  */
 export function useDeleteTagMutation(baseOptions?: Apollo.MutationHookOptions<DeleteTagMutation, DeleteTagMutationVariables>) {
-        return Apollo.useMutation<DeleteTagMutation, DeleteTagMutationVariables>(DeleteTagDocument, baseOptions);
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DeleteTagMutation, DeleteTagMutationVariables>(DeleteTagDocument, options);
       }
 export type DeleteTagMutationHookResult = ReturnType<typeof useDeleteTagMutation>;
 export type DeleteTagMutationResult = Apollo.MutationResult<DeleteTagMutation>;
@@ -2457,7 +2516,8 @@ export type FollowCommunityMutationFn = Apollo.MutationFunction<FollowCommunityM
  * });
  */
 export function useFollowCommunityMutation(baseOptions?: Apollo.MutationHookOptions<FollowCommunityMutation, FollowCommunityMutationVariables>) {
-        return Apollo.useMutation<FollowCommunityMutation, FollowCommunityMutationVariables>(FollowCommunityDocument, baseOptions);
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<FollowCommunityMutation, FollowCommunityMutationVariables>(FollowCommunityDocument, options);
       }
 export type FollowCommunityMutationHookResult = ReturnType<typeof useFollowCommunityMutation>;
 export type FollowCommunityMutationResult = Apollo.MutationResult<FollowCommunityMutation>;
@@ -2495,7 +2555,8 @@ export type LoginMutationFn = Apollo.MutationFunction<LoginMutation, LoginMutati
  * });
  */
 export function useLoginMutation(baseOptions?: Apollo.MutationHookOptions<LoginMutation, LoginMutationVariables>) {
-        return Apollo.useMutation<LoginMutation, LoginMutationVariables>(LoginDocument, baseOptions);
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<LoginMutation, LoginMutationVariables>(LoginDocument, options);
       }
 export type LoginMutationHookResult = ReturnType<typeof useLoginMutation>;
 export type LoginMutationResult = Apollo.MutationResult<LoginMutation>;
@@ -2524,7 +2585,8 @@ export type LogoutMutationFn = Apollo.MutationFunction<LogoutMutation, LogoutMut
  * });
  */
 export function useLogoutMutation(baseOptions?: Apollo.MutationHookOptions<LogoutMutation, LogoutMutationVariables>) {
-        return Apollo.useMutation<LogoutMutation, LogoutMutationVariables>(LogoutDocument, baseOptions);
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<LogoutMutation, LogoutMutationVariables>(LogoutDocument, options);
       }
 export type LogoutMutationHookResult = ReturnType<typeof useLogoutMutation>;
 export type LogoutMutationResult = Apollo.MutationResult<LogoutMutation>;
@@ -2562,7 +2624,8 @@ export type RegisterMutationFn = Apollo.MutationFunction<RegisterMutation, Regis
  * });
  */
 export function useRegisterMutation(baseOptions?: Apollo.MutationHookOptions<RegisterMutation, RegisterMutationVariables>) {
-        return Apollo.useMutation<RegisterMutation, RegisterMutationVariables>(RegisterDocument, baseOptions);
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<RegisterMutation, RegisterMutationVariables>(RegisterDocument, options);
       }
 export type RegisterMutationHookResult = ReturnType<typeof useRegisterMutation>;
 export type RegisterMutationResult = Apollo.MutationResult<RegisterMutation>;
@@ -2605,7 +2668,8 @@ export type UpdateCategoryMutationFn = Apollo.MutationFunction<UpdateCategoryMut
  * });
  */
 export function useUpdateCategoryMutation(baseOptions?: Apollo.MutationHookOptions<UpdateCategoryMutation, UpdateCategoryMutationVariables>) {
-        return Apollo.useMutation<UpdateCategoryMutation, UpdateCategoryMutationVariables>(UpdateCategoryDocument, baseOptions);
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateCategoryMutation, UpdateCategoryMutationVariables>(UpdateCategoryDocument, options);
       }
 export type UpdateCategoryMutationHookResult = ReturnType<typeof useUpdateCategoryMutation>;
 export type UpdateCategoryMutationResult = Apollo.MutationResult<UpdateCategoryMutation>;
@@ -2646,7 +2710,8 @@ export type UpdateCommunityAvatarMutationFn = Apollo.MutationFunction<UpdateComm
  * });
  */
 export function useUpdateCommunityAvatarMutation(baseOptions?: Apollo.MutationHookOptions<UpdateCommunityAvatarMutation, UpdateCommunityAvatarMutationVariables>) {
-        return Apollo.useMutation<UpdateCommunityAvatarMutation, UpdateCommunityAvatarMutationVariables>(UpdateCommunityAvatarDocument, baseOptions);
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateCommunityAvatarMutation, UpdateCommunityAvatarMutationVariables>(UpdateCommunityAvatarDocument, options);
       }
 export type UpdateCommunityAvatarMutationHookResult = ReturnType<typeof useUpdateCommunityAvatarMutation>;
 export type UpdateCommunityAvatarMutationResult = Apollo.MutationResult<UpdateCommunityAvatarMutation>;
@@ -2687,7 +2752,8 @@ export type UpdateCommunityBannerMutationFn = Apollo.MutationFunction<UpdateComm
  * });
  */
 export function useUpdateCommunityBannerMutation(baseOptions?: Apollo.MutationHookOptions<UpdateCommunityBannerMutation, UpdateCommunityBannerMutationVariables>) {
-        return Apollo.useMutation<UpdateCommunityBannerMutation, UpdateCommunityBannerMutationVariables>(UpdateCommunityBannerDocument, baseOptions);
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateCommunityBannerMutation, UpdateCommunityBannerMutationVariables>(UpdateCommunityBannerDocument, options);
       }
 export type UpdateCommunityBannerMutationHookResult = ReturnType<typeof useUpdateCommunityBannerMutation>;
 export type UpdateCommunityBannerMutationResult = Apollo.MutationResult<UpdateCommunityBannerMutation>;
@@ -2730,7 +2796,8 @@ export type UpdateCommunityConfigMainMutationFn = Apollo.MutationFunction<Update
  * });
  */
 export function useUpdateCommunityConfigMainMutation(baseOptions?: Apollo.MutationHookOptions<UpdateCommunityConfigMainMutation, UpdateCommunityConfigMainMutationVariables>) {
-        return Apollo.useMutation<UpdateCommunityConfigMainMutation, UpdateCommunityConfigMainMutationVariables>(UpdateCommunityConfigMainDocument, baseOptions);
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateCommunityConfigMainMutation, UpdateCommunityConfigMainMutationVariables>(UpdateCommunityConfigMainDocument, options);
       }
 export type UpdateCommunityConfigMainMutationHookResult = ReturnType<typeof useUpdateCommunityConfigMainMutation>;
 export type UpdateCommunityConfigMainMutationResult = Apollo.MutationResult<UpdateCommunityConfigMainMutation>;
@@ -2778,7 +2845,8 @@ export type UpdateCommunityHighlightTagsMutationFn = Apollo.MutationFunction<Upd
  * });
  */
 export function useUpdateCommunityHighlightTagsMutation(baseOptions?: Apollo.MutationHookOptions<UpdateCommunityHighlightTagsMutation, UpdateCommunityHighlightTagsMutationVariables>) {
-        return Apollo.useMutation<UpdateCommunityHighlightTagsMutation, UpdateCommunityHighlightTagsMutationVariables>(UpdateCommunityHighlightTagsDocument, baseOptions);
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateCommunityHighlightTagsMutation, UpdateCommunityHighlightTagsMutationVariables>(UpdateCommunityHighlightTagsDocument, options);
       }
 export type UpdateCommunityHighlightTagsMutationHookResult = ReturnType<typeof useUpdateCommunityHighlightTagsMutation>;
 export type UpdateCommunityHighlightTagsMutationResult = Apollo.MutationResult<UpdateCommunityHighlightTagsMutation>;
@@ -2841,7 +2909,8 @@ export type UpdatePostMutationFn = Apollo.MutationFunction<UpdatePostMutation, U
  * });
  */
 export function useUpdatePostMutation(baseOptions?: Apollo.MutationHookOptions<UpdatePostMutation, UpdatePostMutationVariables>) {
-        return Apollo.useMutation<UpdatePostMutation, UpdatePostMutationVariables>(UpdatePostDocument, baseOptions);
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdatePostMutation, UpdatePostMutationVariables>(UpdatePostDocument, options);
       }
 export type UpdatePostMutationHookResult = ReturnType<typeof useUpdatePostMutation>;
 export type UpdatePostMutationResult = Apollo.MutationResult<UpdatePostMutation>;
@@ -2914,7 +2983,8 @@ export type UpdatePostMainImageMutationFn = Apollo.MutationFunction<UpdatePostMa
  * });
  */
 export function useUpdatePostMainImageMutation(baseOptions?: Apollo.MutationHookOptions<UpdatePostMainImageMutation, UpdatePostMainImageMutationVariables>) {
-        return Apollo.useMutation<UpdatePostMainImageMutation, UpdatePostMainImageMutationVariables>(UpdatePostMainImageDocument, baseOptions);
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdatePostMainImageMutation, UpdatePostMainImageMutationVariables>(UpdatePostMainImageDocument, options);
       }
 export type UpdatePostMainImageMutationHookResult = ReturnType<typeof useUpdatePostMainImageMutation>;
 export type UpdatePostMainImageMutationResult = Apollo.MutationResult<UpdatePostMainImageMutation>;
@@ -2960,11 +3030,78 @@ export type UpdatePostMainMediaThumbnailMutationFn = Apollo.MutationFunction<Upd
  * });
  */
 export function useUpdatePostMainMediaThumbnailMutation(baseOptions?: Apollo.MutationHookOptions<UpdatePostMainMediaThumbnailMutation, UpdatePostMainMediaThumbnailMutationVariables>) {
-        return Apollo.useMutation<UpdatePostMainMediaThumbnailMutation, UpdatePostMainMediaThumbnailMutationVariables>(UpdatePostMainMediaThumbnailDocument, baseOptions);
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdatePostMainMediaThumbnailMutation, UpdatePostMainMediaThumbnailMutationVariables>(UpdatePostMainMediaThumbnailDocument, options);
       }
 export type UpdatePostMainMediaThumbnailMutationHookResult = ReturnType<typeof useUpdatePostMainMediaThumbnailMutation>;
 export type UpdatePostMainMediaThumbnailMutationResult = Apollo.MutationResult<UpdatePostMainMediaThumbnailMutation>;
 export type UpdatePostMainMediaThumbnailMutationOptions = Apollo.BaseMutationOptions<UpdatePostMainMediaThumbnailMutation, UpdatePostMainMediaThumbnailMutationVariables>;
+export const UpdatePostMainVideoDocument = gql`
+    mutation UpdatePostMainVideo($communitySlug: String!, $postId: String!, $videoData: UploadVideoInput!) {
+  updatePostMainVideo(
+    communitySlug: $communitySlug
+    postId: $postId
+    videoData: $videoData
+  ) {
+    _id
+    title
+    formattedTitle
+    slug
+    description
+    status
+    mainMedia {
+      _id
+      url
+      thumbnailUrl
+      format
+      uploadLink
+      file {
+        name
+        size
+        extension
+        type
+      }
+    }
+    content
+    exclusive
+    tags(limit: 10) {
+      tags {
+        _id
+        title
+      }
+      hasMore
+    }
+  }
+}
+    `;
+export type UpdatePostMainVideoMutationFn = Apollo.MutationFunction<UpdatePostMainVideoMutation, UpdatePostMainVideoMutationVariables>;
+
+/**
+ * __useUpdatePostMainVideoMutation__
+ *
+ * To run a mutation, you first call `useUpdatePostMainVideoMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdatePostMainVideoMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updatePostMainVideoMutation, { data, loading, error }] = useUpdatePostMainVideoMutation({
+ *   variables: {
+ *      communitySlug: // value for 'communitySlug'
+ *      postId: // value for 'postId'
+ *      videoData: // value for 'videoData'
+ *   },
+ * });
+ */
+export function useUpdatePostMainVideoMutation(baseOptions?: Apollo.MutationHookOptions<UpdatePostMainVideoMutation, UpdatePostMainVideoMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdatePostMainVideoMutation, UpdatePostMainVideoMutationVariables>(UpdatePostMainVideoDocument, options);
+      }
+export type UpdatePostMainVideoMutationHookResult = ReturnType<typeof useUpdatePostMainVideoMutation>;
+export type UpdatePostMainVideoMutationResult = Apollo.MutationResult<UpdatePostMainVideoMutation>;
+export type UpdatePostMainVideoMutationOptions = Apollo.BaseMutationOptions<UpdatePostMainVideoMutation, UpdatePostMainVideoMutationVariables>;
 export const UploadImageDocument = gql`
     mutation UploadImage($communitySlug: String!, $imageData: UploadImageInput!) {
   uploadImage(communitySlug: $communitySlug, imageData: $imageData) {
@@ -3002,7 +3139,8 @@ export type UploadImageMutationFn = Apollo.MutationFunction<UploadImageMutation,
  * });
  */
 export function useUploadImageMutation(baseOptions?: Apollo.MutationHookOptions<UploadImageMutation, UploadImageMutationVariables>) {
-        return Apollo.useMutation<UploadImageMutation, UploadImageMutationVariables>(UploadImageDocument, baseOptions);
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UploadImageMutation, UploadImageMutationVariables>(UploadImageDocument, options);
       }
 export type UploadImageMutationHookResult = ReturnType<typeof useUploadImageMutation>;
 export type UploadImageMutationResult = Apollo.MutationResult<UploadImageMutation>;
@@ -3051,7 +3189,8 @@ export type UploadVideoMutationFn = Apollo.MutationFunction<UploadVideoMutation,
  * });
  */
 export function useUploadVideoMutation(baseOptions?: Apollo.MutationHookOptions<UploadVideoMutation, UploadVideoMutationVariables>) {
-        return Apollo.useMutation<UploadVideoMutation, UploadVideoMutationVariables>(UploadVideoDocument, baseOptions);
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UploadVideoMutation, UploadVideoMutationVariables>(UploadVideoDocument, options);
       }
 export type UploadVideoMutationHookResult = ReturnType<typeof useUploadVideoMutation>;
 export type UploadVideoMutationResult = Apollo.MutationResult<UploadVideoMutation>;
@@ -3097,10 +3236,12 @@ export const AdminPostsDocument = gql`
  * });
  */
 export function useAdminPostsQuery(baseOptions: Apollo.QueryHookOptions<AdminPostsQuery, AdminPostsQueryVariables>) {
-        return Apollo.useQuery<AdminPostsQuery, AdminPostsQueryVariables>(AdminPostsDocument, baseOptions);
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<AdminPostsQuery, AdminPostsQueryVariables>(AdminPostsDocument, options);
       }
 export function useAdminPostsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<AdminPostsQuery, AdminPostsQueryVariables>) {
-          return Apollo.useLazyQuery<AdminPostsQuery, AdminPostsQueryVariables>(AdminPostsDocument, baseOptions);
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<AdminPostsQuery, AdminPostsQueryVariables>(AdminPostsDocument, options);
         }
 export type AdminPostsQueryHookResult = ReturnType<typeof useAdminPostsQuery>;
 export type AdminPostsLazyQueryHookResult = ReturnType<typeof useAdminPostsLazyQuery>;
@@ -3142,10 +3283,12 @@ export const AdminTagsDocument = gql`
  * });
  */
 export function useAdminTagsQuery(baseOptions: Apollo.QueryHookOptions<AdminTagsQuery, AdminTagsQueryVariables>) {
-        return Apollo.useQuery<AdminTagsQuery, AdminTagsQueryVariables>(AdminTagsDocument, baseOptions);
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<AdminTagsQuery, AdminTagsQueryVariables>(AdminTagsDocument, options);
       }
 export function useAdminTagsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<AdminTagsQuery, AdminTagsQueryVariables>) {
-          return Apollo.useLazyQuery<AdminTagsQuery, AdminTagsQueryVariables>(AdminTagsDocument, baseOptions);
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<AdminTagsQuery, AdminTagsQueryVariables>(AdminTagsDocument, options);
         }
 export type AdminTagsQueryHookResult = ReturnType<typeof useAdminTagsQuery>;
 export type AdminTagsLazyQueryHookResult = ReturnType<typeof useAdminTagsLazyQuery>;
@@ -3193,10 +3336,12 @@ export const CommunityAdminConfigBrandingDocument = gql`
  * });
  */
 export function useCommunityAdminConfigBrandingQuery(baseOptions: Apollo.QueryHookOptions<CommunityAdminConfigBrandingQuery, CommunityAdminConfigBrandingQueryVariables>) {
-        return Apollo.useQuery<CommunityAdminConfigBrandingQuery, CommunityAdminConfigBrandingQueryVariables>(CommunityAdminConfigBrandingDocument, baseOptions);
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<CommunityAdminConfigBrandingQuery, CommunityAdminConfigBrandingQueryVariables>(CommunityAdminConfigBrandingDocument, options);
       }
 export function useCommunityAdminConfigBrandingLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<CommunityAdminConfigBrandingQuery, CommunityAdminConfigBrandingQueryVariables>) {
-          return Apollo.useLazyQuery<CommunityAdminConfigBrandingQuery, CommunityAdminConfigBrandingQueryVariables>(CommunityAdminConfigBrandingDocument, baseOptions);
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<CommunityAdminConfigBrandingQuery, CommunityAdminConfigBrandingQueryVariables>(CommunityAdminConfigBrandingDocument, options);
         }
 export type CommunityAdminConfigBrandingQueryHookResult = ReturnType<typeof useCommunityAdminConfigBrandingQuery>;
 export type CommunityAdminConfigBrandingLazyQueryHookResult = ReturnType<typeof useCommunityAdminConfigBrandingLazyQuery>;
@@ -3239,10 +3384,12 @@ export const CommunityAdminConfigMainDocument = gql`
  * });
  */
 export function useCommunityAdminConfigMainQuery(baseOptions: Apollo.QueryHookOptions<CommunityAdminConfigMainQuery, CommunityAdminConfigMainQueryVariables>) {
-        return Apollo.useQuery<CommunityAdminConfigMainQuery, CommunityAdminConfigMainQueryVariables>(CommunityAdminConfigMainDocument, baseOptions);
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<CommunityAdminConfigMainQuery, CommunityAdminConfigMainQueryVariables>(CommunityAdminConfigMainDocument, options);
       }
 export function useCommunityAdminConfigMainLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<CommunityAdminConfigMainQuery, CommunityAdminConfigMainQueryVariables>) {
-          return Apollo.useLazyQuery<CommunityAdminConfigMainQuery, CommunityAdminConfigMainQueryVariables>(CommunityAdminConfigMainDocument, baseOptions);
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<CommunityAdminConfigMainQuery, CommunityAdminConfigMainQueryVariables>(CommunityAdminConfigMainDocument, options);
         }
 export type CommunityAdminConfigMainQueryHookResult = ReturnType<typeof useCommunityAdminConfigMainQuery>;
 export type CommunityAdminConfigMainLazyQueryHookResult = ReturnType<typeof useCommunityAdminConfigMainLazyQuery>;
@@ -3292,10 +3439,12 @@ export const CommunityAdminHighlightedTagsDocument = gql`
  * });
  */
 export function useCommunityAdminHighlightedTagsQuery(baseOptions: Apollo.QueryHookOptions<CommunityAdminHighlightedTagsQuery, CommunityAdminHighlightedTagsQueryVariables>) {
-        return Apollo.useQuery<CommunityAdminHighlightedTagsQuery, CommunityAdminHighlightedTagsQueryVariables>(CommunityAdminHighlightedTagsDocument, baseOptions);
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<CommunityAdminHighlightedTagsQuery, CommunityAdminHighlightedTagsQueryVariables>(CommunityAdminHighlightedTagsDocument, options);
       }
 export function useCommunityAdminHighlightedTagsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<CommunityAdminHighlightedTagsQuery, CommunityAdminHighlightedTagsQueryVariables>) {
-          return Apollo.useLazyQuery<CommunityAdminHighlightedTagsQuery, CommunityAdminHighlightedTagsQueryVariables>(CommunityAdminHighlightedTagsDocument, baseOptions);
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<CommunityAdminHighlightedTagsQuery, CommunityAdminHighlightedTagsQueryVariables>(CommunityAdminHighlightedTagsDocument, options);
         }
 export type CommunityAdminHighlightedTagsQueryHookResult = ReturnType<typeof useCommunityAdminHighlightedTagsQuery>;
 export type CommunityAdminHighlightedTagsLazyQueryHookResult = ReturnType<typeof useCommunityAdminHighlightedTagsLazyQuery>;
@@ -3331,10 +3480,12 @@ export const GetCommunityBasicDataDocument = gql`
  * });
  */
 export function useGetCommunityBasicDataQuery(baseOptions: Apollo.QueryHookOptions<GetCommunityBasicDataQuery, GetCommunityBasicDataQueryVariables>) {
-        return Apollo.useQuery<GetCommunityBasicDataQuery, GetCommunityBasicDataQueryVariables>(GetCommunityBasicDataDocument, baseOptions);
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetCommunityBasicDataQuery, GetCommunityBasicDataQueryVariables>(GetCommunityBasicDataDocument, options);
       }
 export function useGetCommunityBasicDataLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetCommunityBasicDataQuery, GetCommunityBasicDataQueryVariables>) {
-          return Apollo.useLazyQuery<GetCommunityBasicDataQuery, GetCommunityBasicDataQueryVariables>(GetCommunityBasicDataDocument, baseOptions);
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetCommunityBasicDataQuery, GetCommunityBasicDataQueryVariables>(GetCommunityBasicDataDocument, options);
         }
 export type GetCommunityBasicDataQueryHookResult = ReturnType<typeof useGetCommunityBasicDataQuery>;
 export type GetCommunityBasicDataLazyQueryHookResult = ReturnType<typeof useGetCommunityBasicDataLazyQuery>;
@@ -3397,10 +3548,12 @@ export const CommunityTagPostsDocument = gql`
  * });
  */
 export function useCommunityTagPostsQuery(baseOptions: Apollo.QueryHookOptions<CommunityTagPostsQuery, CommunityTagPostsQueryVariables>) {
-        return Apollo.useQuery<CommunityTagPostsQuery, CommunityTagPostsQueryVariables>(CommunityTagPostsDocument, baseOptions);
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<CommunityTagPostsQuery, CommunityTagPostsQueryVariables>(CommunityTagPostsDocument, options);
       }
 export function useCommunityTagPostsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<CommunityTagPostsQuery, CommunityTagPostsQueryVariables>) {
-          return Apollo.useLazyQuery<CommunityTagPostsQuery, CommunityTagPostsQueryVariables>(CommunityTagPostsDocument, baseOptions);
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<CommunityTagPostsQuery, CommunityTagPostsQueryVariables>(CommunityTagPostsDocument, options);
         }
 export type CommunityTagPostsQueryHookResult = ReturnType<typeof useCommunityTagPostsQuery>;
 export type CommunityTagPostsLazyQueryHookResult = ReturnType<typeof useCommunityTagPostsLazyQuery>;
@@ -3442,10 +3595,12 @@ export const FindCommunityTagsByUserInputDocument = gql`
  * });
  */
 export function useFindCommunityTagsByUserInputQuery(baseOptions: Apollo.QueryHookOptions<FindCommunityTagsByUserInputQuery, FindCommunityTagsByUserInputQueryVariables>) {
-        return Apollo.useQuery<FindCommunityTagsByUserInputQuery, FindCommunityTagsByUserInputQueryVariables>(FindCommunityTagsByUserInputDocument, baseOptions);
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<FindCommunityTagsByUserInputQuery, FindCommunityTagsByUserInputQueryVariables>(FindCommunityTagsByUserInputDocument, options);
       }
 export function useFindCommunityTagsByUserInputLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<FindCommunityTagsByUserInputQuery, FindCommunityTagsByUserInputQueryVariables>) {
-          return Apollo.useLazyQuery<FindCommunityTagsByUserInputQuery, FindCommunityTagsByUserInputQueryVariables>(FindCommunityTagsByUserInputDocument, baseOptions);
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<FindCommunityTagsByUserInputQuery, FindCommunityTagsByUserInputQueryVariables>(FindCommunityTagsByUserInputDocument, options);
         }
 export type FindCommunityTagsByUserInputQueryHookResult = ReturnType<typeof useFindCommunityTagsByUserInputQuery>;
 export type FindCommunityTagsByUserInputLazyQueryHookResult = ReturnType<typeof useFindCommunityTagsByUserInputLazyQuery>;
@@ -3480,10 +3635,12 @@ export const GetCommunitiesSlugsDocument = gql`
  * });
  */
 export function useGetCommunitiesSlugsQuery(baseOptions?: Apollo.QueryHookOptions<GetCommunitiesSlugsQuery, GetCommunitiesSlugsQueryVariables>) {
-        return Apollo.useQuery<GetCommunitiesSlugsQuery, GetCommunitiesSlugsQueryVariables>(GetCommunitiesSlugsDocument, baseOptions);
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetCommunitiesSlugsQuery, GetCommunitiesSlugsQueryVariables>(GetCommunitiesSlugsDocument, options);
       }
 export function useGetCommunitiesSlugsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetCommunitiesSlugsQuery, GetCommunitiesSlugsQueryVariables>) {
-          return Apollo.useLazyQuery<GetCommunitiesSlugsQuery, GetCommunitiesSlugsQueryVariables>(GetCommunitiesSlugsDocument, baseOptions);
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetCommunitiesSlugsQuery, GetCommunitiesSlugsQueryVariables>(GetCommunitiesSlugsDocument, options);
         }
 export type GetCommunitiesSlugsQueryHookResult = ReturnType<typeof useGetCommunitiesSlugsQuery>;
 export type GetCommunitiesSlugsLazyQueryHookResult = ReturnType<typeof useGetCommunitiesSlugsLazyQuery>;
@@ -3557,10 +3714,12 @@ export const GetCommunityHomeDataDocument = gql`
  * });
  */
 export function useGetCommunityHomeDataQuery(baseOptions: Apollo.QueryHookOptions<GetCommunityHomeDataQuery, GetCommunityHomeDataQueryVariables>) {
-        return Apollo.useQuery<GetCommunityHomeDataQuery, GetCommunityHomeDataQueryVariables>(GetCommunityHomeDataDocument, baseOptions);
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetCommunityHomeDataQuery, GetCommunityHomeDataQueryVariables>(GetCommunityHomeDataDocument, options);
       }
 export function useGetCommunityHomeDataLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetCommunityHomeDataQuery, GetCommunityHomeDataQueryVariables>) {
-          return Apollo.useLazyQuery<GetCommunityHomeDataQuery, GetCommunityHomeDataQueryVariables>(GetCommunityHomeDataDocument, baseOptions);
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetCommunityHomeDataQuery, GetCommunityHomeDataQueryVariables>(GetCommunityHomeDataDocument, options);
         }
 export type GetCommunityHomeDataQueryHookResult = ReturnType<typeof useGetCommunityHomeDataQuery>;
 export type GetCommunityHomeDataLazyQueryHookResult = ReturnType<typeof useGetCommunityHomeDataLazyQuery>;
@@ -3606,10 +3765,12 @@ export const GetCommunityTagsDataDocument = gql`
  * });
  */
 export function useGetCommunityTagsDataQuery(baseOptions: Apollo.QueryHookOptions<GetCommunityTagsDataQuery, GetCommunityTagsDataQueryVariables>) {
-        return Apollo.useQuery<GetCommunityTagsDataQuery, GetCommunityTagsDataQueryVariables>(GetCommunityTagsDataDocument, baseOptions);
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetCommunityTagsDataQuery, GetCommunityTagsDataQueryVariables>(GetCommunityTagsDataDocument, options);
       }
 export function useGetCommunityTagsDataLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetCommunityTagsDataQuery, GetCommunityTagsDataQueryVariables>) {
-          return Apollo.useLazyQuery<GetCommunityTagsDataQuery, GetCommunityTagsDataQueryVariables>(GetCommunityTagsDataDocument, baseOptions);
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetCommunityTagsDataQuery, GetCommunityTagsDataQueryVariables>(GetCommunityTagsDataDocument, options);
         }
 export type GetCommunityTagsDataQueryHookResult = ReturnType<typeof useGetCommunityTagsDataQuery>;
 export type GetCommunityTagsDataLazyQueryHookResult = ReturnType<typeof useGetCommunityTagsDataLazyQuery>;
@@ -3668,10 +3829,12 @@ export const GetPostByIdDocument = gql`
  * });
  */
 export function useGetPostByIdQuery(baseOptions: Apollo.QueryHookOptions<GetPostByIdQuery, GetPostByIdQueryVariables>) {
-        return Apollo.useQuery<GetPostByIdQuery, GetPostByIdQueryVariables>(GetPostByIdDocument, baseOptions);
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetPostByIdQuery, GetPostByIdQueryVariables>(GetPostByIdDocument, options);
       }
 export function useGetPostByIdLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetPostByIdQuery, GetPostByIdQueryVariables>) {
-          return Apollo.useLazyQuery<GetPostByIdQuery, GetPostByIdQueryVariables>(GetPostByIdDocument, baseOptions);
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetPostByIdQuery, GetPostByIdQueryVariables>(GetPostByIdDocument, options);
         }
 export type GetPostByIdQueryHookResult = ReturnType<typeof useGetPostByIdQuery>;
 export type GetPostByIdLazyQueryHookResult = ReturnType<typeof useGetPostByIdLazyQuery>;
@@ -3714,10 +3877,12 @@ export const GetPostMainMediaDocument = gql`
  * });
  */
 export function useGetPostMainMediaQuery(baseOptions: Apollo.QueryHookOptions<GetPostMainMediaQuery, GetPostMainMediaQueryVariables>) {
-        return Apollo.useQuery<GetPostMainMediaQuery, GetPostMainMediaQueryVariables>(GetPostMainMediaDocument, baseOptions);
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetPostMainMediaQuery, GetPostMainMediaQueryVariables>(GetPostMainMediaDocument, options);
       }
 export function useGetPostMainMediaLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetPostMainMediaQuery, GetPostMainMediaQueryVariables>) {
-          return Apollo.useLazyQuery<GetPostMainMediaQuery, GetPostMainMediaQueryVariables>(GetPostMainMediaDocument, baseOptions);
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetPostMainMediaQuery, GetPostMainMediaQueryVariables>(GetPostMainMediaDocument, options);
         }
 export type GetPostMainMediaQueryHookResult = ReturnType<typeof useGetPostMainMediaQuery>;
 export type GetPostMainMediaLazyQueryHookResult = ReturnType<typeof useGetPostMainMediaLazyQuery>;
@@ -3757,10 +3922,12 @@ export const GetPostsSlugsDocument = gql`
  * });
  */
 export function useGetPostsSlugsQuery(baseOptions?: Apollo.QueryHookOptions<GetPostsSlugsQuery, GetPostsSlugsQueryVariables>) {
-        return Apollo.useQuery<GetPostsSlugsQuery, GetPostsSlugsQueryVariables>(GetPostsSlugsDocument, baseOptions);
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetPostsSlugsQuery, GetPostsSlugsQueryVariables>(GetPostsSlugsDocument, options);
       }
 export function useGetPostsSlugsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetPostsSlugsQuery, GetPostsSlugsQueryVariables>) {
-          return Apollo.useLazyQuery<GetPostsSlugsQuery, GetPostsSlugsQueryVariables>(GetPostsSlugsDocument, baseOptions);
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetPostsSlugsQuery, GetPostsSlugsQueryVariables>(GetPostsSlugsDocument, options);
         }
 export type GetPostsSlugsQueryHookResult = ReturnType<typeof useGetPostsSlugsQuery>;
 export type GetPostsSlugsLazyQueryHookResult = ReturnType<typeof useGetPostsSlugsLazyQuery>;
@@ -3801,10 +3968,12 @@ export const HeaderMeDocument = gql`
  * });
  */
 export function useHeaderMeQuery(baseOptions?: Apollo.QueryHookOptions<HeaderMeQuery, HeaderMeQueryVariables>) {
-        return Apollo.useQuery<HeaderMeQuery, HeaderMeQueryVariables>(HeaderMeDocument, baseOptions);
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<HeaderMeQuery, HeaderMeQueryVariables>(HeaderMeDocument, options);
       }
 export function useHeaderMeLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<HeaderMeQuery, HeaderMeQueryVariables>) {
-          return Apollo.useLazyQuery<HeaderMeQuery, HeaderMeQueryVariables>(HeaderMeDocument, baseOptions);
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<HeaderMeQuery, HeaderMeQueryVariables>(HeaderMeDocument, options);
         }
 export type HeaderMeQueryHookResult = ReturnType<typeof useHeaderMeQuery>;
 export type HeaderMeLazyQueryHookResult = ReturnType<typeof useHeaderMeLazyQuery>;
@@ -3868,10 +4037,12 @@ export const PostBySlugsDocument = gql`
  * });
  */
 export function usePostBySlugsQuery(baseOptions: Apollo.QueryHookOptions<PostBySlugsQuery, PostBySlugsQueryVariables>) {
-        return Apollo.useQuery<PostBySlugsQuery, PostBySlugsQueryVariables>(PostBySlugsDocument, baseOptions);
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<PostBySlugsQuery, PostBySlugsQueryVariables>(PostBySlugsDocument, options);
       }
 export function usePostBySlugsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<PostBySlugsQuery, PostBySlugsQueryVariables>) {
-          return Apollo.useLazyQuery<PostBySlugsQuery, PostBySlugsQueryVariables>(PostBySlugsDocument, baseOptions);
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<PostBySlugsQuery, PostBySlugsQueryVariables>(PostBySlugsDocument, options);
         }
 export type PostBySlugsQueryHookResult = ReturnType<typeof usePostBySlugsQuery>;
 export type PostBySlugsLazyQueryHookResult = ReturnType<typeof usePostBySlugsLazyQuery>;

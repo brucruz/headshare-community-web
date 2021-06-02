@@ -4,21 +4,21 @@
 
 1. Upload modal state (useMemo)
 
-- switches between states to display the initial state, select video or select image
+- [x] switches between states to display the initial state, select video or select image
 
 2. Upload video function
 
-- starts upload video mutation
-- manages Tus upload states and info
-- updates upload states to upper component
-- does not associate newly created media as post's main media
+- [x] starts upload video mutation
+- [x] manages Tus upload states and info
+- [x] updates upload states to upper component
+- [x] associates newly created media as post's main media
 
 3. Upload image as main media function
 
-- gets S3 filename
-- starts upload image mutation -- this also sets the selected image as post's main media
-- uploads image to S3
-- updates upload states to upper component
+- [x] gets S3 filename
+- [x] starts upload image mutation -- this also sets the selected image as post's main media
+- [x] uploads image to S3
+- [x] updates upload states to upper component
 
 ### Draft page
 
@@ -34,27 +34,15 @@
 
 #### For main media
 
-1. OK post useEffect
+1. post useEffect
 
-- sets main media state to empty or ready
+- [x] sets main media state to empty or ready
 
-2. OK postData useEffect
+2. formatted upload (useMemo)
 
-- sets post, description, slug, tags, exclusive and thumbnailUrl, if they exists in postData (result from query)
+- [x] transforms the upload info state to a human-readable format
 
-3. OK mainMedia + post + updatePost + communitySlug + id + uploadInfo + exclusive useEffect
-
-- update Post mutation - sets the new uploaded media as the post's main Madia
-
-4. formatted upload (useMemo)
-
-- transforms the upload info state to a human-readable format
-
-5. get editor save state (useCallback)
-
-- fetches the post builder (editor) save state (saving or saved)
-
-6. publish post (useCallback)
+3. publish post (useCallback)
 
 - updates Post mutation to status published
 - also updates description, slug and exclusive
@@ -62,23 +50,13 @@
 - also: the button is not clear that it also is saving the other fields
 - after the mutation is done, it redirects the user to the published post
 
-7. main media (useMemo)
+4. main media (useMemo)
 
-- a constant that is assigned from postMainMedia (or a main media already linked to a post in the server) or uploadedInfoMainMedia (or a media recently uploaded to server)
+- [x] a constant that is assigned from postMainMedia (or a main media already linked to a post in the server) or uploadedInfoMainMedia (or a media recently uploaded to server)
 
-8. remove post main media (useCallback)
+5. remove post main media (useCallback)
 
-- updates a post to a empty main media state
-
-9. handle remove tag from post (useCallback)
-
-- resets the post tags to a new state without the clicked tag
-- update post mutation to register the new state in the server
-
-10. handle select tag (useCallback)
-
-- resets the post tags to a new state including the clicked tag
-- update post mutation to register the new state in the server
+- [x] updates a post to a empty main media state
 
 ## So.. what to do?
 

@@ -18,7 +18,7 @@ import {
   useDeletePostMainMediaMutation,
   useGetPostMainMediaLazyQuery,
   useUpdatePostMainImageMutation,
-  useUploadVideoMutation,
+  useUpdatePostMainVideoMutation,
 } from '../../generated/graphql';
 import { UploadModal } from '../UploadModal';
 import {
@@ -55,7 +55,7 @@ export function PostMainMedia({
     data?.findPostById?.post?.mainMedia,
   );
 
-  const [uploadVideo] = useUploadVideoMutation();
+  const [uploadVideo] = useUpdatePostMainVideoMutation();
   const [uploadImage] = useUpdatePostMainImageMutation();
   const [removeMainMedia] = useDeletePostMainMediaMutation();
 
@@ -72,7 +72,7 @@ export function PostMainMedia({
       const { data: videoData, errors } = await uploadVideo({
         variables: {
           communitySlug,
-          // postId: thisPostId,
+          postId,
           videoData: {
             format: MediaFormat.Video,
             file: {
@@ -92,14 +92,7 @@ export function PostMainMedia({
         };
       }
 
-      if (videoData?.uploadVideo.errors) {
-        return {
-          callbackStatus: 'error',
-          message: videoData.uploadVideo.errors[0].message,
-        };
-      }
-
-      if (videoData?.uploadVideo.media?.uploadLink) {
+      if (videoData?.updatePostMainVideo.mainMedia?.uploadLink) {
         setMainMediaState('ready');
 
         setDisplayUploadModal(false);
@@ -108,7 +101,7 @@ export function PostMainMedia({
 
         return {
           callbackStatus: 'success',
-          uploadLink: videoData?.uploadVideo.media?.uploadLink,
+          uploadLink: videoData?.updatePostMainVideo.mainMedia?.uploadLink,
         };
       }
 
@@ -117,7 +110,7 @@ export function PostMainMedia({
         message: 'An error ocurred, try again later',
       };
     },
-    [communitySlug, uploadVideo],
+    [communitySlug, postId, uploadVideo],
   );
 
   const imageUploadCallback = useCallback(
