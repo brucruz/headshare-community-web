@@ -53,8 +53,7 @@ const MediaInput: React.FC<MediaInputProps> = ({
 
         case 'video':
           return {
-            mime:
-              'video/mp4, video/quicktime, video/x-ms-wmv, video/x-msvideo, video/x-flv, video/mpeg',
+            mime: 'video/mp4, video/quicktime, video/x-ms-wmv, video/x-msvideo, video/x-flv, video/mpeg',
             types: '.mp4, .mov, .wmv, .avi, .flv e .mpeg',
           };
 

@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { IMAGE, VIDEO } from '../../constants/mediaFormat';
-import { MediaFormat, Media } from '../../generated/graphql';
+import { MediaFormat } from '../../generated/graphql';
 import {
   MediaFormatSelection,
   UploadModalContainer,
@@ -16,53 +16,34 @@ import { RadioInput } from '../RadioInput/index';
 import ArrowLeft from '../../assets/components/ButtonBack/leftArrow.svg';
 import {
   UploadCallbackResponse,
+  UploadInfoProps,
   useUploadFile,
 } from '../../hooks/useUploadFile';
 
 type SelectedMediaProps = 'image' | 'video' | 'none';
 
-export interface UploadInfoProps {
-  bytesSent: number;
-  bytesTotal: number;
-  progress: number;
-  status?: 'started' | 'paused' | 'finished' | 'errored';
-  error?: string;
-  mainMedia?: Pick<
-    Media,
-    | '_id'
-    | 'url'
-    | 'thumbnailUrl'
-    | 'uploadLink'
-    | 'file'
-    | 'format'
-    | 'width'
-    | 'height'
-  > | null;
-}
-
 export interface UploadModalProps {
   communitySlug: string;
-  mediaInitialSelection?: SelectedMediaProps;
   displayUploadModal: boolean;
   setDisplayUploadModal: (args: boolean) => void;
   passUploadInfo: (args: UploadInfoProps) => void;
   getImageDimensions?: (arg: ImageDimensions) => void;
   getPreview?: (preview?: string) => void;
-  imageUploadCallback(
+  imageUploadCallback?(
     fileName?: string,
     fileExtension?: string,
     imageFile?: File,
   ): Promise<UploadCallbackResponse>;
-  videoUploadCallback(
+  videoUploadCallback?(
     fileName?: string,
     fileExtension?: string,
     videoFile?: File,
   ): Promise<UploadCallbackResponse>;
+  acceptedMediaFormats?: Exclude<SelectedMediaProps, 'none'>[];
 }
 
 export function UploadModal({
   communitySlug,
-  mediaInitialSelection = 'none',
   displayUploadModal,
   setDisplayUploadModal,
   passUploadInfo,
@@ -70,10 +51,14 @@ export function UploadModal({
   getPreview,
   imageUploadCallback,
   videoUploadCallback,
+  acceptedMediaFormats = ['image', 'video'],
 }: UploadModalProps): JSX.Element {
-  const [selectedMedia, setSelectedMedia] = useState<SelectedMediaProps>(
-    mediaInitialSelection,
+  const initialMediaState = useMemo(
+    () => (acceptedMediaFormats.length > 1 ? 'none' : acceptedMediaFormats[0]),
+    [acceptedMediaFormats],
   );
+  const [selectedMedia, setSelectedMedia] =
+    useState<SelectedMediaProps>(initialMediaState);
   const [clickedMediaSelector, setClickedMediaSelector] =
     useState<SelectedMediaProps>('none');
   const [selectedFile, setSelectedFile] = useState<File | undefined>();
@@ -109,26 +94,28 @@ export function UploadModal({
 
   const handleUploadVideo = useCallback(
     async (commSlug: string, videoFile: File) => {
-      uploadMedia({
-        communitySlug: commSlug,
-        format: MediaFormat.Video,
-        file: videoFile,
-        uploadCallback: videoUploadCallback,
-      });
+      videoUploadCallback &&
+        uploadMedia({
+          communitySlug: commSlug,
+          format: MediaFormat.Video,
+          file: videoFile,
+          uploadCallback: videoUploadCallback,
+        });
 
       setDisplayUploadModal(false);
     },
     [uploadMedia, videoUploadCallback, setDisplayUploadModal],
   );
 
-  const handleUploadImageAsMain = useCallback(
+  const handleUploadImage = useCallback(
     async (commSlug: string, imageFile: File) => {
-      uploadMedia({
-        communitySlug: commSlug,
-        format: MediaFormat.Image,
-        file: imageFile,
-        uploadCallback: imageUploadCallback,
-      });
+      imageUploadCallback &&
+        uploadMedia({
+          communitySlug: commSlug,
+          format: MediaFormat.Image,
+          file: imageFile,
+          uploadCallback: imageUploadCallback,
+        });
 
       setDisplayUploadModal(false);
     },
@@ -140,15 +127,15 @@ export function UploadModal({
 
     setClickedMediaSelector('none');
 
-    setSelectedMedia('none');
-  }, [setDisplayUploadModal]);
+    setSelectedMedia(initialMediaState);
+  }, [initialMediaState, setDisplayUploadModal]);
 
   return (
     <Modal isOpen={displayUploadModal} setIsOpen={closeUploadModal} closeButton>
       <UploadModalContainer>
         <UploadHeaderContainer>
           <StateHeader>
-            {selectedMedia !== 'none' && (
+            {selectedMedia !== 'none' && acceptedMediaFormats.length > 1 && (
               <div className="button-wrapper">
                 <ArrowLeft onClick={() => setSelectedMedia('none')} />
                 {/* <NextImage
@@ -166,20 +153,24 @@ export function UploadModal({
         {selectedMedia === 'none' && (
           <>
             <MediaFormatSelection>
-              <RadioInput
-                name="video-media-format"
-                label="Vídeo"
-                isChecked={clickedMediaSelector === VIDEO}
-                onChange={() => setClickedMediaSelector(VIDEO)}
-                value={MediaFormat.Video}
-              />
-              <RadioInput
-                name="image-media-format"
-                label="Imagem"
-                isChecked={clickedMediaSelector === IMAGE}
-                onChange={() => setClickedMediaSelector(IMAGE)}
-                value={MediaFormat.Image}
-              />
+              {acceptedMediaFormats.find(format => format === 'video') && (
+                <RadioInput
+                  name="video-media-format"
+                  label="Vídeo"
+                  isChecked={clickedMediaSelector === VIDEO}
+                  onChange={() => setClickedMediaSelector(VIDEO)}
+                  value={MediaFormat.Video}
+                />
+              )}
+              {acceptedMediaFormats.find(format => format === 'image') && (
+                <RadioInput
+                  name="image-media-format"
+                  label="Imagem"
+                  isChecked={clickedMediaSelector === IMAGE}
+                  onChange={() => setClickedMediaSelector(IMAGE)}
+                  value={MediaFormat.Image}
+                />
+              )}
             </MediaFormatSelection>
 
             <Button
@@ -230,8 +221,7 @@ export function UploadModal({
               disabled={!selectedFile}
               stretch
               onClick={() =>
-                selectedFile &&
-                handleUploadImageAsMain(communitySlug, selectedFile)
+                selectedFile && handleUploadImage(communitySlug, selectedFile)
               }
             />
           </>

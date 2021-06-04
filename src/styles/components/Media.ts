@@ -63,6 +63,7 @@ export const MediaOptions = styled.div`
   width: 100%;
   height: 20%;
   max-height: 50px;
+  min-height: 38px;
 `;
 
 export const OptionsContainer = styled.div`

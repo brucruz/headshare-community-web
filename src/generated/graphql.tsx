@@ -634,6 +634,8 @@ export type Mutation = {
   updatePostMainMedia: PostResponse;
   /** Users can remove main media from a post */
   deletePostMainMedia: PostResponse;
+  /** Users can remove cover from a post */
+  deletePostCover: Post;
   /** Owners may  */
   deletePost: SuccessResponse;
   /** Users can upload a image directly as a post main media */
@@ -641,7 +643,7 @@ export type Mutation = {
   /** Users can upload a video directly as a post main media */
   updatePostMainVideo: Post;
   /** Users can upload a image directly as a post cover */
-  updatePostCover: PostResponse;
+  updatePostCover: Post;
   register: LoggedUserResponse;
   login: LoggedUserResponse;
   updateUser?: Maybe<UserResponse>;
@@ -707,6 +709,12 @@ export type MutationUpdatePostMainMediaArgs = {
 
 
 export type MutationDeletePostMainMediaArgs = {
+  postId: Scalars['String'];
+  communitySlug: Scalars['String'];
+};
+
+
+export type MutationDeletePostCoverArgs = {
   postId: Scalars['String'];
   communitySlug: Scalars['String'];
 };
@@ -1360,6 +1368,23 @@ export type DeletePostMutation = (
   ) }
 );
 
+export type DeletePostCoverMutationVariables = Exact<{
+  communitySlug: Scalars['String'];
+  postId: Scalars['String'];
+}>;
+
+
+export type DeletePostCoverMutation = (
+  { __typename?: 'Mutation' }
+  & { deletePostCover: (
+    { __typename?: 'Post' }
+    & { cover?: Maybe<(
+      { __typename?: 'Media' }
+      & Pick<Media, '_id'>
+    )> }
+  ) }
+);
+
 export type DeletePostMainMediaMutationVariables = Exact<{
   communitySlug: Scalars['String'];
   postId: Scalars['String'];
@@ -1610,6 +1635,29 @@ export type UpdatePostMutation = (
       ) }
     )> }
   )> }
+);
+
+export type UpdatePostCoverMutationVariables = Exact<{
+  communitySlug: Scalars['String'];
+  postId: Scalars['String'];
+  imageData: UploadImageInput;
+}>;
+
+
+export type UpdatePostCoverMutation = (
+  { __typename?: 'Mutation' }
+  & { updatePostCover: (
+    { __typename?: 'Post' }
+    & Pick<Post, '_id'>
+    & { cover?: Maybe<(
+      { __typename?: 'Media' }
+      & Pick<Media, '_id' | 'url' | 'thumbnailUrl' | 'format' | 'uploadLink' | 'height' | 'width'>
+      & { file: (
+        { __typename?: 'File' }
+        & Pick<File, 'name' | 'size' | 'extension' | 'type'>
+      ) }
+    )> }
+  ) }
 );
 
 export type UpdatePostMainImageMutationVariables = Exact<{
@@ -2085,6 +2133,28 @@ export type GetPostByIdQuery = (
   )> }
 );
 
+export type GetPostCoverQueryVariables = Exact<{
+  id: Scalars['String'];
+}>;
+
+
+export type GetPostCoverQuery = (
+  { __typename?: 'Query' }
+  & { findPostById?: Maybe<(
+    { __typename?: 'PostResponse' }
+    & { errors?: Maybe<Array<(
+      { __typename?: 'ErrorResponse' }
+      & Pick<ErrorResponse, 'field' | 'message'>
+    )>>, post?: Maybe<(
+      { __typename?: 'Post' }
+      & { cover?: Maybe<(
+        { __typename?: 'Media' }
+        & Pick<Media, '_id' | 'url' | 'thumbnailUrl' | 'format' | 'width' | 'height'>
+      )> }
+    )> }
+  )> }
+);
+
 export type GetPostMainMediaQueryVariables = Exact<{
   id: Scalars['String'];
 }>;
@@ -2404,6 +2474,42 @@ export function useDeletePostMutation(baseOptions?: Apollo.MutationHookOptions<D
 export type DeletePostMutationHookResult = ReturnType<typeof useDeletePostMutation>;
 export type DeletePostMutationResult = Apollo.MutationResult<DeletePostMutation>;
 export type DeletePostMutationOptions = Apollo.BaseMutationOptions<DeletePostMutation, DeletePostMutationVariables>;
+export const DeletePostCoverDocument = gql`
+    mutation DeletePostCover($communitySlug: String!, $postId: String!) {
+  deletePostCover(communitySlug: $communitySlug, postId: $postId) {
+    cover {
+      _id
+    }
+  }
+}
+    `;
+export type DeletePostCoverMutationFn = Apollo.MutationFunction<DeletePostCoverMutation, DeletePostCoverMutationVariables>;
+
+/**
+ * __useDeletePostCoverMutation__
+ *
+ * To run a mutation, you first call `useDeletePostCoverMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeletePostCoverMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deletePostCoverMutation, { data, loading, error }] = useDeletePostCoverMutation({
+ *   variables: {
+ *      communitySlug: // value for 'communitySlug'
+ *      postId: // value for 'postId'
+ *   },
+ * });
+ */
+export function useDeletePostCoverMutation(baseOptions?: Apollo.MutationHookOptions<DeletePostCoverMutation, DeletePostCoverMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DeletePostCoverMutation, DeletePostCoverMutationVariables>(DeletePostCoverDocument, options);
+      }
+export type DeletePostCoverMutationHookResult = ReturnType<typeof useDeletePostCoverMutation>;
+export type DeletePostCoverMutationResult = Apollo.MutationResult<DeletePostCoverMutation>;
+export type DeletePostCoverMutationOptions = Apollo.BaseMutationOptions<DeletePostCoverMutation, DeletePostCoverMutationVariables>;
 export const DeletePostMainMediaDocument = gql`
     mutation DeletePostMainMedia($communitySlug: String!, $postId: String!) {
   deletePostMainMedia(communitySlug: $communitySlug, postId: $postId) {
@@ -2915,6 +3021,60 @@ export function useUpdatePostMutation(baseOptions?: Apollo.MutationHookOptions<U
 export type UpdatePostMutationHookResult = ReturnType<typeof useUpdatePostMutation>;
 export type UpdatePostMutationResult = Apollo.MutationResult<UpdatePostMutation>;
 export type UpdatePostMutationOptions = Apollo.BaseMutationOptions<UpdatePostMutation, UpdatePostMutationVariables>;
+export const UpdatePostCoverDocument = gql`
+    mutation UpdatePostCover($communitySlug: String!, $postId: String!, $imageData: UploadImageInput!) {
+  updatePostCover(
+    communitySlug: $communitySlug
+    postId: $postId
+    imageData: $imageData
+  ) {
+    _id
+    cover {
+      _id
+      url
+      thumbnailUrl
+      format
+      uploadLink
+      height
+      width
+      file {
+        name
+        size
+        extension
+        type
+      }
+    }
+  }
+}
+    `;
+export type UpdatePostCoverMutationFn = Apollo.MutationFunction<UpdatePostCoverMutation, UpdatePostCoverMutationVariables>;
+
+/**
+ * __useUpdatePostCoverMutation__
+ *
+ * To run a mutation, you first call `useUpdatePostCoverMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdatePostCoverMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updatePostCoverMutation, { data, loading, error }] = useUpdatePostCoverMutation({
+ *   variables: {
+ *      communitySlug: // value for 'communitySlug'
+ *      postId: // value for 'postId'
+ *      imageData: // value for 'imageData'
+ *   },
+ * });
+ */
+export function useUpdatePostCoverMutation(baseOptions?: Apollo.MutationHookOptions<UpdatePostCoverMutation, UpdatePostCoverMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdatePostCoverMutation, UpdatePostCoverMutationVariables>(UpdatePostCoverDocument, options);
+      }
+export type UpdatePostCoverMutationHookResult = ReturnType<typeof useUpdatePostCoverMutation>;
+export type UpdatePostCoverMutationResult = Apollo.MutationResult<UpdatePostCoverMutation>;
+export type UpdatePostCoverMutationOptions = Apollo.BaseMutationOptions<UpdatePostCoverMutation, UpdatePostCoverMutationVariables>;
 export const UpdatePostMainImageDocument = gql`
     mutation UpdatePostMainImage($communitySlug: String!, $postId: String!, $imageData: UploadImageInput!) {
   updatePostMainImage(
@@ -3839,6 +3999,54 @@ export function useGetPostByIdLazyQuery(baseOptions?: Apollo.LazyQueryHookOption
 export type GetPostByIdQueryHookResult = ReturnType<typeof useGetPostByIdQuery>;
 export type GetPostByIdLazyQueryHookResult = ReturnType<typeof useGetPostByIdLazyQuery>;
 export type GetPostByIdQueryResult = Apollo.QueryResult<GetPostByIdQuery, GetPostByIdQueryVariables>;
+export const GetPostCoverDocument = gql`
+    query GetPostCover($id: String!) {
+  findPostById(id: $id) {
+    errors {
+      field
+      message
+    }
+    post {
+      cover {
+        _id
+        url
+        thumbnailUrl
+        format
+        width
+        height
+      }
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetPostCoverQuery__
+ *
+ * To run a query within a React component, call `useGetPostCoverQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetPostCoverQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetPostCoverQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useGetPostCoverQuery(baseOptions: Apollo.QueryHookOptions<GetPostCoverQuery, GetPostCoverQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetPostCoverQuery, GetPostCoverQueryVariables>(GetPostCoverDocument, options);
+      }
+export function useGetPostCoverLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetPostCoverQuery, GetPostCoverQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetPostCoverQuery, GetPostCoverQueryVariables>(GetPostCoverDocument, options);
+        }
+export type GetPostCoverQueryHookResult = ReturnType<typeof useGetPostCoverQuery>;
+export type GetPostCoverLazyQueryHookResult = ReturnType<typeof useGetPostCoverLazyQuery>;
+export type GetPostCoverQueryResult = Apollo.QueryResult<GetPostCoverQuery, GetPostCoverQueryVariables>;
 export const GetPostMainMediaDocument = gql`
     query GetPostMainMedia($id: String!) {
   findPostById(id: $id) {
