@@ -5,7 +5,7 @@
   "license": "MIT",
   "scripts": {
     "dev": "next dev",
-    "build": "yarn gen && next build",
+    "build": "next build",
     "test": "node $(which jest) --detectOpenHandles --env=jsdom",
     "start": "next start",
     "gen": "graphql-codegen --config codegen.yml",
