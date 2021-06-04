@@ -739,7 +739,6 @@ export type MutationUpdatePostMainVideoArgs = {
   communitySlug: Scalars['String'];
 };
 
-
 export type MutationUpdatePostCoverArgs = {
   imageData: UploadImageInput;
   postId: Scalars['String'];
