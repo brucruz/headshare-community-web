@@ -127,7 +127,7 @@ const PostBuilder: React.FC<PostBuilderProps> = ({
 
           const callbackResponse: UpdatePostCallbackResponse = {
             callbackStatus: 'error',
-            message: response.data.updatePost.errors.toString(),
+            message: response.data.updatePost.errors[0].message,
           };
 
           return callbackResponse;

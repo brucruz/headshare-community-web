@@ -16,7 +16,7 @@ export interface UpdatePostCallbackResponse {
 export type SavePostBuilderResponse = [PostSaveStatus];
 
 export function useSavePostBuilder<ContentProps>(
-  initialContent: ContentProps,
+  initialContent: ContentProps | undefined,
   content: ContentProps,
   updatePostCallback: (
     contentInfo: ContentProps,
@@ -79,13 +79,15 @@ export function useSavePostBuilder<ContentProps>(
 
   const saveContent = useCallback(
     async (
+      initialContentInfo: ContentProps | undefined,
       contentInfo: ContentProps,
       dispatchFunction: (value: ReducerActionProps) => void,
     ) => {
-      const sameContentInfo = contentInfo === initialContent;
-      const sameContentInfoParams = isObjectsEqual(contentInfo, initialContent);
+      const sameContentInfo = contentInfo === initialContentInfo;
+      const sameContentInfoParams =
+        initialContentInfo && isObjectsEqual(contentInfo, initialContentInfo);
 
-      if (sameContentInfo || sameContentInfoParams) {
+      if (!initialContentInfo || sameContentInfo || sameContentInfoParams) {
         return;
       }
 
@@ -116,19 +118,22 @@ export function useSavePostBuilder<ContentProps>(
         });
       }
     },
-    [addSnackbar, initialContent, updatePostCallback],
+    [addSnackbar, updatePostCallback],
   );
 
   const debouncedSaveContent = useRef(
     debounce(
-      (contentInfo: ContentProps) => saveContent(contentInfo, dispatch),
+      (
+        initialContentInfo: ContentProps | undefined,
+        contentInfo: ContentProps,
+      ) => saveContent(initialContentInfo, contentInfo, dispatch),
       1500,
     ),
   ).current;
 
   useEffect(() => {
-    debouncedSaveContent(content);
-  }, [content, debouncedSaveContent]);
+    debouncedSaveContent(initialContent, content);
+  }, [content, debouncedSaveContent, initialContent]);
 
   useEffect(() => {
     isSaving ? setSaveStatus('saving') : setSaveStatus('saved');

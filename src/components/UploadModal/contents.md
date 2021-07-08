@@ -44,11 +44,11 @@
 
 3. publish post (useCallback)
 
-- updates Post mutation to status published
-- also updates description, slug and exclusive
-- if the user does not want to publish the post, but wants to updates a post description, slug, or exclusivity he does not have other way of doing this
-- also: the button is not clear that it also is saving the other fields
-- after the mutation is done, it redirects the user to the published post
+- [ ] updates Post mutation to status published
+- [ ] REMOVE also updates description, slug and exclusive
+- [x] if the user does not want to publish the post, but wants to updates a post description, slug, or exclusivity he does not have other way of doing this
+- [x] also: the button is not clear that it also is saving the other fields
+- [x] after the mutation is done, it redirects the user to the published post
 
 4. main media (useMemo)
 

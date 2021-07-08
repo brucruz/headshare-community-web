@@ -1,5 +1,4 @@
 /* eslint-disable prettier/prettier */
-import NextImage from 'next/image';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { PostCoverContainer, ImageUploadIcon, ImagePreview } from './PostCover';
 import {
@@ -9,13 +8,11 @@ import {
   useDeletePostCoverMutation,
 } from '../../generated/graphql';
 import { UploadModal } from '../UploadModal';
-import {
-  UploadCallbackResponse,
-  UploadInfoProps,
-} from '../../hooks/useUploadFile';
+import { UploadCallbackResponse } from '../../hooks/useUploadFile';
 import { ImageDimensions } from '../MediaInput';
 import { Media } from '../Media';
 import { useSnackbar } from '../../hooks/useSnackbar';
+import ImageVideoIcon from '../../assets/components/imageVideoIcon.svg';
 
 export interface PostCoverProps {
   postId: string;
@@ -28,11 +25,6 @@ export function PostCover({
 }: PostCoverProps): JSX.Element {
   const [coverState, setCoverState] =
     useState<'empty' | 'uploading' | 'ready'>('ready');
-  const [uploadInfo, setUploadInfo] = useState<UploadInfoProps>({
-    bytesSent: 0,
-    bytesTotal: 0,
-    progress: 0,
-  });
   const [displayUploadModal, setDisplayUploadModal] = useState<boolean>(false);
   const [imageDimensions, setImageDimensions] =
     useState<ImageDimensions | undefined>(undefined);
@@ -137,17 +129,16 @@ export function PostCover({
   }, [data?.findPostById?.post?.cover]);
 
   const mediaUrl = useMemo(() => {
-    switch ((uploadInfo.status, cover?.url)) {
-      case cover?.url:
-        return cover?.url;
-
-      case !cover?.url && uploadInfo.status === 'finished' && preview:
-        return preview;
-
-      default:
-        return undefined;
+    if (preview) {
+      return preview;
     }
-  }, [cover?.url, preview, uploadInfo.status]);
+
+    if (!preview && cover?.url) {
+      return cover?.url;
+    }
+
+    return undefined;
+  }, [cover?.url, preview]);
 
   return (
     <PostCoverContainer data-testid="post-cover">
@@ -157,11 +148,7 @@ export function PostCover({
           type="button"
           onClick={() => setDisplayUploadModal(true)}
         >
-          <NextImage
-            src="https://headshare.s3.amazonaws.com/assets/image_icon.png"
-            height={100}
-            width={100}
-          />
+          <ImageVideoIcon />
         </ImageUploadIcon>
       )}
 
@@ -173,7 +160,6 @@ export function PostCover({
             width={cover?.width}
             height={cover?.height}
             editClick={() => setDisplayUploadModal(true)}
-            // removeClick={() => ''}
             removeClick={() => removePostCover()}
           />
         </ImagePreview>
@@ -182,7 +168,7 @@ export function PostCover({
         communitySlug={communitySlug}
         displayUploadModal={displayUploadModal}
         setDisplayUploadModal={() => setDisplayUploadModal(false)}
-        passUploadInfo={args => setUploadInfo(args)}
+        passUploadInfo={() => ''}
         getImageDimensions={setImageDimensions}
         getPreview={prv => prv && setPreview(prv)}
         acceptedMediaFormats={['image']}

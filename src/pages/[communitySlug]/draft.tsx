@@ -1,17 +1,14 @@
 /* eslint-disable no-underscore-dangle */
 import dynamic from 'next/dynamic';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState, useMemo } from 'react';
 import { useRouter } from 'next/router';
 import Header from '../../components/Header';
 import {
   useUpdatePostMutation,
   Post,
   Media,
-  MediaFormat,
   Tag,
   PostStatus,
-  useUploadImageMutation,
-  useUpdatePostMainMediaThumbnailMutation,
   PaginatedTags,
   useGetPostByIdLazyQuery,
   useGetCommunityBasicDataLazyQuery,
@@ -24,17 +21,12 @@ import {
   ContentArea,
   ContentWrapperArea,
   PublishOptionSwitch,
-  VideoThumbnailContainer,
-  VideoThumbnailPreview,
 } from '../../styles/pages/NewPost';
 import PublishOption from '../../components/PublishOption';
 import Input from '../../components/Input';
 import Button from '../../components/Button';
 import { InputWithTagSuggestion } from '../../components/InputWithTagSuggestion';
 import Modal from '../../components/Modal';
-import Switch from '../../components/Switch';
-import MediaInput from '../../components/MediaInput';
-import { formatS3Filename, uploadToS3 } from '../../lib/s3';
 import { withApollo } from '../../utils/withApollo';
 import { Tags, CommunityTag } from '../../components/Tags';
 import { SEO } from '../../components/SEO';
@@ -43,6 +35,7 @@ import {
   UpdatePostCallbackResponse,
   useSavePostBuilder,
 } from '../../hooks/useSavePostBuilder';
+import { PostCover } from '../../components/PostCover';
 
 const PostBuilder = dynamic(() => import('../../components/PostBuilder'), {
   ssr: false,
@@ -57,14 +50,8 @@ interface PostOptionsProps {
   postId: string;
   description?: string | null;
   slug?: string | null;
-  exclusive: boolean;
+  exclusive?: boolean | null;
 }
-
-const initialPostOptions: PostOptionsProps = {
-  communitySlug: 'test',
-  postId: 'test',
-  exclusive: true,
-};
 
 function NewPost(): JSX.Element {
   const router = useRouter();
@@ -114,93 +101,22 @@ function NewPost(): JSX.Element {
     communitySlug,
     postId: id,
     description: post?.description,
-    exclusive: post?.exclusive || true,
+    exclusive: post?.exclusive,
     slug: post?.slug,
   });
   const [isOpenConfirmation, setIsOpenConfirmation] = useState(false);
-  const [thumbnailUrl, setThumbnailUrl] = useState<string | undefined>();
   const [tags, setTags] = useState<CommunityTag[]>([]);
-
-  const [uploadImage] = useUploadImageMutation();
-  const [updateThumbnail] = useUpdatePostMainMediaThumbnailMutation();
 
   const [getCommunityBasicData, { data: communityData }] =
     useGetCommunityBasicDataLazyQuery();
 
   const community = communityData && communityData.community.community;
 
-  const handleMediaUpload = useCallback(
-    // eslint-disable-next-line consistent-return
-    async (file: File, commSlug: string) => {
-      const [filename, fileExtension] = formatS3Filename(file.name, commSlug);
-
-      const { data: uploadData } = await uploadImage({
-        variables: {
-          communitySlug: commSlug,
-          imageData: {
-            format: MediaFormat.Image,
-            file: {
-              name: filename,
-              type: file.type,
-              extension: fileExtension,
-            },
-          },
-        },
-      });
-
-      if (
-        uploadData &&
-        uploadData.uploadImage &&
-        uploadData.uploadImage.media
-      ) {
-        const { uploadLink } = uploadData.uploadImage.media;
-
-        try {
-          await uploadToS3(file, uploadLink);
-
-          const { media } = uploadData.uploadImage;
-
-          return media;
-        } catch (err) {
-          console.log(err);
-        }
-      }
+  const Switch = dynamic(
+    () => postOptions && import('../../components/Switch'),
+    {
+      ssr: false,
     },
-    [uploadImage],
-  );
-
-  const handleThumbnailSelect = useCallback(
-    async (
-      file: File,
-      postId: string,
-      communityId: string,
-      commSlug: string,
-    ) => {
-      const media = await handleMediaUpload(file, commSlug);
-
-      const { data: postThumbnailData } = await updateThumbnail({
-        variables: {
-          communityId,
-          postId,
-          mainMediaData: {
-            thumbnailUrl: media?.url,
-          },
-        },
-      });
-
-      if (
-        postThumbnailData &&
-        postThumbnailData.updatePostMainMedia &&
-        postThumbnailData.updatePostMainMedia.post &&
-        postThumbnailData.updatePostMainMedia.post.mainMedia
-      ) {
-        const { thumbnailUrl: url } =
-          postThumbnailData.updatePostMainMedia.post.mainMedia;
-
-        url && setThumbnailUrl(url);
-      }
-    },
-    [handleMediaUpload, updateThumbnail],
   );
 
   const updatePostOptionsCallback = useCallback(
@@ -239,7 +155,7 @@ function NewPost(): JSX.Element {
       if (response.data?.updatePost?.errors) {
         const callbackResponse: UpdatePostCallbackResponse = {
           callbackStatus: 'error',
-          message: response.data.updatePost.errors.toString(),
+          message: response.data.updatePost.errors[0].message,
         };
 
         return callbackResponse;
@@ -262,8 +178,21 @@ function NewPost(): JSX.Element {
     [updatePost],
   );
 
+  const initialPostData = useMemo(() => {
+    if (postData && postData.findPostById?.post?.exclusive !== undefined) {
+      return {
+        communitySlug,
+        postId: id,
+        exclusive: postData.findPostById.post.exclusive,
+        description: postData.findPostById.post.description,
+        slug: postData.findPostById.post.slug,
+      } as PostOptionsProps;
+    }
+    return undefined;
+  }, [communitySlug, id, postData]);
+
   const [saveStatus] = useSavePostBuilder<PostOptionsProps>(
-    initialPostOptions,
+    initialPostData,
     postOptions,
     updatePostOptionsCallback,
   );
@@ -296,20 +225,26 @@ function NewPost(): JSX.Element {
     if (postData && postData.findPostById && postData.findPostById.post) {
       setPost(postData.findPostById.post);
 
+      const postDataExclusive = postData.findPostById.post.exclusive;
+
+      const exclusive = (): boolean => {
+        switch (postDataExclusive) {
+          case true:
+            return true;
+          case false:
+            return false;
+          default:
+            return true;
+        }
+      };
+
       setPostOptions({
         communitySlug,
         postId: id,
-        exclusive:
-          (postData.findPostById.post.exclusive === true && true) ||
-          (postData.findPostById.post.exclusive === false && false) ||
-          true,
+        exclusive: exclusive(),
         description: postData.findPostById.post.description,
         slug: postData.findPostById.post.slug,
       });
-
-      postData.findPostById.post.mainMedia?.format === MediaFormat.Video &&
-        postData.findPostById.post.mainMedia.thumbnailUrl &&
-        setThumbnailUrl(postData.findPostById.post.mainMedia.thumbnailUrl);
     }
   }, [communitySlug, id, postData]);
 
@@ -466,7 +401,7 @@ function NewPost(): JSX.Element {
                   </div>
                   <Switch
                     id="exclusive-switch"
-                    isOn={postOptions.exclusive}
+                    isOn={postOptions.exclusive ? postOptions.exclusive : false}
                     handleToggle={() =>
                       setPostOptions(state => ({
                         ...state,
@@ -479,48 +414,11 @@ function NewPost(): JSX.Element {
 
               <PublishOptionInput>
                 <p>
-                  Importe uma miniatura do seu vídeo:{' '}
-                  <small>(melhor formato: 1280x720px)</small>
+                  Selecione uma imagem de capa para seu post:{' '}
+                  <small>(melhor formato: 352x198px)</small>
                 </p>
 
-                {!thumbnailUrl && (
-                  <VideoThumbnailContainer>
-                    <MediaInput
-                      name="video-thumbnail"
-                      label="Miniatura"
-                      getFile={file =>
-                        handleThumbnailSelect(
-                          file,
-                          id,
-                          community?._id,
-                          communitySlug,
-                        )
-                      }
-                      fileType="image"
-                    />
-                  </VideoThumbnailContainer>
-                )}
-
-                {thumbnailUrl && (
-                  <VideoThumbnailPreview>
-                    <MediaInput
-                      name="video-thumbnail"
-                      label="Miniatura"
-                      getFile={file =>
-                        handleThumbnailSelect(
-                          file,
-                          id,
-                          community?._id,
-                          communitySlug,
-                        )
-                      }
-                      currentFileUrl={thumbnailUrl}
-                      fileType="image"
-                    >
-                      <img src={thumbnailUrl} alt="thumbnail" />
-                    </MediaInput>
-                  </VideoThumbnailPreview>
-                )}
+                <PostCover communitySlug={communitySlug} postId={id} />
               </PublishOptionInput>
             </PublishOption>
 

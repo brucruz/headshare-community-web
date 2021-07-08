@@ -86,15 +86,3 @@ export const ConfirmationModal = styled.div`
     }
   }
 `;
-
-export const VideoThumbnailContainer = styled.div`
-  margin-top: 15px;
-`;
-
-export const VideoThumbnailPreview = styled.div`
-  width: 100%;
-
-  img {
-    height: 84px;
-  }
-`;
