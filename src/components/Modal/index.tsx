@@ -6,7 +6,7 @@ import {
   ModalOverlay,
   ModalSubitle,
   ModalTitle,
-} from '../../styles/components/Modal';
+} from './Modal';
 import Button, { ButtonProps } from '../Button';
 
 export interface ModalProps extends HTMLAttributes<HTMLDivElement> {
@@ -21,6 +21,7 @@ export interface ModalProps extends HTMLAttributes<HTMLDivElement> {
   };
   nextStep?: () => void;
   previousStep?: () => void;
+  'data-testid'?: string;
 }
 
 export default function Modal({
@@ -32,8 +33,8 @@ export default function Modal({
   defaultContent,
   style,
   nextStep,
-  previousStep,
-}: ModalProps): JSX.Element {
+}: // previousStep,
+ModalProps): JSX.Element {
   const buttonConfig = useMemo((): ButtonProps | undefined => {
     if (nextStep) {
       let buttonProps = {} as ButtonProps;
@@ -59,11 +60,13 @@ export default function Modal({
   }, [defaultContent?.mainButton, nextStep]);
 
   return (
-    <>
-      {isOpen && applyOverlay && <ModalOverlay onClick={setIsOpen} />}
+    <div data-testid="modal">
+      {isOpen && applyOverlay && (
+        <ModalOverlay data-testid="modal-overlay" onClick={setIsOpen} />
+      )}
 
       {isOpen && (
-        <ModalContainer style={style}>
+        <ModalContainer data-testid="modal-container" style={style}>
           {closeButton && (
             <section
               style={{
@@ -103,6 +106,6 @@ export default function Modal({
           )}
         </ModalContainer>
       )}
-    </>
+    </div>
   );
 }

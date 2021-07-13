@@ -2,6 +2,7 @@ import { debounce } from 'lodash';
 import { useCallback, useEffect, useReducer, useRef, useState } from 'react';
 import saveActions from '../constants/saveActions';
 import { isObjectsEqual } from '../utils/isObjectsEqual';
+import { useSnackbar } from './useSnackbar';
 
 export type PostSaveStatus = 'saved' | 'saving';
 
@@ -15,7 +16,7 @@ export interface UpdatePostCallbackResponse {
 export type SavePostBuilderResponse = [PostSaveStatus];
 
 export function useSavePostBuilder<ContentProps>(
-  initialContent: ContentProps,
+  initialContent: ContentProps | undefined,
   content: ContentProps,
   updatePostCallback: (
     contentInfo: ContentProps,
@@ -74,16 +75,19 @@ export function useSavePostBuilder<ContentProps>(
   const [saveStatus, setSaveStatus] = useState<PostSaveStatus>('saved');
   const [{ isSaving }, dispatch] = useReducer(updateReducer, initialSaveState);
   const abortController = useRef<AbortController>();
+  const { addSnackbar } = useSnackbar();
 
   const saveContent = useCallback(
     async (
+      initialContentInfo: ContentProps | undefined,
       contentInfo: ContentProps,
       dispatchFunction: (value: ReducerActionProps) => void,
     ) => {
-      const sameContentInfo = contentInfo === initialContent;
-      const sameContentInfoParams = isObjectsEqual(contentInfo, initialContent);
+      const sameContentInfo = contentInfo === initialContentInfo;
+      const sameContentInfoParams =
+        initialContentInfo && isObjectsEqual(contentInfo, initialContentInfo);
 
-      if (sameContentInfo || sameContentInfoParams) {
+      if (!initialContentInfo || sameContentInfo || sameContentInfoParams) {
         return;
       }
 
@@ -99,6 +103,7 @@ export function useSavePostBuilder<ContentProps>(
 
       if (callbackStatus === 'error') {
         // Insert Snackbar with error detail and retry option
+        message && addSnackbar({ message });
 
         dispatchFunction({
           type: saveActions.SAVE_FAILURE,
@@ -113,19 +118,22 @@ export function useSavePostBuilder<ContentProps>(
         });
       }
     },
-    [initialContent, updatePostCallback],
+    [addSnackbar, updatePostCallback],
   );
 
   const debouncedSaveContent = useRef(
     debounce(
-      (contentInfo: ContentProps) => saveContent(contentInfo, dispatch),
+      (
+        initialContentInfo: ContentProps | undefined,
+        contentInfo: ContentProps,
+      ) => saveContent(initialContentInfo, contentInfo, dispatch),
       1500,
     ),
   ).current;
 
   useEffect(() => {
-    debouncedSaveContent(content);
-  }, [content, debouncedSaveContent]);
+    debouncedSaveContent(initialContent, content);
+  }, [content, debouncedSaveContent, initialContent]);
 
   useEffect(() => {
     isSaving ? setSaveStatus('saving') : setSaveStatus('saved');

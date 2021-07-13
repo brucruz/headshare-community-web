@@ -1,0 +1,18 @@
+query GetPostMainMedia($id: String!) {
+  findPostById(id: $id) {
+    errors {
+      field
+      message
+    }
+    post {
+      mainMedia {
+        _id
+        url
+        thumbnailUrl
+        format
+        width
+        height
+      }
+    }
+  }
+}

@@ -55,7 +55,7 @@ function PostCard({
   href,
 }: PostCardProps): JSX.Element {
   return (
-    <NextLink href={href} passHref>
+    <NextLink href={href} passHref key={href.toString()}>
       <CategoryPost>
         {thumbnail && <img src={thumbnail} alt="post-card" />}
 

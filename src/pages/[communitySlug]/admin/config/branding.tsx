@@ -33,7 +33,7 @@ function AdminConfigBranding(): JSX.Element {
   const [bannerUrl, setBannerUrl] = useState<string | undefined>();
   const [avatarUrl, setAvatarUrl] = useState<string | undefined>();
 
-  const { loading, data, error } = useCommunityAdminConfigBrandingQuery({
+  const { loading, data } = useCommunityAdminConfigBrandingQuery({
     variables: {
       slug: communitySlug,
     },
@@ -58,7 +58,8 @@ function AdminConfigBranding(): JSX.Element {
     router.push(`/${communitySlug}`);
   }
 
-  async function handleMediaUpload(file: File, slug: string) {
+  // eslint-disable-next-line consistent-return
+  async function handleMediaUpload(file: File, slug: string): Promise<any> {
     const filename = formatS3Filename(file.name, slug);
 
     const { data: uploadData } = await uploadImage({

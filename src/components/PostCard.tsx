@@ -75,9 +75,8 @@ export function PostCard({
   removePost,
 }: PostCardProps): JSX.Element {
   const [isOpenConfirmationModal, setIsOpenConfirmationModal] = useState(false);
-  const [confirmationError, setConfirmationError] = useState<
-    string | undefined
-  >(undefined);
+  const [confirmationError, setConfirmationError] =
+    useState<string | undefined>(undefined);
 
   const { addSnackbar } = useSnackbar();
 

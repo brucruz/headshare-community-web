@@ -1,0 +1,18 @@
+query GetPostCover($id: String!) {
+  findPostById(id: $id) {
+    errors {
+      field
+      message
+    }
+    post {
+      cover {
+        _id
+        url
+        thumbnailUrl
+        format
+        width
+        height
+      }
+    }
+  }
+}
