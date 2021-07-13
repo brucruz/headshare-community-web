@@ -1,0 +1,40 @@
+mutation UpdatePostMainVideo(
+  $communitySlug: String!
+  $postId: String!
+  $videoData: UploadVideoInput!
+) {
+  updatePostMainVideo(
+    communitySlug: $communitySlug
+    postId: $postId
+    videoData: $videoData
+  ) {
+    _id
+    title
+    formattedTitle
+    slug
+    description
+    status
+    mainMedia {
+      _id
+      url
+      thumbnailUrl
+      format
+      uploadLink
+      file {
+        name
+        size
+        extension
+        type
+      }
+    }
+    content
+    exclusive
+    tags(limit: 10) {
+      tags {
+        _id
+        title
+      }
+      hasMore
+    }
+  }
+}

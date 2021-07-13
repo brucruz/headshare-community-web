@@ -1,78 +1,111 @@
-import { HTMLAttributes, ReactElement } from 'react';
+import { HTMLAttributes, useMemo } from 'react';
 import { MdClose } from 'react-icons/md';
-import ReactModal from 'react-modal';
+import {
+  ModalContainer,
+  ModalMainButton,
+  ModalOverlay,
+  ModalSubitle,
+  ModalTitle,
+} from './Modal';
+import Button, { ButtonProps } from '../Button';
 
 export interface ModalProps extends HTMLAttributes<HTMLDivElement> {
   isOpen: boolean;
   setIsOpen: () => void;
   closeButton?: boolean;
+  applyOverlay?: boolean;
+  defaultContent?: {
+    title: string;
+    subtitle?: string;
+    mainButton?: ButtonProps;
+  };
+  nextStep?: () => void;
+  previousStep?: () => void;
+  'data-testid'?: string;
 }
 
-const Modal = ({
+export default function Modal({
   children,
   isOpen,
   setIsOpen,
   closeButton = false,
-}: ModalProps): ReactElement => (
-  <ReactModal
-    isOpen={isOpen}
-    onRequestClose={setIsOpen}
-    style={{
-      content: {
-        top: '50%',
-        left: '50%',
-        right: 'auto',
-        bottom: 'auto',
-        padding: '0px',
-        marginRight: '-50%',
-        transform: 'translate(-50%, -50%)',
-        background: 'var(--page-background)',
-        boxShadow: '0px 4px 4px rgba(0, 0, 0, 0.25)',
-        display: 'flex',
-        flexDirection: 'column',
-        color: 'var(--gray-text)',
-        borderRadius: '8px',
-        minWidth: '100px',
-        maxWidth: '600px',
-        minHeight: '100px',
-        width: '90%',
-        border: 'none',
-        paddingTop: '15px',
-        paddingRight: '20px',
-        paddingLeft: '20px',
-        paddingBottom: '50px',
-      },
-      overlay: {
-        backgroundColor: 'rgba(0,0,0, 0.25)',
-        zIndex: 999,
-      },
-    }}
-  >
-    {closeButton && (
-      <section>
-        <button
-          style={{
-            marginBottom: '5px',
-            width: '100%',
-            display: 'flex',
-            justifyContent: 'flex-end',
-          }}
-          type="button"
-          onClick={setIsOpen}
-        >
-          <MdClose
-            style={{
-              height: '24px',
-              width: '24px',
-              color: '#363636',
-            }}
-          />
-        </button>
-      </section>
-    )}
+  applyOverlay = true,
+  defaultContent,
+  style,
+  nextStep,
+}: // previousStep,
+ModalProps): JSX.Element {
+  const buttonConfig = useMemo((): ButtonProps | undefined => {
+    if (nextStep) {
+      let buttonProps = {} as ButtonProps;
 
-    {children}
-  </ReactModal>
-);
+      if (defaultContent?.mainButton) {
+        buttonProps = defaultContent.mainButton;
+      }
 
-export default Modal;
+      const { text, stretch, size, priority, ...rest } = buttonProps;
+
+      return {
+        text: text || 'Prosseguir',
+        stretch: stretch || true,
+        size: size || 'medium',
+        priority: priority || 'primary',
+        onClick: nextStep,
+        // disabled: disabled || false,
+        ...rest,
+      };
+    }
+
+    return defaultContent?.mainButton;
+  }, [defaultContent?.mainButton, nextStep]);
+
+  return (
+    <div data-testid="modal">
+      {isOpen && applyOverlay && (
+        <ModalOverlay data-testid="modal-overlay" onClick={setIsOpen} />
+      )}
+
+      {isOpen && (
+        <ModalContainer data-testid="modal-container" style={style}>
+          {closeButton && (
+            <section
+              style={{
+                marginBottom: '5px',
+                width: '100%',
+                display: 'flex',
+                justifyContent: 'flex-end',
+              }}
+            >
+              <button type="button">
+                <MdClose
+                  onClick={setIsOpen}
+                  style={{
+                    height: '24px',
+                    width: '24px',
+                    color: '#363636',
+                  }}
+                />
+              </button>
+            </section>
+          )}
+
+          {defaultContent?.title && (
+            <ModalTitle>{defaultContent.title}</ModalTitle>
+          )}
+
+          {defaultContent?.subtitle && (
+            <ModalSubitle>{defaultContent.subtitle}</ModalSubitle>
+          )}
+
+          {children}
+
+          {buttonConfig && (
+            <ModalMainButton>
+              <Button {...buttonConfig} />
+            </ModalMainButton>
+          )}
+        </ModalContainer>
+      )}
+    </div>
+  );
+}

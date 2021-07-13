@@ -48,6 +48,7 @@ module.exports = {
     'import/no-named-default': 'off',
     'react/jsx-filename-extension': [1, { extensions: ['.tsx'] }],
     'import/prefer-default-export': 'off',
+    'no-underscore-dangle': 'off',
     '@typescript-eslint/explicit-function-return-type': [
       'error',
       {
@@ -69,6 +70,10 @@ module.exports = {
     'jsx-a11y/label-has-associated-control': 'off',
     'react/no-unescaped-entities': 'off',
     'jsx-a11y/accessible-emoji': 'off',
+    'import/no-extraneous-dependencies': [
+      'error',
+      { devDependencies: ['**/*.spec.ts', '**/*.spec.tsx'] },
+    ],
   },
   settings: {
     'import/resolver': {

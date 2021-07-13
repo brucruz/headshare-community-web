@@ -1,0 +1,7 @@
+mutation DeletePostCover($communitySlug: String!, $postId: String!) {
+  deletePostCover(communitySlug: $communitySlug, postId: $postId) {
+    cover {
+      _id
+    }
+  }
+}

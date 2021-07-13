@@ -1,7 +1,7 @@
 import { AuthProvider } from './useAuth';
 import { SnackbarProvider } from './useSnackbar';
 
-const AppProvider: React.FC = ({ children }) => (
+export const AppProvider: React.FC = ({ children }) => (
   <AuthProvider>
     <SnackbarProvider>{children}</SnackbarProvider>
   </AuthProvider>

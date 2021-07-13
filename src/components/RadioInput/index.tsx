@@ -29,6 +29,7 @@ export function RadioInput({
         checked={isChecked}
         value={value}
         name={name}
+        id={name}
       />
       <span className="shadow">
         <span className="checkmark">

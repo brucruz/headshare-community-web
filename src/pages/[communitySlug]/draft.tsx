@@ -1,33 +1,19 @@
 /* eslint-disable no-underscore-dangle */
 import dynamic from 'next/dynamic';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useState, useMemo } from 'react';
 import { useRouter } from 'next/router';
-import Image from 'next/image';
-import { MdPause } from 'react-icons/md';
 import Header from '../../components/Header';
 import {
-  useGetCommunityBasicDataQuery,
-  useGetPostByIdQuery,
   useUpdatePostMutation,
   Post,
   Media,
-  MediaFormat,
   Tag,
   PostStatus,
-  useUploadImageMutation,
-  useUpdatePostMainMediaThumbnailMutation,
-  useDeletePostMainMediaMutation,
   PaginatedTags,
+  useGetPostByIdLazyQuery,
+  useGetCommunityBasicDataLazyQuery,
 } from '../../generated/graphql';
 import {
-  ImageVideoIcon,
-  ImageVideoUpload,
-  ImageVideoUploading,
-  UploadStatus,
-  UploadStatusHeader,
-  UploadPauseResumeButton,
-  UploadStatusBarContainer,
-  UploadStatusBar,
   PublishOptions,
   PublishOptionInput,
   PublishButton,
@@ -35,23 +21,21 @@ import {
   ContentArea,
   ContentWrapperArea,
   PublishOptionSwitch,
-  VideoThumbnailContainer,
-  VideoThumbnailPreview,
 } from '../../styles/pages/NewPost';
-import UploadModal, { UploadInfoProps } from '../../components/UploadModal';
-import readableBytes from '../../utils/readableBytes';
 import PublishOption from '../../components/PublishOption';
 import Input from '../../components/Input';
 import Button from '../../components/Button';
 import { InputWithTagSuggestion } from '../../components/InputWithTagSuggestion';
 import Modal from '../../components/Modal';
-import Switch from '../../components/Switch';
-import MediaInput from '../../components/MediaInput';
-import { formatS3Filename, uploadToS3 } from '../../lib/s3';
 import { withApollo } from '../../utils/withApollo';
-import MainMedia from '../../components/MainMedia';
 import { Tags, CommunityTag } from '../../components/Tags';
 import { SEO } from '../../components/SEO';
+import { PostMainMedia } from '../../components/PostMainMedia';
+import {
+  UpdatePostCallbackResponse,
+  useSavePostBuilder,
+} from '../../hooks/useSavePostBuilder';
+import { PostCover } from '../../components/PostCover';
 
 const PostBuilder = dynamic(() => import('../../components/PostBuilder'), {
   ssr: false,
@@ -61,19 +45,23 @@ interface QueryProps {
   communitySlug: string;
 }
 
+interface PostOptionsProps {
+  communitySlug: string;
+  postId: string;
+  description?: string | null;
+  slug?: string | null;
+  exclusive?: boolean | null;
+}
+
 function NewPost(): JSX.Element {
   const router = useRouter();
   const { id } = router.query as { id: string };
-  const { communitySlug } = (router.query as unknown) as QueryProps;
+  const { communitySlug } = router.query as unknown as QueryProps;
 
-  const { data: postData, loading: loadingPostData } = useGetPostByIdQuery({
-    variables: {
-      id,
-    },
-  });
+  const [getPostData, { data: postData, loading: loadingPostData }] =
+    useGetPostByIdLazyQuery();
   const [updatePost] = useUpdatePostMutation();
 
-  const [displayMainMediaModal, setDisplayMainMediaModal] = useState(false);
   const [post, setPost] = useState<
     | ({ __typename?: 'Post' } & Pick<
         Post,
@@ -108,194 +96,157 @@ function NewPost(): JSX.Element {
     | undefined
     | null
   >(postData?.findPostById?.post);
-  const [mainMediaState, setMainMediaState] = useState<
-    'empty' | 'uploading' | 'ready'
-  >('empty');
-  const [uploadInfo, setUploadInfo] = useState<UploadInfoProps>({
-    bytesSent: 0,
-    bytesTotal: 0,
-    progress: 0,
-  });
   const [saveState, setSaveState] = useState<'saved' | 'saving'>('saved');
-  const [description, setDescription] = useState<string | null | undefined>();
-  const [slug, setSlug] = useState<string | null | undefined>();
-  const [exclusive, setExclusive] = useState<boolean>(true);
+  const [postOptions, setPostOptions] = useState<PostOptionsProps>({
+    communitySlug,
+    postId: id,
+    description: post?.description,
+    exclusive: post?.exclusive,
+    slug: post?.slug,
+  });
   const [isOpenConfirmation, setIsOpenConfirmation] = useState(false);
-  const [thumbnailUrl, setThumbnailUrl] = useState<string | undefined>();
   const [tags, setTags] = useState<CommunityTag[]>([]);
 
-  const [uploadImage] = useUploadImageMutation();
-  const [removeMainMedia] = useDeletePostMainMediaMutation();
-
-  const { data: communityData } = useGetCommunityBasicDataQuery({
-    variables: {
-      slug: communitySlug,
-    },
-  });
+  const [getCommunityBasicData, { data: communityData }] =
+    useGetCommunityBasicDataLazyQuery();
 
   const community = communityData && communityData.community.community;
 
-  const handleMediaUpload = useCallback(
-    // eslint-disable-next-line consistent-return
-    async (file: File, commSlug: string) => {
-      const [filename, fileExtension] = formatS3Filename(file.name, commSlug);
-
-      const { data: uploadData } = await uploadImage({
-        variables: {
-          communitySlug: commSlug,
-          imageData: {
-            format: MediaFormat.Image,
-            file: {
-              name: filename,
-              type: file.type,
-              extension: fileExtension,
-            },
-          },
-        },
-      });
-
-      if (
-        uploadData &&
-        uploadData.uploadImage &&
-        uploadData.uploadImage.media
-      ) {
-        const { uploadLink } = uploadData.uploadImage.media;
-
-        try {
-          await uploadToS3(file, uploadLink);
-
-          const { media } = uploadData.uploadImage;
-
-          return media;
-        } catch (err) {
-          console.log(err);
-        }
-      }
+  const Switch = dynamic(
+    () => postOptions && import('../../components/Switch'),
+    {
+      ssr: false,
     },
-    [uploadImage],
   );
 
-  const [updateThumbnail] = useUpdatePostMainMediaThumbnailMutation();
-
-  const handleThumbnailSelect = useCallback(
+  const updatePostOptionsCallback = useCallback(
     async (
-      file: File,
-      postId: string,
-      communityId: string,
-      commSlug: string,
-    ) => {
-      const media = await handleMediaUpload(file, commSlug);
+      postOptionsInfo: PostOptionsProps,
+      controllerSignal: AbortController['signal'],
+    ): Promise<UpdatePostCallbackResponse> => {
+      if (!postOptionsInfo.communitySlug || !postOptionsInfo.postId) {
+        return {
+          callbackStatus: 'error',
+        };
+      }
 
-      const { data: postThumbnailData } = await updateThumbnail({
+      const response = await updatePost({
         variables: {
-          communityId,
-          postId,
-          mainMediaData: {
-            thumbnailUrl: media?.url,
+          communitySlug: postOptionsInfo.communitySlug,
+          postId: postOptionsInfo.postId,
+          post: {
+            description: postOptionsInfo.description,
+            slug: postOptionsInfo.slug,
+            exclusive: postOptionsInfo.exclusive,
           },
         },
+        context: { fetchOptions: { signal: controllerSignal } },
       });
 
-      if (
-        postThumbnailData &&
-        postThumbnailData.updatePostMainMedia &&
-        postThumbnailData.updatePostMainMedia.post &&
-        postThumbnailData.updatePostMainMedia.post.mainMedia
-      ) {
-        const {
-          thumbnailUrl: url,
-        } = postThumbnailData.updatePostMainMedia.post.mainMedia;
+      if (!response.data && response.errors) {
+        const callbackResponse: UpdatePostCallbackResponse = {
+          callbackStatus: 'error',
+          message: `Ocorreu um erro ao atualizar as opções do post. ${response.errors}`,
+        };
 
-        url && setThumbnailUrl(url);
+        return callbackResponse;
       }
+
+      if (response.data?.updatePost?.errors) {
+        const callbackResponse: UpdatePostCallbackResponse = {
+          callbackStatus: 'error',
+          message: response.data.updatePost.errors[0].message,
+        };
+
+        return callbackResponse;
+      }
+
+      if (response.data?.updatePost?.post) {
+        const callbackResponse: UpdatePostCallbackResponse = {
+          callbackStatus: 'success',
+        };
+
+        return callbackResponse;
+      }
+
+      const callbackResponse: UpdatePostCallbackResponse = {
+        callbackStatus: 'error',
+      };
+
+      return callbackResponse;
     },
-    [handleMediaUpload, updateThumbnail],
+    [updatePost],
+  );
+
+  const initialPostData = useMemo(() => {
+    if (postData && postData.findPostById?.post?.exclusive !== undefined) {
+      return {
+        communitySlug,
+        postId: id,
+        exclusive: postData.findPostById.post.exclusive,
+        description: postData.findPostById.post.description,
+        slug: postData.findPostById.post.slug,
+      } as PostOptionsProps;
+    }
+    return undefined;
+  }, [communitySlug, id, postData]);
+
+  const [saveStatus] = useSavePostBuilder<PostOptionsProps>(
+    initialPostData,
+    postOptions,
+    updatePostOptionsCallback,
   );
 
   useEffect(() => {
-    if (post) {
-      if (!post.mainMedia) {
-        setMainMediaState('empty');
-      } else {
-        setMainMediaState('ready');
+    setSaveState(saveStatus);
+  }, [saveStatus]);
 
-        return;
-      }
+  useEffect(() => {
+    if (id) {
+      getPostData({
+        variables: {
+          id,
+        },
+      });
     }
-    setMainMediaState('empty');
-  }, [post]);
+  }, [getPostData, id]);
+
+  useEffect(() => {
+    if (communitySlug) {
+      getCommunityBasicData({
+        variables: {
+          slug: communitySlug,
+        },
+      });
+    }
+  }, [communitySlug, getCommunityBasicData]);
 
   useEffect(() => {
     if (postData && postData.findPostById && postData.findPostById.post) {
       setPost(postData.findPostById.post);
 
-      setDescription(postData.findPostById.post.description);
+      const postDataExclusive = postData.findPostById.post.exclusive;
 
-      setSlug(postData.findPostById.post.slug);
-
-      setTags(postData.findPostById.post.tags.tags);
-
-      postData.findPostById.post.exclusive === true && setExclusive(true);
-      postData.findPostById.post.exclusive === false && setExclusive(false);
-
-      postData.findPostById.post.mainMedia?.format === MediaFormat.Video &&
-        postData.findPostById.post.mainMedia.thumbnailUrl &&
-        setThumbnailUrl(postData.findPostById.post.mainMedia.thumbnailUrl);
-    }
-  }, [postData]);
-
-  useEffect(() => {
-    if (
-      mainMediaState === 'ready' &&
-      post &&
-      !post.mainMedia &&
-      uploadInfo.mainMedia
-    ) {
-      updatePost({
-        variables: {
-          communitySlug,
-          postId: id,
-          post: {
-            // eslint-disable-next-line no-underscore-dangle
-            mainMedia: uploadInfo.mainMedia._id,
-            exclusive,
-          },
-        },
-      }).then(result => {
-        if (
-          result.data &&
-          result.data.updatePost &&
-          result.data.updatePost.post
-        ) {
-          setPost(result.data.updatePost.post);
+      const exclusive = (): boolean => {
+        switch (postDataExclusive) {
+          case true:
+            return true;
+          case false:
+            return false;
+          default:
+            return true;
         }
+      };
+
+      setPostOptions({
+        communitySlug,
+        postId: id,
+        exclusive: exclusive(),
+        description: postData.findPostById.post.description,
+        slug: postData.findPostById.post.slug,
       });
     }
-  }, [
-    mainMediaState,
-    post,
-    updatePost,
-    communitySlug,
-    id,
-    uploadInfo,
-    exclusive,
-  ]);
-
-  const formattedUpload = useMemo(() => {
-    const bytesSent =
-      uploadInfo.bytesSent === 0 ? '0 Kb' : readableBytes(uploadInfo.bytesSent);
-    const bytesTotal =
-      uploadInfo.bytesTotal === 0
-        ? '0 Kb'
-        : readableBytes(uploadInfo.bytesTotal);
-    const progress = `${(uploadInfo.progress * 100).toFixed(1)}%`;
-
-    return {
-      bytesSent,
-      bytesTotal,
-      progress,
-    };
-  }, [uploadInfo]);
+  }, [communitySlug, id, postData]);
 
   const getEditorSaveState = useCallback((state: 'saved' | 'saving'): void => {
     setSaveState(state);
@@ -307,9 +258,6 @@ function NewPost(): JSX.Element {
         communitySlug,
         postId: id,
         post: {
-          description,
-          slug,
-          exclusive,
           status: PostStatus.Published,
         },
       },
@@ -318,60 +266,7 @@ function NewPost(): JSX.Element {
     const postURL = `/${communitySlug}/post/${result.data?.updatePost?.post?.slug}`;
 
     router.push(postURL);
-  }, [updatePost, communitySlug, id, description, slug, exclusive, router]);
-
-  // eslint-disable-next-line consistent-return
-  const mainMedia = useMemo(() => {
-    const postMainMedia = postData?.findPostById?.post?.mainMedia;
-    const uploadInfoMainMedia = uploadInfo?.mainMedia;
-
-    if (postMainMedia) {
-      return {
-        format: postMainMedia.format,
-        url: postMainMedia.url,
-        height: Number(postMainMedia.height),
-        width: Number(postMainMedia.width),
-      };
-    }
-
-    if (uploadInfoMainMedia) {
-      return {
-        format: uploadInfoMainMedia.format,
-        url: uploadInfoMainMedia.url,
-        height: Number(uploadInfoMainMedia.height),
-        width: Number(uploadInfoMainMedia.width),
-      };
-    }
-  }, [postData?.findPostById?.post?.mainMedia, uploadInfo.mainMedia]);
-
-  const removePostMainMedia = useCallback(async () => {
-    const { data: removeResponse } = await removeMainMedia({
-      variables: {
-        communitySlug,
-        postId: post?._id,
-      },
-    });
-
-    const errors = removeResponse?.deletePostMainMedia.errors;
-    const url = removeResponse?.deletePostMainMedia.post?.mainMedia?.url;
-
-    if (url || errors) {
-      alert('Houve um problema ao remover a mídia principal do seu post');
-    }
-
-    if (!url && !errors && postData?.findPostById?.post) {
-      setUploadInfo(oldState => {
-        const { mainMedia: _, status: __, ...rest } = oldState;
-
-        return {
-          status: undefined,
-          mainMedia: undefined,
-          ...rest,
-        };
-      });
-      setMainMediaState('empty');
-    }
-  }, [communitySlug, post?._id, postData?.findPostById?.post, removeMainMedia]);
+  }, [updatePost, communitySlug, id, router]);
 
   const handleRemoveTagFromPost = useCallback(
     async (tagId: string) => {
@@ -429,51 +324,8 @@ function NewPost(): JSX.Element {
         editorMode={saveState}
       />
       <div style={{ height: '56px' }} />
-      {mainMediaState === 'empty' && (
-        <ImageVideoUpload
-          type="button"
-          onClick={() => setDisplayMainMediaModal(!displayMainMediaModal)}
-        >
-          <ImageVideoIcon>
-            <Image
-              src="https://headshare.s3.amazonaws.com/assets/image_icon.png"
-              height={100}
-              width={100}
-            />
-          </ImageVideoIcon>
-        </ImageVideoUpload>
-      )}
 
-      {mainMediaState === 'uploading' && (
-        <ImageVideoUploading>
-          <UploadStatus>
-            <UploadStatusHeader>
-              <UploadStatusBarContainer>
-                <UploadStatusBar progress={uploadInfo.progress} />
-              </UploadStatusBarContainer>
-              <UploadPauseResumeButton>
-                <MdPause />
-              </UploadPauseResumeButton>
-            </UploadStatusHeader>
-
-            <h5>
-              Uploaded {formattedUpload.bytesSent} of{' '}
-              {formattedUpload.bytesTotal} ({formattedUpload.progress})
-            </h5>
-          </UploadStatus>
-        </ImageVideoUploading>
-      )}
-
-      {mainMediaState === 'ready' && mainMedia && (
-        <MainMedia
-          mediaUrl={mainMedia.url}
-          format={mainMedia.format}
-          width={mainMedia?.width}
-          height={mainMedia?.height}
-          editClick={() => setDisplayMainMediaModal(!displayMainMediaModal)}
-          removeClick={() => removePostMainMedia()}
-        />
-      )}
+      <PostMainMedia communitySlug={communitySlug} postId={id} />
 
       <ContentWrapperArea>
         <ContentArea>
@@ -506,8 +358,13 @@ function NewPost(): JSX.Element {
                 <Input
                   name="post-description"
                   label="Descrição"
-                  value={description || ''}
-                  onChange={e => setDescription(e.target.value)}
+                  value={postOptions.description || ''}
+                  onChange={e =>
+                    setPostOptions(state => ({
+                      ...state,
+                      description: e.target.value,
+                    }))
+                  }
                   maxLength={80}
                 />
               </PublishOptionInput>
@@ -521,8 +378,13 @@ function NewPost(): JSX.Element {
                 <Input
                   name="post-slug"
                   label="Slug"
-                  value={slug || ''}
-                  onChange={e => setSlug(e.target.value)}
+                  value={postOptions.slug || ''}
+                  onChange={e =>
+                    setPostOptions(state => ({
+                      ...state,
+                      slug: e.target.value,
+                    }))
+                  }
                   maxLength={30}
                 />
               </PublishOptionInput>
@@ -539,56 +401,24 @@ function NewPost(): JSX.Element {
                   </div>
                   <Switch
                     id="exclusive-switch"
-                    isOn={exclusive}
-                    handleToggle={() => setExclusive(!exclusive)}
+                    isOn={postOptions.exclusive ? postOptions.exclusive : false}
+                    handleToggle={() =>
+                      setPostOptions(state => ({
+                        ...state,
+                        exclusive: !state.exclusive,
+                      }))
+                    }
                   />
                 </PublishOptionSwitch>
               </PublishOptionInput>
 
               <PublishOptionInput>
                 <p>
-                  Importe uma miniatura do seu vídeo:{' '}
-                  <small>(melhor formato: 1280x720px)</small>
+                  Selecione uma imagem de capa para seu post:{' '}
+                  <small>(melhor formato: 352x198px)</small>
                 </p>
 
-                {!thumbnailUrl && (
-                  <VideoThumbnailContainer>
-                    <MediaInput
-                      name="video-thumbnail"
-                      label="Miniatura"
-                      getFile={file =>
-                        handleThumbnailSelect(
-                          file,
-                          id,
-                          community?._id,
-                          communitySlug,
-                        )
-                      }
-                      fileType="image"
-                    />
-                  </VideoThumbnailContainer>
-                )}
-
-                {thumbnailUrl && (
-                  <VideoThumbnailPreview>
-                    <MediaInput
-                      name="video-thumbnail"
-                      label="Miniatura"
-                      getFile={file =>
-                        handleThumbnailSelect(
-                          file,
-                          id,
-                          community?._id,
-                          communitySlug,
-                        )
-                      }
-                      currentFileUrl={thumbnailUrl}
-                      fileType="image"
-                    >
-                      <img src={thumbnailUrl} alt="thumbnail" />
-                    </MediaInput>
-                  </VideoThumbnailPreview>
-                )}
+                <PostCover communitySlug={communitySlug} postId={id} />
               </PublishOptionInput>
             </PublishOption>
 
@@ -621,15 +451,6 @@ function NewPost(): JSX.Element {
           </PublishOptions>
         </ContentArea>
       </ContentWrapperArea>
-
-      <UploadModal
-        displayUploadModal={displayMainMediaModal}
-        setDisplayUploadModal={setDisplayMainMediaModal}
-        communitySlug={communitySlug}
-        postId={post?._id}
-        setMainMediaState={args => setMainMediaState(args)}
-        passUploadInfo={args => setUploadInfo(args)}
-      />
 
       <Modal
         isOpen={isOpenConfirmation}

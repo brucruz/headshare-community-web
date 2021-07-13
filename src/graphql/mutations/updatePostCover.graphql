@@ -1,0 +1,28 @@
+mutation UpdatePostCover(
+  $communitySlug: String!
+  $postId: String!
+  $imageData: UploadImageInput!
+) {
+  updatePostCover(
+    communitySlug: $communitySlug
+    postId: $postId
+    imageData: $imageData
+  ) {
+    _id
+    cover {
+      _id
+      url
+      thumbnailUrl
+      format
+      uploadLink
+      height
+      width
+      file {
+        name
+        size
+        extension
+        type
+      }
+    }
+  }
+}
