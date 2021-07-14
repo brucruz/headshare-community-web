@@ -2,11 +2,7 @@ import GlobalStyle from '../src/styles/GlobalStyles';
 import { ApolloProvider } from '@apollo/client';
 import * as nextImage from 'next/image';
 import AppProvider from '../src/hooks/AppProvider';
-
 import { createClient } from '../src/utils/withApollo';
-import AppProvider from '../src/hooks/AppProvider';
-
-import * as nextImage from 'next/image';
 
 Object.defineProperty(nextImage, 'default', {
   configurable: true,
@@ -18,14 +14,12 @@ Object.defineProperty(nextImage, 'default', {
 // Global decorator to apply the styles to all stories
 export const decorators = [
   Story => (
-    <>
-      <AppProvider>
-        <GlobalStyle />
-        <ApolloProvider client={createClient}>
-          <Story />
-        </ApolloProvider>
-      </AppProvider>
-    </>
+    <AppProvider>
+      <GlobalStyle />
+      <ApolloProvider client={createClient}>
+        <Story />
+      </ApolloProvider>
+    </AppProvider>
   ),
 ];
 
