@@ -1,7 +1,10 @@
 import { InputHTMLAttributes, useEffect, useRef, useState } from 'react';
+import ReactInputMask from 'react-input-mask';
+import NextImage from 'next/image';
 
 import {
   InputContainer,
+  InputCreditCardBrand,
   InputError,
   InputMaxLength,
   InputTextArea,
@@ -11,23 +14,34 @@ import {
 export interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   name: string;
   label?: string;
+  mask?: string;
   placeholder?: string;
+  maskPlaceholder?: string | null;
+  maskChar?: string | null;
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  formatChars?: object;
   disabled?: boolean;
   type?: string;
   value: string;
   error?: any;
+  creditCardBrand?: string;
 }
 
 function Input({
   id,
   name,
   label,
+  mask = '',
   disabled = false,
   type = 'text',
   placeholder = 'Digite aqui...',
+  maskPlaceholder,
+  maskChar = null,
+  formatChars,
   value,
   maxLength,
   error,
+  creditCardBrand,
   ...rest
 }: InputProps): JSX.Element {
   const inputRef = useRef(null);
@@ -45,17 +59,27 @@ function Input({
         <InputTextArea>
           {label && <label htmlFor={name}>{label}</label>}
 
-          <input
+          <ReactInputMask
             id={id}
             name={name}
+            mask={mask}
+            maskPlaceholder={maskPlaceholder}
             ref={inputRef}
             value={value}
             type={type}
             placeholder={placeholder}
             disabled={disabled}
             maxLength={maxLength}
+            maskChar={maskChar}
+            formatChars={formatChars}
           />
         </InputTextArea>
+
+        {creditCardBrand && (
+          <InputCreditCardBrand>
+            <NextImage src={creditCardBrand} width={26} height={26} />
+          </InputCreditCardBrand>
+        )}
       </UserInput>
       {maxLength && (
         <InputMaxLength>

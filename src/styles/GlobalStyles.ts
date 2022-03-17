@@ -24,6 +24,7 @@ export default createGlobalStyle`
   :root {
     --page-background: #FAFAFA;
     --headshare-coral: #E74F4F;
+    --headshare-coral-80: rgba(231, 79, 79, 0.8);
     --headshare-coral-10: rgba(231, 79, 79, 0.1);
 
     --main-titles: #3E3E3E;

@@ -41,4 +41,6 @@ export const TabsContainer = styled.section`
   width: 100%;
 
   margin-bottom: 30px;
+
+  overflow: auto;
 `;

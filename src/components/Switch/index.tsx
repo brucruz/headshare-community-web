@@ -1,23 +1,23 @@
-/* eslint-disable jsx-a11y/label-has-associated-control */
-// eslint-disable-next-line no-use-before-define
-import React, { InputHTMLAttributes } from 'react';
+import { InputHTMLAttributes } from 'react';
 
 import {
   Container,
   SwitchInput,
   SwitchLabel,
   SwitchButton,
-} from '../styles/components/Switch';
+} from '../../styles/components/Switch';
 
-interface SwitchProps extends InputHTMLAttributes<HTMLInputElement> {
+export interface SwitchProps extends InputHTMLAttributes<HTMLInputElement> {
   id: string;
   isOn: boolean;
   handleToggle(): void;
 }
 
-const Switch: React.FC<SwitchProps> = ({ id, isOn, handleToggle }) => {
-  'hello';
-
+export default function Switch({
+  id,
+  isOn,
+  handleToggle,
+}: SwitchProps): JSX.Element {
   return (
     <Container>
       <SwitchInput
@@ -37,6 +37,4 @@ const Switch: React.FC<SwitchProps> = ({ id, isOn, handleToggle }) => {
       )}
     </Container>
   );
-};
-
-export default Switch;
+}

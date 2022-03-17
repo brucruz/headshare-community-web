@@ -30,26 +30,36 @@ export const ButtonContainer = styled.button<ButtonProps>`
     `}
 
   h4 {
+    display: flex;
     margin: 8px 18px;
     font-weight: 600;
+
+    div {
+      margin-right: 8px;
+    }
   }
 
   p {
+    display: flex;
     margin: 3px 10px;
+
+    div {
+      margin-right: 8px;
+    }
   }
 
   ${props =>
     props.priority === 'primary' &&
     css`
-      background-color: #e74f4f;
-      color: #fafafa;
+      background-color: var(--headshare-coral);
+      color: #fff;
     `}
 
   ${props =>
     props.priority === 'secondary' &&
     css`
-      border: 2px solid #e74f4f;
-      color: #e74f4f;
+      border: 2px solid var(--headshare-coral);
+      color: var(--headshare-coral);
     `}
 
   ${props =>
@@ -70,8 +80,6 @@ export const ButtonContainer = styled.button<ButtonProps>`
     !props.disabled &&
     css`
       &:hover {
-        box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
-
         opacity: 0.9;
       }
     `}
@@ -82,8 +90,6 @@ export const ButtonContainer = styled.button<ButtonProps>`
       cursor: auto;
 
       &:hover {
-        box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
-
         opacity: 0.9;
       }
     `}

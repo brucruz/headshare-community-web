@@ -2,12 +2,12 @@ import {
   ExplainedInputContainer,
   ExplainedInputHeader,
   ExplainedInputInput,
-} from '../styles/components/ExplainedInput';
-import Input, { InputProps } from './Input';
-import MediaInput, { MediaInputProps } from './MediaInput';
-import { TextArea, TextAreaProps } from './TextArea';
+} from '../../styles/components/ExplainedInput';
+import Input, { InputProps } from '../Input';
+import MediaInput, { MediaInputProps } from '../MediaInput';
+import { TextArea, TextAreaProps } from '../TextArea';
 
-interface ExplainedInputProps {
+export interface ExplainedInputProps {
   explanation: {
     title: string;
     description?: string;

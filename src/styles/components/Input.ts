@@ -22,7 +22,7 @@ export const UserInput = styled.header<InputProps>`
 
   padding: 0 12px;
 
-  margin-top: 8px;
+  /* margin-top: 8px; */
 
   label {
     font-size: 14px;
@@ -42,6 +42,8 @@ export const UserInput = styled.header<InputProps>`
   input {
     border: 0;
     margin: auto 0;
+    width: 100%;
+    background-color: var(--page-background);
 
     ::placeholder {
       color: var(placeholder-color);
@@ -53,6 +55,14 @@ export const InputTextArea = styled.div`
   flex: 1 0 auto;
   display: flex;
   flex-direction: column;
+
+  /* width: 100%; */
+`;
+
+export const InputCreditCardBrand = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
 `;
 
 export const InputError = styled.div`

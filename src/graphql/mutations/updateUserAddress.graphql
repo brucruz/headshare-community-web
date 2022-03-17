@@ -1,0 +1,11 @@
+mutation UpdateUserAddress($userId: String!, $address: CreateAddressInput!) {
+  updateUser(userId: $userId, updateData: { address: $address }) {
+    errors {
+      field
+      message
+    }
+    user {
+      _id
+    }
+  }
+}

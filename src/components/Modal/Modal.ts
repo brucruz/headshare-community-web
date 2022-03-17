@@ -26,7 +26,8 @@ export const ModalContainer = styled(animated.div)`
   flex-direction: column;
   color: var(--gray-text);
   max-height: 90%;
-  overflow: scroll;
+  overflow: auto;
+  /* overflow: scroll; */
   /* left: 100%;
   margin-right: 0%;
   opacity: 0;
@@ -54,7 +55,7 @@ export const ModalTitle = styled.h2`
   padding-bottom: 15px;
 `;
 
-export const ModalSubitle = styled.p`
+export const ModalSubtitle = styled.p`
   color: var(--subtitles);
   padding-bottom: 15px;
 `;

@@ -4,7 +4,7 @@ import {
   ModalContainer,
   ModalMainButton,
   ModalOverlay,
-  ModalSubitle,
+  ModalSubtitle,
   ModalTitle,
 } from './Modal';
 import Button, { ButtonProps } from '../Button';
@@ -94,7 +94,7 @@ ModalProps): JSX.Element {
           )}
 
           {defaultContent?.subtitle && (
-            <ModalSubitle>{defaultContent.subtitle}</ModalSubitle>
+            <ModalSubtitle>{defaultContent.subtitle}</ModalSubtitle>
           )}
 
           {children}

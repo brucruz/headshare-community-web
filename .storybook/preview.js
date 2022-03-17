@@ -2,7 +2,6 @@ import GlobalStyle from '../src/styles/GlobalStyles';
 import { ApolloProvider } from '@apollo/client';
 import * as nextImage from 'next/image';
 import AppProvider from '../src/hooks/AppProvider';
-
 import { createClient } from '../src/utils/withApollo';
 
 Object.defineProperty(nextImage, 'default', {

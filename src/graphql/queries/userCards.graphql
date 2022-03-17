@@ -1,0 +1,15 @@
+query userCards($cursor: String, $limit: Int!, $userId: String) {
+  cards(cursor: $cursor, limit: $limit, userId: $userId) {
+    cards {
+      pagarmeId
+      brand
+      holderName
+      firstDigits
+      lastDigits
+      valid
+      isMain
+    }
+    hasMore
+    next
+  }
+}

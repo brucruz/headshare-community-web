@@ -739,6 +739,7 @@ export type MutationUpdatePostMainVideoArgs = {
   communitySlug: Scalars['String'];
 };
 
+
 export type MutationUpdatePostCoverArgs = {
   imageData: UploadImageInput;
   postId: Scalars['String'];
@@ -1749,6 +1750,26 @@ export type UpdatePostMainVideoMutation = (
   ) }
 );
 
+export type UpdateUserAddressMutationVariables = Exact<{
+  userId: Scalars['String'];
+  address: CreateAddressInput;
+}>;
+
+
+export type UpdateUserAddressMutation = (
+  { __typename?: 'Mutation' }
+  & { updateUser?: Maybe<(
+    { __typename?: 'UserResponse' }
+    & { errors?: Maybe<Array<(
+      { __typename?: 'ErrorResponse' }
+      & Pick<ErrorResponse, 'field' | 'message'>
+    )>>, user?: Maybe<(
+      { __typename?: 'User' }
+      & Pick<User, '_id'>
+    )> }
+  )> }
+);
+
 export type UploadImageMutationVariables = Exact<{
   communitySlug: Scalars['String'];
   imageData: UploadImageInput;
@@ -2261,6 +2282,25 @@ export type PostBySlugsQuery = (
           & CreatorNameFragment
         ) }
       ) }
+    )> }
+  ) }
+);
+
+export type UserCardsQueryVariables = Exact<{
+  cursor?: Maybe<Scalars['String']>;
+  limit: Scalars['Int'];
+  userId?: Maybe<Scalars['String']>;
+}>;
+
+
+export type UserCardsQuery = (
+  { __typename?: 'Query' }
+  & { cards: (
+    { __typename?: 'PaginatedCards' }
+    & Pick<PaginatedCards, 'hasMore' | 'next'>
+    & { cards: Array<(
+      { __typename?: 'Card' }
+      & Pick<Card, 'pagarmeId' | 'brand' | 'holderName' | 'firstDigits' | 'lastDigits' | 'valid' | 'isMain'>
     )> }
   ) }
 );
@@ -3261,6 +3301,46 @@ export function useUpdatePostMainVideoMutation(baseOptions?: Apollo.MutationHook
 export type UpdatePostMainVideoMutationHookResult = ReturnType<typeof useUpdatePostMainVideoMutation>;
 export type UpdatePostMainVideoMutationResult = Apollo.MutationResult<UpdatePostMainVideoMutation>;
 export type UpdatePostMainVideoMutationOptions = Apollo.BaseMutationOptions<UpdatePostMainVideoMutation, UpdatePostMainVideoMutationVariables>;
+export const UpdateUserAddressDocument = gql`
+    mutation UpdateUserAddress($userId: String!, $address: CreateAddressInput!) {
+  updateUser(userId: $userId, updateData: {address: $address}) {
+    errors {
+      field
+      message
+    }
+    user {
+      _id
+    }
+  }
+}
+    `;
+export type UpdateUserAddressMutationFn = Apollo.MutationFunction<UpdateUserAddressMutation, UpdateUserAddressMutationVariables>;
+
+/**
+ * __useUpdateUserAddressMutation__
+ *
+ * To run a mutation, you first call `useUpdateUserAddressMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateUserAddressMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateUserAddressMutation, { data, loading, error }] = useUpdateUserAddressMutation({
+ *   variables: {
+ *      userId: // value for 'userId'
+ *      address: // value for 'address'
+ *   },
+ * });
+ */
+export function useUpdateUserAddressMutation(baseOptions?: Apollo.MutationHookOptions<UpdateUserAddressMutation, UpdateUserAddressMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateUserAddressMutation, UpdateUserAddressMutationVariables>(UpdateUserAddressDocument, options);
+      }
+export type UpdateUserAddressMutationHookResult = ReturnType<typeof useUpdateUserAddressMutation>;
+export type UpdateUserAddressMutationResult = Apollo.MutationResult<UpdateUserAddressMutation>;
+export type UpdateUserAddressMutationOptions = Apollo.BaseMutationOptions<UpdateUserAddressMutation, UpdateUserAddressMutationVariables>;
 export const UploadImageDocument = gql`
     mutation UploadImage($communitySlug: String!, $imageData: UploadImageInput!) {
   uploadImage(communitySlug: $communitySlug, imageData: $imageData) {
@@ -4254,3 +4334,50 @@ export function usePostBySlugsLazyQuery(baseOptions?: Apollo.LazyQueryHookOption
 export type PostBySlugsQueryHookResult = ReturnType<typeof usePostBySlugsQuery>;
 export type PostBySlugsLazyQueryHookResult = ReturnType<typeof usePostBySlugsLazyQuery>;
 export type PostBySlugsQueryResult = Apollo.QueryResult<PostBySlugsQuery, PostBySlugsQueryVariables>;
+export const UserCardsDocument = gql`
+    query userCards($cursor: String, $limit: Int!, $userId: String) {
+  cards(cursor: $cursor, limit: $limit, userId: $userId) {
+    cards {
+      pagarmeId
+      brand
+      holderName
+      firstDigits
+      lastDigits
+      valid
+      isMain
+    }
+    hasMore
+    next
+  }
+}
+    `;
+
+/**
+ * __useUserCardsQuery__
+ *
+ * To run a query within a React component, call `useUserCardsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useUserCardsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useUserCardsQuery({
+ *   variables: {
+ *      cursor: // value for 'cursor'
+ *      limit: // value for 'limit'
+ *      userId: // value for 'userId'
+ *   },
+ * });
+ */
+export function useUserCardsQuery(baseOptions: Apollo.QueryHookOptions<UserCardsQuery, UserCardsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<UserCardsQuery, UserCardsQueryVariables>(UserCardsDocument, options);
+      }
+export function useUserCardsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<UserCardsQuery, UserCardsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<UserCardsQuery, UserCardsQueryVariables>(UserCardsDocument, options);
+        }
+export type UserCardsQueryHookResult = ReturnType<typeof useUserCardsQuery>;
+export type UserCardsLazyQueryHookResult = ReturnType<typeof useUserCardsLazyQuery>;
+export type UserCardsQueryResult = Apollo.QueryResult<UserCardsQuery, UserCardsQueryVariables>;
